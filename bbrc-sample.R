@@ -1,104 +1,95 @@
+sum(installed.packages()[,1]=="RCurl")==0 && (install.packages('RCurl')||1)
+sum(installed.packages()[,1]=="doMC")==0 && (install.packages('doMC')||1)
+
 suppressPackageStartupMessages(library('RCurl'))
 suppressPackageStartupMessages(library('doMC'))
 registerDoMC()
+
+source("bbrc-sample-psqerr.R")
 
 SERVER="http://toxcreate3.in-silico.ch:8082"
 HAMSTER="http://toxcreate3.in-silico.ch:8082/dataset/5092"
 BBRC=paste(SERVER,"algorithm","fminer","bbrc",sep='/')
 BOOTS=100
-MIN_FREQUENCY=8
-MIN_SUPPORT=10
+MIN_FREQUENCY_PER_SAMPLE=8
+MIN_SAMPLING_SUPPORT=10
 
 
 # # # Main function
 
-bootBbrc = function(datasetUri, numboots=BOOTS, min_frequency=MIN_FREQUENCY, min_support=MIN_SUPPORT) {
+bootBbrc = function(datasetUri, numboots=BOOTS, min_frequency_per_sample=MIN_FREQUENCY_PER_SAMPLE, min_sampling_support=MIN_SAMPLING_SUPPORT,del=NULL) {
 
   set.seed(1)
 
   # load dataset
   ds = getdataset(datasetUri)
   ds_factors = factor(ds[,2])
-  ds_levels = levels(ds_factors)
+  ds_levels <<- levels(ds_factors)
   ds_table = table(ds_factors)
 
   n = dim(ds)[1]
   cat(paste("Full set size:",n,"\n"))
 
   # main loop
-  bb = foreach(j=1:numboots, .combine=mergelists) %dopar% {
-  #for (j in 1:numboots) {
-    idx = drawsample(1:n)
-    sample = ds[idx,]
-
-    task = postdataset(sample,tempfileprefix=paste("boot_bbrc_sample_",j,"_",sep=""))
-    sampleUri = getresult(task)
-
-    task = postrequest(BBRC,list(dataset_uri=sampleUri,min_frequency=as.character(min_frequency)))
-    sampleFeaturesUri = getresult(task)
-
-    sampleFeatures = getdataset(sampleFeaturesUri)
-    sampleFeatures["SMILES"]=NULL
-    nr_features=dim(sampleFeatures)[2]
-    class_support = apply(sampleFeatures,2,function(x) supportperfactor(x,sample[,2],ds_levels))
-
-    deleterequest(sampleFeaturesUri)
-    deleterequest(sampleUri)
-   
-    as.list(as.data.frame(class_support))
-  }
-  bb=data.frame(bb,check.names=F)
-  bb$levels=rep(ds_levels, dim(bb)[1]/length(ds_levels))
+  if(is.null(del)) {
+    bb = foreach(j=1:numboots, .combine=mergelists) %dopar% {
+    #for (j in 1:numboots) {
+      idx = drawsample(1:n)
+      sample = ds[idx,]
   
-  # Filter rare patterns
+      task = postdataset(sample,tempfileprefix=paste("boot_bbrc_sample_",j,"_",sep=""))
+      sampleUri = getresult(task)
+  
+      task = postrequest(BBRC,list(dataset_uri=sampleUri,min_frequency_per_sample=as.character(min_frequency_per_sample)))
+      sampleFeaturesUri = getresult(task)
+  
+      sampleFeatures = getdataset(sampleFeaturesUri)
+      sampleFeatures["SMILES"]=NULL
+      nr_features=dim(sampleFeatures)[2]
+      class_support = apply(sampleFeatures,2,function(x) supportperfactor(x,sample[,2],ds_levels))
+  
+      deleterequest(sampleFeaturesUri)
+      deleterequest(sampleUri)
+     
+      as.list(as.data.frame(class_support))
+    }
+    bb=data.frame(bb,check.names=F)
+    bb$levels=rep(ds_levels, dim(bb)[1]/length(ds_levels))
+  }
+  else
+    bb=del
+  
+  # Filter patterns with enough sampling support
   cat("\nFiltering\n")
   enough_data=rep(F,length(names(bb)))
   for (l in ds_levels) { 
-    mask = apply(bb[bb$levels==l,,drop=F], 2, function(x) { sum(complete.cases(x))>min_support } )
+    mask = apply(bb[bb$levels==l,,drop=F], 2, function(x) { sum(complete.cases(x))>min_sampling_support } )
     names(mask) = NULL
     enough_data = enough_data | mask
   }
-  bb=bb[,enough_data]
   cat(paste("Stripped",dim(bb)[2]-sum(enough_data),"patterns, kept",sum(enough_data),"\n"))
+  bb=bb[,enough_data]
   
 
   # Get chi-square
-  # for each p
   cat("\nChisq\n")
-  for (p in names(bb)) {
-
-    cat(paste("Pattern support for",p,"\n"))
-    # sp = get support(p)
-    sp = NULL
+  for (p in names(bb)[names(bb)!="levels"]) {
+    cat("\n")
+    sp = rep(0,length(bb$levels)/length(ds_levels))
     for (l in ds_levels) {
-      print(l)
-      print(bb[bb$levels==l,p])
-      if (is.null(sp))
-        sp = bb[bb$levels==l,p]
-      else 
-        sp = sp + bb[bb$levels==l,p]
-      print(sp)
+      sp = sp + bb[bb$levels==l,p]
     }
-    sp = sp[complete.cases(sp)]
-    #  sum over levels l: (spl(l) - sp*ds_table(l))^2 / (sp*ds_table)
-    
-    cat("Calc\n")
-    chisq=0
-    
+    sp = sp[complete.cases(sp)] 
+    chisq=0.0
     for (l in ds_levels) {
-      print(l)
       spl = bb[bb$levels==l,p]
       spl = spl[complete.cases(spl)]
       p_weight = mean(sp)/n # weight for p
       spx = ds_table[l] * p_weight # eXpected support for p
-
-      print(paste(spl,p_weight,spx))
-      chisq = chisq + (mean(spl)-spx)^2/spx
-      print(chisq)
+      chisq = chisq + rectintegrate(f=wsquarederr,from=0,to=10000,lambda=mean(spl),spx=spx) / spx
     }
-    cat(paste("\n",p,":",chisq))
+    cat(paste(p,":",chisq,"\n"))
   }
-
   cat("\nDone\n")
   bb
 
@@ -106,7 +97,7 @@ bootBbrc = function(datasetUri, numboots=BOOTS, min_frequency=MIN_FREQUENCY, min
 
 # merges 2nd list to 1st and returns result
 # suitable for .combine
-mergelists = function(x,xn) {
+mergelists = function(x,xn,levels=length(ds_levels)) {
 
   x=data.frame(x,check.names=F)
   xn=data.frame(xn,check.names=F)
@@ -115,16 +106,16 @@ mergelists = function(x,xn) {
   xnn = names(xn)[!names(xn) %in% names(x)]
 
   if (length(xus)>0) {
-    x_bel = data.frame(matrix(NA,2,dim(x)[2]))
+    x_bel = data.frame(matrix(NA,levels,dim(x)[2]))
     names(x_bel) = names(x)
-    x_bel[c(1,2),xus] = xn[c(1,2),xus]
+    x_bel[1:levels,xus] = xn[1:levels,xus]
     x = rbind(x,x_bel)
   }
   
   if (length(xnn)>0) {
     x_rig = data.frame(matrix(NA,dim(x)[1],length(xnn)))
     names(x_rig) = xnn
-    x_rig[c(dim(x)[1]-1,dim(x)[1]), xnn] = xn[c(1,2), xnn]
+    x_rig[c(dim(x)[1]-levels+1,dim(x)[1]), xnn] = xn[1:levels, xnn]
     x = cbind(x,x_rig)
   }
 
@@ -188,7 +179,3 @@ postdataset = function(x,tempfileprefix="R_") {
   })
   task
 }
-
-
-# # # start
-#bootBbrc(hamster,numboots=1,min_frequency=2)
