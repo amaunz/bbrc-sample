@@ -75,18 +75,30 @@ bootBbrc = function(datasetUri, numboots=BOOTS, min_frequency_per_sample=MIN_FRE
   cat("\nChisq\n")
   for (p in names(bb)[names(bb)!="levels"]) {
     cat("\n")
+    
+    # sp
     sp = rep(0,length(bb$levels)/length(ds_levels))
-    for (l in ds_levels) {
-      sp = sp + bb[bb$levels==l,p]
-    }
+    for (l in ds_levels) sp = sp + bb[bb$levels==l,p]
     sp = sp[complete.cases(sp)] 
+    
+    # dsp
+    dsp = prop.table(table(sp)) # Categorical distribution for p
+    
     chisq=0.0
     for (l in ds_levels) {
+      
       spl = bb[bb$levels==l,p]
       spl = spl[complete.cases(spl)]
-      p_weight = mean(sp)/n # weight for p
-      spx = ds_table[l] * p_weight # eXpected support for p
-      chisq = chisq + rectintegrate(f=wsquarederr,from=0,to=10000,lambda=mean(spl),spx=spx) / spx
+      
+      # lambda_spl: Distribution parameters for p on level l
+      lambda_spl = list()
+      for (idx in names(dsp)) {
+        lambda_spl[[idx]] = mean(spl[sp==idx])
+        p_weight = as.numeric(idx)/n # weight for p
+        spx = ds_table[l] * p_weight # eXpected support for p
+        chisq = chisq + dsp[idx] * rectintegrate(f=wsquarederr,from=0,to=10000,lambda=lambda_spl[[idx]],spx=spx) / spx
+      }
+      
     }
     cat(paste(p,":",chisq,"\n"))
   }
