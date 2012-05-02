@@ -49,6 +49,8 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
 
   # load dataset
   ds <- getDataset(datasetUri)
+  ds.endpoint.type = class(ds[,2])
+  (ds.endpoint.type == "numeric" || ds.endpoint.type == "character") || return("Wrong endpoint type")
   ds.factors <- factor(ds[,2])
   ds.levels <<- levels(ds.factors)
   ds.table <- table(ds.factors)
@@ -60,13 +62,20 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
   if(is.null(del)) {
     bb <- foreach(j=1:numboots, .combine=mergeLists) %dopar% {
     #for (j in 1:numboots) {
-      idx <- drawSample(1:n)
+      
+      idx <- c()
+      for (fac in ds.levels) {
+        if (ds.endpoint.type == "numeric") fac = as.numeric(fac)
+        draw <- drawSample(which(ds[,2] == fac))
+        idx <- c(idx, draw)
+      }
       sample <- ds[idx,]
   
-      task <- postDataset(sample,tempFilePrefix=paste("boot_bbrc_sample_",j,"_",sep=""))
+      task <- postDataset(sample, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
       sampleUri <- getResult(task)
   
-      task <- postRequest(BBRC,list(dataset.uri=sampleUri,min.frequency.per.sample=as.character(min.frequency.per.sample)))
+      task <- postRequest(BBRC, list( dataset_uri=sampleUri, 
+                                      min_frequency=as.character(min.frequency.per.sample)))
       sampleFeaturesUri <- getResult(task)
   
       sampleFeatures <- getDataset(sampleFeaturesUri)
@@ -211,7 +220,7 @@ postDataset = function(x,tempFilePrefix="R_") {
   cat(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf)),"\n"))
   tryCatch({
     write.csv(x=x, file=tf, row.names=F, quote=F, na='')
-    task <- postForm(paste(SERVER,"dataset",sep='/'), file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )
+    task <- postForm(paste(SERVER,"dataset",sep='/'), file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )    
   }, finally = {
     unlink(tf)
   })
