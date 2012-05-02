@@ -7,18 +7,18 @@
 #         Expected value of x (spx)
 
 # Rectangular integration with step width 1
-rectintegrate = function(f, from, to, ...) { 
+rectIntegrate = function(f, from, to, ...) { 
   n=seq(floor(from), ceiling(to))
   sum(do.call(f, c(list(x=n, ...))))
 }
 
 # Inner integrand; weighted squared error values
 # Params: point to estimate (x)
-wsquarederr = function(x,lambda,spx) {
-  dpois(x,lambda)*squarederr(x,spx)
+wSquaredErr = function(x, lambda, spx) {
+  dpois(x,lambda)*squaredErr(x,spx)
 }
 
-# Squared error
-squarederr = function(x,spx) {
-  (x-spx)^2
+# Squared error (Yates correction)
+squaredErr = function(x, spx) {
+  (x-spx-0.5)^2 / spx
 }
