@@ -1,0 +1,156 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage{a4wide}
+\usepackage[latin1]{inputenc}
+\usepackage{fancyhdr}
+
+% % % Watermark
+\usepackage{eso-pic}
+\usepackage{type1cm}
+
+% % % Figures
+% \usepackage{listings}
+\usepackage{multirow}	% for tables
+\usepackage{graphicx}   % for including EPS
+\usepackage{rotating}
+% \usepackage{subfigure}
+
+% % % Special mathematical fonts
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{srctex}
+
+\makeindex
+\makeatletter
+
+% --- FORMAT ---------------------------------------------------------
+
+% % % Page Style
+% Lamport, L., LaTeX : A Documentation Preparation System User's Guide and Reference Manual, Addison-Wesley Pub Co., 2nd edition, August 1994.
+\topmargin -2.0cm        % s. Lamport p.163
+\oddsidemargin -0.5cm   % s. Lamport p.163
+\evensidemargin -0.5cm  % wie oddsidemargin aber fr left-hand pages
+\textwidth 17.5cm
+\textheight 22.94cm 
+\parskip 7.2pt           % spacing zwischen paragraphen
+% \renewcommand{\baselinestretch}{2}\normalsize
+\parindent 0pt		 % Einrcken von Paragraphen
+\headheight 14pt
+\pagestyle{fancy}
+\lhead{}
+\chead{\bfseries}
+\rhead{\thepage}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+\renewcommand{\textfloatsep}{1.5em}
+
+% % % Proofs: QED-Box
+\renewenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}%
+  \normalfont \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep
+        \itshape
+    #1\@addpunct{:}]\ignorespaces
+}{
+  \popQED\endtrivlist\@endpefalse
+}
+\makeatother
+
+% % % Alphabetic footnote marks
+\renewcommand{\thefootnote}{\alph{footnote}}
+
+% % % Watermark
+% \makeatletter
+% \AddToShipoutPicture{%
+% \setlength{\@tempdimb}{.5\paperwidth}%
+% \setlength{\@tempdimc}{.5\paperheight}%
+% \setlength{\unitlength}{1pt}%
+% \makebox(960,1470){%
+% \rotatebox{315}{%
+% \textcolor[gray]{0.75}{%
+% \fontsize{36pt}{72pt}\selectfont{\emph{D R A F T}}}}}
+% }
+% \makeatother
+
+
+
+% --- START DOCUMENT -------------------------------------------------
+
+\begin{document}
+
+\begin{center}
+\begin{huge}BBRC Sampling\end{huge}
+
+Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Germany
+\end{center}
+
+\begin{small}
+Sampling BBRC descriptors with non-parametric, stratified bootstrapping seems feasible due to the inherent efficiency of BBRC mining.
+Each bootstrap sample of the dataset is processed via a webservice and parallel processing. 
+The server is loaded with as many jobs in parallel as there are CPU cores on the client.
+A probabilistic chi-square test is performed on each sampled pattern using a poisson MLE estimate.
+\end{small}
+
+\section{Basics}
+Let $G$ a set of graphs. A graph database is a function $g: G \rightarrow H$, $H \in \mathbb{N}$, $h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert$, $\forall i \in H$.
+
+Let a pattern generating process $F: (G,g) \rightarrow (X,k)$, $k=\{k_1,\ldots,k_{\vert H\vert}\}$. $X$ are called patterns (subgraphs), $k_i: X \rightarrow \mathbb{N}_0$ the pattern support function on class $i$.
+
+Apply non-parametric bootstrapping, i.e. draw $n$ samples with replacement from $G$. Ensure that each sample comprises exactly $h_i$ graphs $G$ with $g(G)=i$, with uniform probability $1/h_i$ inside each class $i \in H$ (stratification).
+
+The result of bootstrapping is a pattern set X, and sets of functions $k^{(1)},\ldots,k^{(n)}$.
+
+\section{Frequencies}
+Define
+\begin{itemize}
+  \item the frequency of support value $j$ on class $i$ as 
+    \begin{equation*}
+        w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0
+    \end{equation*}
+  \item the frequency of support value $j$ on class $i$, given the sum of $j$'s equals $h$, as 
+    \begin{equation*}
+      w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0
+    \end{equation*}
+  \item the cumulative frequency of support value $j$ over classes as 
+    \begin{equation*}
+      w_j(x):=\sum_{i \in H}w_{i,j}(x)
+    \end{equation*}
+\end{itemize}
+
+\section{Probability Distributions}
+Below treats a single pattern only. (drop dependency on $x$ for better readability).
+
+Consider the finite set of support values $J \subset \mathbb{N}_0$ with $w_j > 0, \; j \in J$, and the categorical distribution for support value $j \in J$ with parameter $W_J:=\sum_{j \in J} w_j$:
+\begin{align*}
+  p(j|W_J) &= w_j/W_J
+\end{align*}
+
+Consider the \textsc{Poisson} distribution for support value $k$ in class $i$, given the sum of support values equals $j$.
+\begin{align*}
+  p(k\vert\lambda_{i,j}) &= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
+  \lambda_{i,j}&=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,k}
+\end{align*}
+Being the sample mean, parameter $\lambda_{i,j}$ is the MLE of the Poisson distribution.
+
+\section{Significance Testing}
+Consider the $\chi^2$ distribution test, defined as
+
+\begin{align*}
+  \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)^2}{E_j(k_i)} \right)
+\end{align*}
+
+where 
+
+\begin{align*}
+  E_j(k_i) = \frac{j * h_i}{\vert G\vert}
+\end{align*}
+
+the expected support value on class $i$ when the sum of support values is $j$. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H-1\vert\right)$
+
+
+\end{document} 
