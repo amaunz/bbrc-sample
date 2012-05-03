@@ -90,20 +90,19 @@ Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Ge
 \end{center}
 
 \begin{small}
-Sampling BBRC descriptors with non-parametric, stratified bootstrapping seems feasible due to the inherent efficiency of BBRC mining.
-Each bootstrap sample of the dataset is processed via a webservice and parallel processing. 
-The server is loaded with as many jobs in parallel as there are CPU cores on the client.
-A probabilistic chi-square test is performed on each sampled pattern using a poisson MLE estimate.
+Repeated calculation of BBRC descriptors on bootstrap samples of a dataset is feasible due to the inherent efficiency of BBRC mining.
+Each sample is processed passed through the BBRC webservice architecture and the server is loaded with several jobs in parallel, which increases performance further.
+A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate.
 \end{small}
 
 \section{Basics}
-Let $G$ a set of graphs. A graph database is a function $g: G \rightarrow H$, $H \in \mathbb{N}$, $h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert$, $\forall i \in H$.
+Let $G$ a set of graphs. A \emph{graph database} consists of $G$ and a function $g: G \rightarrow H$, $H \subset \mathbb{N}_0$, mapping graphs to a finite set of \emph{target classes}. Define the class sizes as $h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert$, $\forall i \in H$.
 
-Let a pattern generating process $F: (G,g) \rightarrow (X,k)$, $k=\{k_1,\ldots,k_{\vert H\vert}\}$. $X$ are called patterns (subgraphs), $k_i: X \rightarrow \mathbb{N}_0$ the pattern support function on class $i$.
+Consider a pattern generating process $F: (G,g) \rightarrow (X,k)$, $k=\left(k_1,\ldots,k_{\vert H\vert}\right)$. $X$ are called patterns, $k_i: X \rightarrow \mathbb{N}_0$ are referred to as \emph{pattern support functions} on the target classes.
 
-Apply non-parametric bootstrapping, i.e. draw $n$ samples with replacement from $G$. Ensure that each sample comprises exactly $h_i$ graphs $G$ with $g(G)=i$, with uniform probability $1/h_i$ inside each class $i \in H$ (stratification).
+Run non-parametric bootstrapping, by drawing $n$ samples with replacement from $G$. Ensure that each sample comprises exactly $h_i$ graphs $G$ with $g(G)=i$, drawn with uniform probability $1/h_i$ inside each class $i \in H$ (stratification).
 
-The result of bootstrapping is a pattern set X, and sets of functions $k^{(1)},\ldots,k^{(n)}$.
+The result of running $F$ on the bootstrap samples is a pattern set $X= X^{(1)}\cup\ldots\cup,X^{(n)}$, and sets of function vectors $k^{(1)},\ldots,k^{(n)}$.
 
 \section{Frequencies}
 Define
@@ -112,7 +111,7 @@ Define
     \begin{equation*}
         w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0
     \end{equation*}
-  \item the frequency of support value $j$ on class $i$, given the sum of $j$'s equals $h$, as 
+  \item the frequency of support value $j$ on class $i$, given the sum of support value frequencies equals $h$, as 
     \begin{equation*}
       w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0
     \end{equation*}
@@ -123,7 +122,7 @@ Define
 \end{itemize}
 
 \section{Probability Distributions}
-Below treats a single pattern only. (drop dependency on $x$ for better readability).
+Everything below treats a single pattern only (drop dependency on $x$ for better readability).
 
 Consider the finite set of support values $J \subset \mathbb{N}_0$ with $w_j > 0, \; j \in J$, and the categorical distribution for support value $j \in J$ with parameter $W_J:=\sum_{j \in J} w_j$:
 \begin{align*}
@@ -133,12 +132,12 @@ Consider the finite set of support values $J \subset \mathbb{N}_0$ with $w_j > 0
 Consider the \textsc{Poisson} distribution for support value $k$ in class $i$, given the sum of support values equals $j$.
 \begin{align*}
   p(k\vert\lambda_{i,j}) &= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
-  \lambda_{i,j}&=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,k}
+  \lambda_{i,j}&=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,j}
 \end{align*}
-Being the sample mean, parameter $\lambda_{i,j}$ is the MLE of the Poisson distribution.
+Parameter $\lambda_{i,j}$ is the sample mean, which is in turn the MLE of the Poisson distribution.
 
 \section{Significance Testing}
-Consider the $\chi^2$ distribution test, defined as
+Consider the probabilistic version of the $\chi^2$ distribution test, defined as
 
 \begin{align*}
   \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)^2}{E_j(k_i)} \right)
@@ -150,7 +149,7 @@ where
   E_j(k_i) = \frac{j * h_i}{\vert G\vert}
 \end{align*}
 
-the expected support value on class $i$ when the sum of support values is $j$. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H-1\vert\right)$
+the expected support value on class $i$ when the sum of support values is $j$. Note that it is derived from $j$, the current support value, and the target class size. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)$, i.e. the degrees of freedom equals the number of target classes minus one.
 
 
 \end{document} 
