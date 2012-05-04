@@ -40,10 +40,13 @@ MIN_SAMPLING_SUPPORT <- 10
 
 # # # Main function
 bootBbrc = function(datasetUri, # dataset to process (URI)
+                    predictionFeatureUri=NULL,
                     numboots=BOOTS, # nr of BS samples
                     min.frequency.per.sample=MIN_FREQUENCY_PER_SAMPLE, # min freq inside each sample
                     min.sampling.support=MIN_SAMPLING_SUPPORT, # min nr of BS samples that have this pattern
-                    del=NULL) {
+                    del=NULL,
+                    bbrc.service=BBRC,
+                    log=F) {
 
   set.seed(1)
 
@@ -74,8 +77,9 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
       task <- postDataset(sample, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
       sampleUri <- getResult(task)
   
-      task <- postRequest(BBRC, list( dataset_uri=sampleUri, 
-                                      min_frequency=as.character(min.frequency.per.sample)))
+      bbrc.params = list( dataset_uri=sampleUri, min_frequency=as.character(min.frequency.per.sample))
+      if (predictionFeatureUri!=NULL) bbrc.params$prediction_feature=predictionFeatureUri
+      task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
   
       sampleFeatures <- getDataset(sampleFeaturesUri)
@@ -102,14 +106,17 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
     names(mask) <- NULL
     enough.data <- enough.data | mask
   }
-  cat(paste("Stripped",dim(bb)[2]-sum(enough.data),"patterns, kept",sum(enough.data),"\n"))
+  n.stripped <- dim(bb)[2]-sum(enough.data)
+  n.kept <- sum(enough.data)
+  cat(paste("Stripped",n.stripped,"patterns, kept",n.kept,"\n"))
   bb <- bb[,enough.data]
   
 
   # Get chi-square
   cat("\nChisq\n")
+  ans.patterns <- c()
+  ans.p.values <- c()
   for (p in names(bb)[names(bb) != "levels"]) {
-    cat("\n")
     
     # sp
     sp <- rep(0,length(bb$levels) / length(ds.levels))
@@ -135,11 +142,12 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
       }
       
     }
-    cat(paste(p,":",chisq,"\n"))
+    ans.patterns = c(ans.patterns, p)
+    ans.p.values = c(ans.p.values, pchisq(chisq,length(ds.levels)-1))
   }
   cat("\nDone\n")
-  bb
 
+  list(patterns=ans.patterns, pval=ans.p.values)
 }
 
 # merges 2nd list to 1st and returns result
