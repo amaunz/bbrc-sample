@@ -39,9 +39,9 @@ MIN_SAMPLING_SUPPORT <- 10
 
 
 # # # Main function
-bootBbrc = function(datasetUri, # dataset to process (URI)
-                    predictionFeatureUri=NULL,
-                    numboots=BOOTS, # nr of BS samples
+bootBbrc = function(dataset.uri, # dataset to process (URI)
+                    prediction.feature.uri=NULL,
+                    num.boots=BOOTS, # nr of BS samples
                     min.frequency.per.sample=MIN_FREQUENCY_PER_SAMPLE, # min freq inside each sample
                     min.sampling.support=MIN_SAMPLING_SUPPORT, # min nr of BS samples that have this pattern
                     del=NULL,
@@ -51,7 +51,7 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
   set.seed(1)
 
   # load dataset
-  ds <- getDataset(datasetUri)
+  ds <- getDataset(dataset.uri)
   ds.endpoint.type = class(ds[,2])
   (ds.endpoint.type == "numeric" || ds.endpoint.type == "character") || return("Wrong endpoint type")
   ds.factors <- factor(ds[,2])
@@ -63,8 +63,8 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
 
   # main loop
   if(is.null(del)) {
-    bb <- foreach(j=1:numboots, .combine=mergeLists) %dopar% {
-    #for (j in 1:numboots) {
+    bb <- foreach(j=1:num.boots, .combine=mergeLists) %dopar% {
+    #for (j in 1:num.boots) {
       
       idx <- c()
       for (fac in ds.levels) {
@@ -78,7 +78,7 @@ bootBbrc = function(datasetUri, # dataset to process (URI)
       sampleUri <- getResult(task)
   
       bbrc.params = list( dataset_uri=sampleUri, min_frequency=as.character(min.frequency.per.sample))
-      if (predictionFeatureUri!=NULL) bbrc.params$prediction_feature=predictionFeatureUri
+      if (prediction.feature.uri!=NULL) bbrc.params$prediction_feature=prediction.feature.uri
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
   
