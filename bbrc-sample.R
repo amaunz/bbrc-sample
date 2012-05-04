@@ -24,7 +24,8 @@ if (sum(installed.packages()[,1]=="RCurl")==0) install.packages('RCurl')
 if (sum(installed.packages()[,1]=="doMC")==0) install.packages('doMC')
 
 # load packages and libs
-source("bbrc-sample-psqerr.R")
+if file.exists("bbrc-sample-psqerr.R") source("bbrc-sample-psqerr.R")
+else source("bbrc-sample/bbrc-sample-psqerr.R")
 suppressPackageStartupMessages(library('RCurl'))
 suppressPackageStartupMessages(library('doMC'))
 registerDoMC()
