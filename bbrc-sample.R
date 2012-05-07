@@ -50,13 +50,14 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     min.sampling.support=MIN_SAMPLING_SUPPORT, # min nr of BS samples that have this pattern
                     del=NULL,
                     bbrc.service=BBRC,
+                    dataset.service=paste(SERVER,"dataset",sep='/'),
                     log=F) {
 
   set.seed(1)
 
   # load dataset
   ds <- getDataset(dataset.uri)
-  ds.endpoint.type = class(ds[,2])
+  ds.endpoint.type <- class(ds[,2])
   (ds.endpoint.type == "numeric" || ds.endpoint.type == "character") || return("Wrong endpoint type")
   ds.factors <- factor(ds[,2])
   ds.levels <<- levels(ds.factors)
@@ -76,20 +77,20 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
         draw <- drawSample(which(ds[,2] == fac))
         idx <- c(idx, draw)
       }
-      sample <- ds[idx,]
-  
-      task <- postDataset(sample, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
+      ds.sample <- ds[idx,]
+      names(ds.sample) = curlUnescape(names(ds.sample))
+      task <- postDataset(ds.sample, dataset.service, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
       sampleUri <- getResult(task)
-  
-      bbrc.params = list( dataset_uri=sampleUri, min_frequency=as.character(min.frequency.per.sample))
-      if (prediction.feature.uri!=NULL) bbrc.params$prediction_feature=prediction.feature.uri
+
+      bbrc.params <- list( dataset_uri=sampleUri, min_frequency=as.character(min.frequency.per.sample))
+      if (!is.null(prediction.feature.uri)) bbrc.params[["prediction_feature"]] <- paste(sampleUri, "feature", gsub(".*/","",prediction.feature.uri), sep="/")
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
   
       sampleFeatures <- getDataset(sampleFeaturesUri)
       sampleFeatures["SMILES"] <- NULL
       nr.features <- dim(sampleFeatures)[2]
-      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,sample[,2],ds.levels))
+      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.sample[,2],ds.levels))
   
       deleteRequest(sampleFeaturesUri)
       deleteRequest(sampleUri)
@@ -118,8 +119,8 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
   # Get chi-square
   cat("\nChisq\n")
-  ans.patterns <- c()
-  ans.p.values <- c()
+  ans.patterns <<- c()
+  ans.p.values <<- c()
   for (p in names(bb)[names(bb) != "levels"]) {
     
     # sp
@@ -142,16 +143,16 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
         lambda.spl[[idx]] <- mean(spl[sp==idx])
         p.weight <- as.numeric(idx)/n # weight for p
         spx <- ds.table[l] * p.weight # eXpected support for p
-        chisq <- chisq + dsp[idx] * rectintegrate(f=wSquaredErr,from=0,to=10000,lambda=lambda.spl[[idx]],spx=spx)
+        chisq <- chisq + dsp[idx] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=lambda.spl[[idx]],spx=spx)
       }
       
     }
-    ans.patterns = c(ans.patterns, p)
-    ans.p.values = c(ans.p.values, pchisq(chisq,length(ds.levels)-1))
+    ans.patterns <<- c(ans.patterns, p)
+    ans.p.values <<- c(ans.p.values, pchisq(chisq,length(ds.levels)-1))
   }
   cat("\nDone\n")
 
-  list(patterns=ans.patterns, pval=ans.p.values)
+  #list(patterns=ans.patterns, pval=ans.p.values)
 }
 
 # merges 2nd list to 1st and returns result
@@ -227,12 +228,12 @@ getDataset = function(uri) {
 }
 
 # POST a dataset (CSV)
-postDataset = function(x,tempFilePrefix="R_") {
+postDataset = function(x,server,tempFilePrefix="R_") {
   tf <- tempfile(pattern=paste(tempFilePrefix, Sys.getpid(), sep=""))
   cat(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf)),"\n"))
   tryCatch({
     write.csv(x=x, file=tf, row.names=F, quote=F, na='')
-    task <- postForm(paste(SERVER,"dataset",sep='/'), file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )    
+    task <- postForm(server, file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )    
   }, finally = {
     unlink(tf)
   })
