@@ -12,12 +12,10 @@
 # Author: Andreas Maunz
 # Year: 2012
 
-
-# BBRC bootstrapping
-# Sampling BBRC descriptors with non-parametric, stratified bootstrapping
-# Each bootstrap sample is processed via a webservice (see SERVER) and parallel processing
-# NOTE: the server is loaded with as many jobs in parallel as there are CPU cores on the client
-# Probabilistic chi-square test is performed on each sampled pattern using a poisson MLE estimate
+# BBRC descriptors are calculated repeatedly on bootstrap samples of a dataset, which is feasible due to the inherent efficiency of BBRC mining.
+# Each sample is processed passed through the BBRC webservice architecture. The server is loaded with several jobs in parallel, which increases performance.
+# A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate.
+# Patterns suriviving the test are mapped back on the database molecules, using a parallelized version of molecular fragment matching.
 
 # packages installed
 if (sum(installed.packages()[,1]=="RCurl")==0) install.packages('RCurl')
@@ -115,7 +113,6 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
     bb <- data.frame(bb,check.names=F)
     levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
-    save(bb,levels,file="/tmp/testAMxxx.R")
   }
   else
     bb <- del
@@ -126,7 +123,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   for (l in ds.levels) { 
     mask <- apply(bb[levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
     names(mask) <- NULL
-    if (length(enough.data) != length(mask)) otLog("\n\nERROR1\n\n")
+    if (length(enough.data) != length(mask)) otLog("\n\nERROR1! Send email to andreas@maunz.de that you have seen this error!\n\n")
     enough.data <- enough.data | mask
   }
   n.stripped <- dim(bb)[2]-sum(enough.data)
@@ -158,10 +155,16 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
+    #if (do.ot.log) otLog(ans.patterns)
+    #if (do.ot.log) otLog(ans.p.values)
+ 
+    n.stripped <- sum(ans.p.values<=0.95)
+    n.kept <- sum(ans.p.values>0.95)
+    if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
+    ans.patterns <<- ans.patterns[ans.p.values>0.95]
+    ans.p.values <<- ans.p.values[ans.p.values>0.95]
   }
   if (do.ot.log) otLog("Done")
-  if (do.ot.log) otLog(ans.patterns)
-  if (do.ot.log) otLog(ans.p.values)
 }
 
 # merges 2nd list to 1st and returns result
@@ -250,7 +253,7 @@ getDataset = function(uri) {
 # POST a dataset (CSV)
 postDataset = function(x,server,tempFilePrefix="R_") {
   tf <- tempfile(pattern=paste(tempFilePrefix, Sys.getpid(), sep=""))
-  if (do.ot.log) otLog(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf)),"\n"))
+  if (do.ot.log) otLog(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf))))
   tryCatch({
     write.csv(x=x, file=tf, row.names=F, quote=F, na='')
     task <- postForm(server, file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )    

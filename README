@@ -1,0 +1,4 @@
+BBRC descriptors are calculated repeatedly on bootstrap samples of a dataset, which is feasible due to the inherent efficiency of BBRC mining.
+Each sample is processed passed through the BBRC webservice architecture. The server is loaded with several jobs in parallel, which increases performance.
+A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate.
+Patterns suriviving the test are mapped back on the database molecules, using a parallelized version of molecular fragment matching.
