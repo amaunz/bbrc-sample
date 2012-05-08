@@ -53,6 +53,8 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
   set.seed(1)
   do.ot.log <<- do.ot.log # should be global
+  merge.time.start <<- NULL
+  merge.time.end <<- NULL
 
   # load dataset
   ds <- getDataset(dataset.uri)
@@ -111,6 +113,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
      
       as.list(as.data.frame(class.support))
     }
+
+    merge.time.end <<- Sys.time()
+    merge.time <<- as.numeric(merge.time.end - merge.time.start, units="secs")
     bb <- data.frame(bb,check.names=F)
     levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
   }
@@ -155,21 +160,25 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
-    #if (do.ot.log) otLog(ans.patterns)
-    #if (do.ot.log) otLog(ans.p.values)
- 
-    n.stripped <- sum(ans.p.values<=0.95)
-    n.kept <- sum(ans.p.values>0.95)
-    if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
-    ans.patterns <<- ans.patterns[ans.p.values>0.95]
-    ans.p.values <<- ans.p.values[ans.p.values>0.95]
+
   }
+
+  # if (do.ot.log) otLog(ans.patterns)
+  # if (do.ot.log) otLog(ans.p.values)
+  n.stripped <- sum(ans.p.values<=0.95)
+  n.kept <- sum(ans.p.values>0.95)
+  if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
+  ans.patterns <<- ans.patterns[ans.p.values>0.95]
+  ans.p.values <<- ans.p.values[ans.p.values>0.95]
+
   if (do.ot.log) otLog("Done")
 }
 
 # merges 2nd list to 1st and returns result
 # suitable for .combine
 mergeLists = function(x, xn, levels=length(ds.levels)) {
+  
+  if (is.null(merge.time.start)) merge.time.start <<- Sys.time()
   
   if (do.ot.log) otLog("Merging")
 
