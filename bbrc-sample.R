@@ -51,9 +51,10 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     del=NULL,
                     bbrc.service=BBRC,
                     dataset.service=paste(SERVER,"dataset",sep='/'),
-                    log=F) {
+                    do.ot.log=F) {
 
   set.seed(1)
+  do.ot.log <<- do.ot.log # should be global
 
   # load dataset
   ds <- getDataset(dataset.uri)
@@ -65,12 +66,12 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
     else {
       ds.endpoint <- names(ds)[2]
-      cat(paste("Endpoint (guessed from dataset):",ds.endpoint))
+      if (do.ot.log) otLog(paste("Endpoint (guessed from dataset):",ds.endpoint))
     }  
   } 
   else {
     ds.endpoint <- curlUnescape(gsub(".*/","",prediction.feature.uri)) # select endpoint
-    cat(paste("Endpoint (obtained as parameter):",ds.endpoint))
+    if (do.ot.log) otLog(paste("Endpoint (obtained as parameter):",ds.endpoint))
   }
 
   ds.endpoint.type <- class(ds[,ds.endpoint])
@@ -119,7 +120,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     bb <- del
   
   # Filter patterns with enough sampling support
-  cat("\nFiltering")
+  if (do.ot.log) otLog("Filtering")
   enough.data=rep(F,length(names(bb)))
   for (l in ds.levels) { 
     mask <- apply(bb[bb$levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
@@ -128,12 +129,12 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   }
   n.stripped <- dim(bb)[2]-sum(enough.data)
   n.kept <- sum(enough.data)
-  cat(paste("\nStripped",n.stripped,"patterns, kept",n.kept))
+  if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
   bb <- bb[,enough.data]
   
 
   # Get chi-square
-  cat("\nChisq")
+  if (do.ot.log) otLog("Chisq")
   ans.patterns <<- c()
   ans.p.values <<- c()
   for (p in names(bb)[names(bb) != "levels"]) {
@@ -165,7 +166,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisq,length(ds.levels)-1))
   }
-  cat("\nDone\n")
+  if (do.ot.log) otLog("Done")
 
   #list(patterns=ans.patterns, pval=ans.p.values)
 }
@@ -254,7 +255,7 @@ getDataset = function(uri) {
 # POST a dataset (CSV)
 postDataset = function(x,server,tempFilePrefix="R_") {
   tf <- tempfile(pattern=paste(tempFilePrefix, Sys.getpid(), sep=""))
-  cat(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf)),"\n"))
+  if (do.ot.log) otLog(paste(gsub(".*boot", "boot", gsub(gsub(".*_",  "_", tf),"", tf)),"\n"))
   tryCatch({
     write.csv(x=x, file=tf, row.names=F, quote=F, na='')
     task <- postForm(server, file=fileUpload(filename=tf, contentType="text/csv"), .checkParams=F )    
@@ -262,4 +263,9 @@ postDataset = function(x,server,tempFilePrefix="R_") {
     unlink(tf)
   })
   task
+}
+
+# Emit a log message
+otLog = function(text) {
+  cat(paste("D,",format(Sys.time(), "[%Y-%m-%dT%H:%M:%S]"),"R DEBUG  : bbrc-sample        ::", text, "\n"))
 }
