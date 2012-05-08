@@ -103,7 +103,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       sampleFeaturesUri <- getResult(task)
   
       sampleFeatures <- getDataset(sampleFeaturesUri)
-      sampleFeatures <- as.data.frame(t(apply(ds, 1, sampleFeatureRow, fds=sampleFeatures)), stringsAsFactors=F)
+      sampleFeatures <- as.data.frame(t(apply(ds.sample, 1, sampleFeatureRow, fds=sampleFeatures)), stringsAsFactors=F)
       sampleFeatures["SMILES"] <- NULL
       apply( sampleFeatures[,names(sampleFeatures) != "SMILES"], 2, function(x) as.numeric(x) )
       class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.sample[,ds.endpoint],ds.levels))
@@ -114,7 +114,8 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       as.list(as.data.frame(class.support))
     }
     bb <- data.frame(bb,check.names=F)
-    bb$levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
+    levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
+    save(bb,levels,file="/tmp/testAMxxx.R")
   }
   else
     bb <- del
@@ -123,14 +124,16 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   if (do.ot.log) otLog("Filtering")
   enough.data=rep(F,length(names(bb)))
   for (l in ds.levels) { 
-    mask <- apply(bb[bb$levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
+    mask <- apply(bb[levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
     names(mask) <- NULL
+    if (length(enough.data) != length(mask)) otLog("\n\nERROR1\n\n")
     enough.data <- enough.data | mask
   }
   n.stripped <- dim(bb)[2]-sum(enough.data)
   n.kept <- sum(enough.data)
   if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
   bb <- bb[,enough.data]
+  bb$levels <- levels
   
 
   # Get chi-square
@@ -138,42 +141,34 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   ans.patterns <<- c()
   ans.p.values <<- c()
   for (p in names(bb)[names(bb) != "levels"]) {
-    
     # sp
     sp <- rep(0,length(bb$levels) / length(ds.levels))
     for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
     sp <- sp[complete.cases(sp)] 
-    
     # dsp
     dsp <- prop.table(table(sp)) # Categorical distribution for p
-    
-    chisq <- 0.0
+    sp.values <- as.numeric(names(dsp))
+    chisqv <- 0.0
     for (l in ds.levels) {
-      
       spl <- bb[bb$levels==l,p]
       spl <- spl[complete.cases(spl)]
-      
-      # lambda.spl: Distribution parameters for p on level l
-      lambda.spl <- list()
-      for (idx in names(dsp)) {
-        lambda.spl[[idx]] <- mean(spl[sp==idx])
-        p.weight <- as.numeric(idx)/n # weight for p
-        spx <- ds.table[l] * p.weight # eXpected support for p
-        chisq <- chisq + dsp[idx] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=lambda.spl[[idx]],spx=spx)
+      for (spv in sp.values) {
+        chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/n))
       }
-      
     }
     ans.patterns <<- c(ans.patterns, p)
-    ans.p.values <<- c(ans.p.values, pchisq(chisq,length(ds.levels)-1))
+    ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
   }
   if (do.ot.log) otLog("Done")
-
-  #list(patterns=ans.patterns, pval=ans.p.values)
+  if (do.ot.log) otLog(ans.patterns)
+  if (do.ot.log) otLog(ans.p.values)
 }
 
 # merges 2nd list to 1st and returns result
 # suitable for .combine
 mergeLists = function(x, xn, levels=length(ds.levels)) {
+  
+  if (do.ot.log) otLog("Merging")
 
   x<-data.frame(x,check.names=F)
   xn<-data.frame(xn,check.names=F)
@@ -267,5 +262,5 @@ postDataset = function(x,server,tempFilePrefix="R_") {
 
 # Emit a log message
 otLog = function(text) {
-  cat(paste("D,",format(Sys.time(), "[%Y-%m-%dT%H:%M:%S]"),"R DEBUG  : bbrc-sample        ::", text, "\n"))
+  cat(paste("D,",format(Sys.time(), "[%Y-%m-%dT%H:%M:%S]"),"R DEBUG -- : bbrc-sample        ::", text, "\n"))
 }
