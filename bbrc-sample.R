@@ -57,14 +57,29 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
   # load dataset
   ds <- getDataset(dataset.uri)
-  ds.endpoint.type <- class(ds[,2])
-  (ds.endpoint.type == "numeric" || ds.endpoint.type == "character") || return("Wrong endpoint type")
-  ds.factors <- factor(ds[,2])
+  names(ds) = curlUnescape(names(ds)) # names unencoded in R
+
+  if (is.null(prediction.feature.uri)) {
+    if (length(names(ds))>2) { 
+      return("Too many columns")
+    }
+    else {
+      ds.endpoint <- names(ds)[2]
+      cat(paste("Endpoint (guessed from dataset):",ds.endpoint))
+    }  
+  } 
+  else {
+    ds.endpoint <- curlUnescape(gsub(".*/","",prediction.feature.uri)) # select endpoint
+    cat(paste("Endpoint (obtained as parameter):",ds.endpoint))
+  }
+
+  ds.endpoint.type <- class(ds[,ds.endpoint])
+  if (ds.endpoint.type != "numeric" && ds.endpoint.type != "character") return("Wrong endpoint type")
+  ds.factors <- factor(ds[,ds.endpoint])
   ds.levels <<- levels(ds.factors)
   ds.table <- table(ds.factors)
 
   n <- dim(ds)[1]
-  cat(paste("Full set size:", n, "\n"))
 
   # main loop
   if(is.null(del)) {
@@ -78,19 +93,19 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
         idx <- c(idx, draw)
       }
       ds.sample <- ds[idx,]
-      names(ds.sample) = curlUnescape(names(ds.sample))
       task <- postDataset(ds.sample, dataset.service, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
       sampleUri <- getResult(task)
 
-      bbrc.params <- list( dataset_uri=sampleUri, min_frequency=as.character(min.frequency.per.sample))
-      if (!is.null(prediction.feature.uri)) bbrc.params[["prediction_feature"]] <- paste(sampleUri, "feature", gsub(".*/","",prediction.feature.uri), sep="/")
+      prediction.feature.uri <- paste(sampleUri, "feature", curlEscape(ds.endpoint), sep="/")
+      bbrc.params <- list( dataset_uri=sampleUri, prediction_feature=prediction.feature.uri, min_frequency=as.character(min.frequency.per.sample))
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
   
       sampleFeatures <- getDataset(sampleFeaturesUri)
+      sampleFeatures <- as.data.frame(t(apply(ds, 1, sampleFeatureRow, fds=sampleFeatures)), stringsAsFactors=F)
       sampleFeatures["SMILES"] <- NULL
-      nr.features <- dim(sampleFeatures)[2]
-      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.sample[,2],ds.levels))
+      apply( sampleFeatures[,names(sampleFeatures) != "SMILES"], 2, function(x) as.numeric(x) )
+      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.sample[,ds.endpoint],ds.levels))
   
       deleteRequest(sampleFeaturesUri)
       deleteRequest(sampleUri)
@@ -104,7 +119,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     bb <- del
   
   # Filter patterns with enough sampling support
-  cat("\nFiltering\n")
+  cat("\nFiltering")
   enough.data=rep(F,length(names(bb)))
   for (l in ds.levels) { 
     mask <- apply(bb[bb$levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
@@ -113,12 +128,12 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   }
   n.stripped <- dim(bb)[2]-sum(enough.data)
   n.kept <- sum(enough.data)
-  cat(paste("Stripped",n.stripped,"patterns, kept",n.kept,"\n"))
+  cat(paste("\nStripped",n.stripped,"patterns, kept",n.kept))
   bb <- bb[,enough.data]
   
 
   # Get chi-square
-  cat("\nChisq\n")
+  cat("\nChisq")
   ans.patterns <<- c()
   ans.p.values <<- c()
   for (p in names(bb)[names(bb) != "levels"]) {
@@ -198,7 +213,16 @@ getResult = function(uri) {
   uri
 }
 
-# get per-factor support in x from y, with levels from z
+
+# get a single sample feature row
+sampleFeatureRow = function(x,fds) {
+  ans = as.matrix( fds[ fds["SMILES"]==x["SMILES"],,drop=F ][1,] )[1,] # as.matrix and [1,] drops 'ans' to named vector
+  ans[is.na(ans)] = 0
+  ans["SMILES"]=x["SMILES"]
+  ans
+}
+
+# get per-factor support in x from y, with levels from 'levels'
 supportPerFactor = function(x, y, levels) {
   pattern <- factor(y, levels=levels)
   table(pattern[x>0]) # table sums across the factors
