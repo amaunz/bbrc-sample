@@ -131,9 +131,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     if (length(enough.data) != length(mask)) otLog("\n\nERROR1! Send email to andreas@maunz.de that you have seen this error!\n\n")
     enough.data <- enough.data | mask
   }
-  n.stripped <- dim(bb)[2]-sum(enough.data)
+  n.stripped.mss <<- dim(bb)[2]-sum(enough.data)
   n.kept <- sum(enough.data)
-  if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
+  if (do.ot.log) otLog(paste("Stripped",n.stripped.mss,"patterns, kept",n.kept))
   bb <- bb[,enough.data]
   bb$levels <- levels
   
@@ -165,9 +165,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
   # if (do.ot.log) otLog(ans.patterns)
   # if (do.ot.log) otLog(ans.p.values)
-  n.stripped <- sum(ans.p.values<=0.95)
+  n.stripped.cst <<- sum(ans.p.values<=0.95)
   n.kept <- sum(ans.p.values>0.95)
-  if (do.ot.log) otLog(paste("Stripped",n.stripped,"patterns, kept",n.kept))
+  if (do.ot.log) otLog(paste("Stripped",n.stripped.cst,"patterns, kept",n.kept))
   ans.patterns <<- ans.patterns[ans.p.values>0.95]
   ans.p.values <<- ans.p.values[ans.p.values>0.95]
 
