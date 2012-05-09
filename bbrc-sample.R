@@ -12,10 +12,11 @@
 # Author: Andreas Maunz
 # Year: 2012
 
-# BBRC descriptors are calculated repeatedly on bootstrap samples of a dataset, which is feasible due to the inherent efficiency of BBRC mining.
-# Each sample is processed passed through the BBRC webservice architecture. The server is loaded with several jobs in parallel, which increases performance.
+# Class-correlated subgraph descriptors are calculated repeatedly on bootstrap samples of a database of molecular graphs, where each graph is associated with one from a finite set of classes.
+# Each sample is processed by the graph mining webservice architecture. In addition to using the efficient BBRC algorithm for mining the graphs, the server is loaded with several jobs in parallel, which further increases performance.
 # A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate.
-# Patterns suriviving the test are mapped back on the database molecules, using a parallelized version of molecular fragment matching.
+# Patterns surviving the test are mapped back on the database molecules, using a parallelized molecular fragment matching method.
+
 
 # packages installed
 if (sum(installed.packages()[,1]=="RCurl")==0) install.packages('RCurl')
