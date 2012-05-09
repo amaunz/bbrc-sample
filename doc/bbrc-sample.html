@@ -5,48 +5,69 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <title></title>
+  <script src="https://d3eoax9i5htok0.cloudfront.net/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 </head>
 <body>
-<p>BBRC Sampling</p>
+<h1>A Fast Sampling Method for Class-Correlated Subgraphs</h1>
 <p>Andreas Maunz<br />Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Germany</p>
-<p>Repeated calculation of BBRC descriptors on bootstrap samples of a dataset is feasible due to the inherent efficiency of BBRC mining. Each sample is processed passed through the BBRC webservice architecture and the server is loaded with several jobs in parallel, which increases performance further. A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate.</p>
-<h1 id="basics">Basics</h1>
-<p>Let <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=G" alt="G" title="G" /> a set of graphs. A <em>graph database</em> consists of <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=G" alt="G" title="G" /> and a function <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=g%3A%20G%20%5Crightarrow%20H" alt="g: G \rightarrow H" title="g: G \rightarrow H" />, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=H%20%5Csubset%20%5Cmathbb%7BN%7D_0" alt="H \subset \mathbb{N}_0" title="H \subset \mathbb{N}_0" />, mapping graphs to a finite set of <em>target classes</em>. Define the class sizes as <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=h_i%3D%5Cvert%5C%7BG_j%20%5Cin%20G%20%5C%3B%20%5Cvert%5C%3B%20g%28G_i%29%3Di%5C%7D%5Cvert" alt="h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert" title="h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert" />, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cforall%20i%20%5Cin%20H" alt="\forall i \in H" title="\forall i \in H" />.</p>
-<p>Consider a pattern generating process <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F%3A%20%28G%2Cg%29%20%5Crightarrow%20%28X%2Ck%29" alt="F: (G,g) \rightarrow (X,k)" title="F: (G,g) \rightarrow (X,k)" />, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=k%3D%5Cleft%28k_1%2C%5Cldots%2Ck_%7B%5Cvert%20H%5Cvert%7D%5Cright%29" alt="k=\left(k_1,\ldots,k_{\vert H\vert}\right)" title="k=\left(k_1,\ldots,k_{\vert H\vert}\right)" />. <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=X" alt="X" title="X" /> are called patterns, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=k_i%3A%20X%20%5Crightarrow%20%5Cmathbb%7BN%7D_0" alt="k_i: X \rightarrow \mathbb{N}_0" title="k_i: X \rightarrow \mathbb{N}_0" /> are referred to as <em>pattern support functions</em> on the target classes.</p>
-<p>Run non-parametric bootstrapping, by drawing <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=n" alt="n" title="n" /> samples with replacement from <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=G" alt="G" title="G" />. Ensure that each sample comprises exactly <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=h_i" alt="h_i" title="h_i" /> graphs <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=G" alt="G" title="G" /> with <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=g%28G%29%3Di" alt="g(G)=i" title="g(G)=i" />, drawn with uniform probability <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=1%2Fh_i" alt="1/h_i" title="1/h_i" /> inside each class <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=i%20%5Cin%20H" alt="i \in H" title="i \in H" /> (stratification).</p>
-<p>The result of running <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=F" alt="F" title="F" /> on the bootstrap samples is a pattern set <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=X%3D%20X%5E%7B%281%29%7D%5Ccup%5Cldots%5Ccup%2CX%5E%7B%28n%29%7D" alt="X= X^{(1)}\cup\ldots\cup,X^{(n)}" title="X= X^{(1)}\cup\ldots\cup,X^{(n)}" />, and sets of function vectors <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=k%5E%7B%281%29%7D%2C%5Cldots%2Ck%5E%7B%28n%29%7D" alt="k^{(1)},\ldots,k^{(n)}" title="k^{(1)},\ldots,k^{(n)}" />.</p>
-<h1 id="frequencies">Frequencies</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Class-correlated subgraph descriptors are calculated repeatedly on bootstrap samples of a database of molecular graphs, where each graph is associated with one from a finite set of classes. Each sample is processed by the graph mining webservice architecture. In addition to using the efficient BBRC algorithm for mining the graphs, the server is loaded with several jobs in parallel, which further increases performance. A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson MLE estimate. Patterns suriviving the test are mapped back on the database molecules, using a parallelized molecular fragment matching method.</p>
+<h2 id="methods">Methods</h2>
+<h3 id="bootstrapping-graph-databases">Bootstrapping Graph Databases</h3>
+<p>Let \(G\) a set of graphs. A <em>graph database</em> consists of \(G\) and a function \(g: G \rightarrow H\), \(H \subset \mathbb{N}_0\), mapping graphs to a finite set of <em>target classes</em>. Define the class sizes as \(h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert\), \(\forall i \in H\).</p>
+<p>Consider a pattern generating process \(F: (G,g) \rightarrow (X,k)\), \(k=\left(k_1,\ldots,k_{\vert H\vert}\right)\). \(X\) are called patterns, \(k_i: X \rightarrow \mathbb{N}_0\) are referred to as <em>pattern support functions</em> on the target classes.</p>
+<p>Run non-parametric bootstrapping, by drawing \(n\) samples with replacement from \(G\). Ensure that each sample comprises exactly \(h_i\) graphs \(G\) with \(g(G)=i\), drawn with uniform probability \(1/h_i\) inside each class \(i \in H\) (stratification).</p>
+<p>The result of running \(F\) on the bootstrap samples is a pattern set \(X= X^{(1)}\cup\ldots\cup,X^{(n)}\), and sets of function vectors \(k^{(1)},\ldots,k^{(n)}\).</p>
+<h3 id="frequencies">Frequencies</h3>
 <p>Define</p>
 <ul>
-<li><p>the frequency of support value <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" /> on class <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=i" alt="i" title="i" /> as</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=w_%7Bi%2Cj%7D%3A%3D%5Csum_%7Bl%3D1%7D%5En%20%5Cdelta_%7Bk_i%5E%7B%28l%29%7D%28x%29%2C%5C%2C%20j%7D%5C%2C%20%2C%20%5C%3B%20%5Cforall%20i%20%5Cin%20H%2C%20j%20%5Cin%20%5Cmathbb%7BN%7D_0" alt="w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0" title="w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0" /><br /></p></li>
-<li><p>the frequency of support value <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" /> on class <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=i" alt="i" title="i" />, given the sum of support value frequencies equals <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=h" alt="h" title="h" />, as</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=w_%7Bi%2Cj%2Ch%7D%3A%3D%5Csum_%7Bl%3D1%7D%5En%20%5Cdelta_%7Bk_i%5E%7B%28l%29%7D%28x%29%2C%5C%2C%20j%7D%20%2A%20%5Cdelta_%7B%5Csum_%7Bi%3D1%7D%5E%7B%5Cvert%20H%20%5Cvert%7Dk_i%5E%7B%28l%29%7D%28x%29%2C%5C%2C%20h%7D%5C%2C%20%2C%20%5C%3B%20%5Cforall%20i%20%5Cin%20H%2C%20%5C%3B%20j%2Ch%20%5Cin%20%5Cmathbb%7BN%7D_0" alt="w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0" title="w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0" /><br /></p></li>
-<li><p>the cumulative frequency of support value <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" /> over classes as</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=w_j%28x%29%3A%3D%5Csum_%7Bi%20%5Cin%20H%7Dw_%7Bi%2Cj%7D%28x%29" alt="w_j(x):=\sum_{i \in H}w_{i,j}(x)" title="w_j(x):=\sum_{i \in H}w_{i,j}(x)" /><br /></p></li>
+<li><p>the frequency of support value \(j\) on class \(i\) as</p>
+<p>\[w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0\]</p></li>
+<li><p>the frequency of support value \(j\) on class \(i\), given the sum of support value frequencies equals \(h\), as</p>
+<p>\[w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0\]</p></li>
+<li><p>the cumulative frequency of support value \(j\) over classes as</p>
+<p>\[w_j(x):=\sum_{i \in H}w_{i,j}(x)\]</p></li>
 </ul>
-<h1 id="probability-distributions">Probability Distributions</h1>
-<p>Everything below treats a single pattern only (drop dependency on <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=x" alt="x" title="x" /> for better readability).</p>
-<p>Consider the finite set of support values <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=J%20%5Csubset%20%5Cmathbb%7BN%7D_0" alt="J \subset \mathbb{N}_0" title="J \subset \mathbb{N}_0" /> with <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=w_j%20%3E%200%2C%20%5C%3B%20j%20%5Cin%20J" alt="w_j &gt; 0, \; j \in J" title="w_j &gt; 0, \; j \in J" />, and the categorical distribution for support value <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j%20%5Cin%20J" alt="j \in J" title="j \in J" /> with parameter <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=W_J%3A%3D%5Csum_%7Bj%20%5Cin%20J%7D%20w_j" alt="W_J:=\sum_{j \in J} w_j" title="W_J:=\sum_{j \in J} w_j" />:</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cbegin%7Baligned%2A%7D%0A%20%20p%28j%7CW_J%29%20%26%3D%20w_j%2FW_J%5Cend%7Baligned%2A%7D" alt="\begin{aligned*}
-  p(j|W_J) &amp;= w_j/W_J\end{aligned*}" title="\begin{aligned*}
-  p(j|W_J) &amp;= w_j/W_J\end{aligned*}" /><br /></p>
-<p>Consider the <span style="font-variant: small-caps;">Poisson</span> distribution for support value <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=k" alt="k" title="k" /> in class <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=i" alt="i" title="i" />, given the sum of support values equals <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" />.</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cbegin%7Baligned%2A%7D%0A%20%20p%28k%5Cvert%5Clambda_%7Bi%2Cj%7D%29%20%26%3D%20%5Coperatorname%7BPois%7D%5Cleft%28%5Clambda_%7Bi%2Cj%7D%5Cright%29%2C%20%5Ctext%7Bwhere%7D%5C%5C%0A%20%20%5Clambda_%7Bi%2Cj%7D%26%3D%5Csum_%7Bl%20%5Cin%20%5Cmathbb%7BN%7D%7D%20l%2Aw_%7Bi%2Cl%2Cj%7D%20%2F%20%5Csum_%7Bl%20%5Cin%20%5Cmathbb%7BN%7D%7D%20w_%7Bi%2Cl%2Cj%7D%5Cend%7Baligned%2A%7D" alt="\begin{aligned*}
+<p>The remainder of this section drops dependency on \(x\) for better readability.</p>
+<h3 id="probability-distributions">Probability Distributions</h3>
+<p>Consider the finite set of support values \(J \subset \mathbb{N}_0\) with \(w_j &gt; 0, \; j \in J\), and the categorical distribution for support value \(j \in J\) with parameter \(W_J:=\sum_{j \in J} w_j\):</p>
+<p>\[\begin{aligned}
+  p(j|W_J) &amp;= w_j/W_J\end{aligned}\]</p>
+<p>Consider the <span style="font-variant: small-caps;">Poisson</span> distribution for support value \(k\) in class \(i\), given the sum of support values equals \(j\).</p>
+<p>\[\begin{aligned}
   p(k\vert\lambda_{i,j}) &amp;= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
-  \lambda_{i,j}&amp;=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,j}\end{aligned*}" title="\begin{aligned*}
-  p(k\vert\lambda_{i,j}) &amp;= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
-  \lambda_{i,j}&amp;=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,j}\end{aligned*}" /><br /></p>
-<p>Parameter <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Clambda_%7Bi%2Cj%7D" alt="\lambda_{i,j}" title="\lambda_{i,j}" /> is the sample mean, which is in turn the MLE of the Poisson distribution.</p>
-<h1 id="significance-testing">Significance Testing</h1>
-<p>Consider the probabilistic version of the <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cchi%5E2" alt="\chi^2" title="\chi^2" /> distribution test, defined as</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cbegin%7Baligned%2A%7D%0A%20%20%5Cchi%5E2%20%3D%20%5Csum_%7Bi%20%5Cin%20H%7D%5C%3B%20%5Cleft%28%20%5Csum_%7Bj%20%5Cin%20J%7Dp%28j%7CW_j%29%20%5Cint_0%5E%7B%5Cinfty%7Ddk%5C%3B%20p%28k%7C%5Clambda_%7Bi%2Cj%7D%29%20%5Cfrac%7B%28k-E_j%28k_i%29%5E2%7D%7BE_j%28k_i%29%7D%20%5Cright%29%5Cend%7Baligned%2A%7D" alt="\begin{aligned*}
-  \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)^2}{E_j(k_i)} \right)\end{aligned*}" title="\begin{aligned*}
-  \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)^2}{E_j(k_i)} \right)\end{aligned*}" /><br /></p>
+  \lambda_{i,j}&amp;=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,j}\end{aligned}\]</p>
+<p>Parameter \(\lambda_{i,j}\) is the sample mean, which is in turn the MLE of the Poisson distribution.</p>
+<h3 id="significance-testing">Significance Testing</h3>
+<p><a name="ss:significanceTesting"> Consider the probabilistic version of the \(\chi^2\) distribution test, defined as</p>
+<p>\[\begin{aligned}
+  \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)^2}{E_j(k_i)} \right)\end{aligned}\]</p>
 <p>where</p>
-<p><br /><img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=%5Cbegin%7Baligned%2A%7D%0A%20%20E_j%28k_i%29%20%3D%20%5Cfrac%7Bj%20%2A%20h_i%7D%7B%5Cvert%20G%5Cvert%7D%5Cend%7Baligned%2A%7D" alt="\begin{aligned*}
-  E_j(k_i) = \frac{j * h_i}{\vert G\vert}\end{aligned*}" title="\begin{aligned*}
-  E_j(k_i) = \frac{j * h_i}{\vert G\vert}\end{aligned*}" /><br /></p>
-<p>the expected support value on class <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=i" alt="i" title="i" /> when the sum of support values is <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" />. Note that it is derived from <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=j" alt="j" title="j" />, the current support value, and the target class size. Then, <img style="vertical-align:middle" src="http://chart.apis.google.com/chart?cht=tx&amp;chl=p%28%5Cchi%5E2%29%3D%5Coperatorname%7BChi-Square%7D%5Cleft%28%5Cvert%20H%5Cvert-1%5Cright%29" alt="p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)" title="p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)" />, i.e. the degrees of freedom equals the number of target classes minus one.</p>
+<p>\[\begin{aligned}
+  E_j(k_i) = \frac{j * h_i}{\vert G\vert}\end{aligned}\]</p>
+<p>the expected support value on class \(i\) when the sum of support values is \(j\). Note that it is derived from \(j\), the current support value, and the target class size. Then, \(p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)\), i.e. the degrees of freedom equals the number of target classes minus one.</p>
+<h2 id="algorithm">Algorithm</h2>
+<h3 id="implementation">Implementation</h3>
+<p>Patterns mined by BBRC are canonical, therefore a hash table can be used to gather results. Here, “canonical” means that two isomorphic subgraphs will be always represented by the same pattern string (so called <em>SMARTS strings</em>, which describe molecular fragments). The algorithm using \(n\) bootstrap samples is shown in <a href="#alg:bbrc-sample">Algorithm 1</a>.</p>
+
+
+<p><a name="alg:bbrc-sample">Algorithm</a> 1: Calculate BBRC descriptors on bootstrap samples of a database</p>
+<p>Input: \(n, minSamplingSupport, minFrequencyPerSample\) <br />
+(1) \(hash \gets \{\}\) <br />
+(2) for \(i:=1 \to n\) // Done in parallel <br />
+(3) &nbsp;&nbsp;\(res \gets BBRC(drawSample(n), minFrequencyPerSample)\) <br />
+(4) &nbsp;&nbsp;\(insert(hash,res)\) <br />
+(5) <br/>
+(6) \(ans \gets \emptyset\) <br />
+(7) for \(pattern \in keys(hash)\) <br />
+(8) &nbsp;&nbsp;if \(length(hash[pattern]) \geq minSamplingSupport\)<br /> 
+(9) &nbsp;&nbsp;&nbsp;&nbsp;if\((p=SignificanceTest(hash[pattern]))&gt;1-\alpha\) <br />
+(10) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\(ans\gets ans \cup (pattern,p)\) <br />
+Output: \(ans\)
+</p>
+
+<p>Line 1 creates an initially empty hash, which gathers results from BBRC mining in line 3. Importantly, the result \(res\) consists of patterns and support values <em>per class</em>, i.e. each pattern is used as key in the hash, where the values stored are the class-specific support values. On termination of the loop in line 5, each hash entry has at most \(n\) support values per class.</p>
+<p>Post-processing the results is very fast compared to the graph mining step. It consists of removing patterns that (line 8) were not often enough generated by the sampling process (have not enough entries in the hash), or which (line 9) do not significantly deviate from the overall distribution of classes, as assessed by the probabilistic \(\chi^2\) test described in section <a href="#ss:significanceTesting">2.4</a>.</p>
+<p>For better readability, the listing does not show how the results in \(ans\) are used further. They are processed as follows: the caller of Algorithm [alg:bbrc-sample] matches the patterns back onto the graphs of the original database (\(G\)), which yields instantiation an instantiation matrix, with the compounds in the rows and patterns (molecular fragments) in the columns. This matching is parallelized, and matrix entries can either be binary (occurrence vs no occurrence) or frequency (how many times the pattern occurs).</p>
 </body>
 </html>
