@@ -124,15 +124,15 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
     merge.time.end <<- Sys.time()
     merge.time <<- as.numeric(merge.time.end - merge.time.start, units="secs")
-    bb <- data.frame(bb,check.names=F)
-    levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
+    data.frame(bb,check.names=F)
   }
   else
     bb <<- del
-  
+
+  levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
   # Filter patterns with enough sampling support
   if (do.ot.log) otLog("Filtering")
-  enough.data=rep(F,length(names(bb)))
+  enough.data <- rep(F,length(names(bb)))
   for (l in ds.levels) { 
     mask <- apply(bb[levels==l,,drop=F], 2, function(x) { sum(complete.cases(x)) > min.sampling.support } )
     names(mask) <- NULL
@@ -153,10 +153,17 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   for (p in names(bb)[names(bb) != "levels"]) {
     # sp
     sp <- rep(0,length(bb$levels) / length(ds.levels))
+
     for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
     sp <- sp[complete.cases(sp)] 
     # dsp
     dsp <- prop.table(table(sp)) # Categorical distribution for p
+
+    if (do.ot.log) otLog("")
+    if (do.ot.log) otLog(names(dsp))
+    if (do.ot.log) otLog(dsp)
+    if (do.ot.log) otLog("")
+
     sp.values <- as.numeric(names(dsp))
     chisqv <- 0.0
     for (l in ds.levels) {
@@ -164,8 +171,6 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       spl <- spl[complete.cases(spl)]
       for (spv in sp.values) {
         chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
-        if (do.ot.log) otLog(paste("    spv",spv))
-        if (do.ot.log) otLog(paste("    CHS",chisqv))
       }
     }
     if (do.ot.log) otLog("")
