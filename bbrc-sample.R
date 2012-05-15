@@ -151,36 +151,30 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   ans.patterns <<- c()
   ans.p.values <<- c()
   for (p in names(bb)[names(bb) != "levels"]) {
-    # sp
     sp <- rep(0,length(bb$levels) / length(ds.levels))
-
     for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
     sp <- sp[complete.cases(sp)] 
-    # dsp
+    sp.zero <- sp == 0 # AM: remove zero entries from failed matches
+    if (do.ot.log) if (sum(sp.zero>0)) otLog(paste("Pattern",p,": removed",sum(sp.zero),"zero matches"))
+    sp <- sp[!sp.zero]
     dsp <- prop.table(table(sp)) # Categorical distribution for p
-
-    if (do.ot.log) otLog("")
-    if (do.ot.log) otLog(names(dsp))
-    if (do.ot.log) otLog(dsp)
-    if (do.ot.log) otLog("")
-
     sp.values <- as.numeric(names(dsp))
     chisqv <- 0.0
     for (l in ds.levels) {
       spl <- bb[bb$levels==l,p]
       spl <- spl[complete.cases(spl)]
+      spl <- spl[!sp.zero]
       for (spv in sp.values) {
         chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
       }
     }
-    if (do.ot.log) otLog("")
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
 
   }
 
-  if (do.ot.log) otLog(ans.patterns)
-  if (do.ot.log) otLog(ans.p.values)
+  # if (do.ot.log) otLog(ans.patterns)
+  # if (do.ot.log) otLog(ans.p.values)
   n.stripped.cst <<- sum(is.nan(ans.p.values) | ans.p.values<=0.95)
   n.kept <- sum(!is.nan(ans.p.values) & ans.p.values>0.95)
   if (do.ot.log) otLog(paste("Stripped",n.stripped.cst,"patterns, kept",n.kept))
