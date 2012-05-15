@@ -124,7 +124,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
 
     merge.time.end <<- Sys.time()
     merge.time <<- as.numeric(merge.time.end - merge.time.start, units="secs")
-    data.frame(bb,check.names=F)
+    bb <<- data.frame(bb,check.names=F)
   }
   else
     bb <<- del
