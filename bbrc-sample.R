@@ -50,9 +50,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     del=NULL,
                     bbrc.service=BBRC,
                     dataset.service=paste(SERVER,"dataset",sep='/'),
-                    do.ot.log=F) {
+                    do.ot.log=F,
+                    random.seed=1) {
 
-  set.seed(1)
   do.ot.log <<- do.ot.log # should be global
   merge.time.start <<- NULL
   merge.time.end <<- NULL
@@ -87,7 +87,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   if(is.null(del)) {
     bb <<- foreach(j=1:num.boots, .combine=mergeLists) %dopar% {
     #for (j in 1:num.boots) {
-      
+      set.seed(j+random.seed) 
       idx <- c()
       for (fac in ds.levels) {
         if (ds.endpoint.type == "numeric") fac = as.numeric(fac)
