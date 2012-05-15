@@ -30,7 +30,7 @@ if (file.exists("bbrc-sample-psqerr.R")) {
 }
 suppressPackageStartupMessages(library('RCurl'))
 suppressPackageStartupMessages(library('doMC'))
-registerDoMC()
+registerDoMC(4)
 
 # set global variables here
 SERVER <- "http://toxcreate3.in-silico.ch:8082"
@@ -81,36 +81,43 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   ds.levels <<- levels(ds.factors)
   ds.table <- table(ds.factors)
 
-  n <- dim(ds)[1]
+  ds.n <- dim(ds)[1]
 
   # main loop
   if(is.null(del)) {
-    bb <- foreach(j=1:num.boots, .combine=mergeLists) %dopar% {
+    bb <<- foreach(j=1:num.boots, .combine=mergeLists) %dopar% {
     #for (j in 1:num.boots) {
       
       idx <- c()
       for (fac in ds.levels) {
         if (ds.endpoint.type == "numeric") fac = as.numeric(fac)
-        draw <- drawSample(which(ds[,2] == fac))
+        draw <- drawSample(which(ds[,ds.endpoint] == fac))
         idx <- c(idx, draw)
       }
-      ds.sample <- ds[idx,]
+      ds.sample <- ds[idx,,drop=F]
+      ds.oob <- ds[! c(1:ds.n) %in% unique(idx),,drop=F]
       task <- postDataset(ds.sample, dataset.service, tempFilePrefix=paste("boot_bbrc_sample_",j,"_", sep=""))
       sampleUri <- getResult(task)
+      task <- postDataset(ds.oob, dataset.service, tempFilePrefix=paste("boot_bbrc_oob",j,"_", sep=""))
+      oobUri <- getResult(task)
 
       prediction.feature.uri <- paste(sampleUri, "feature", curlEscape(ds.endpoint), sep="/")
       bbrc.params <- list( dataset_uri=sampleUri, prediction_feature=prediction.feature.uri, min_frequency=as.character(min.frequency.per.sample))
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
+      bbrc.params <- list( dataset_uri=oobUri, feature_dataset_uri=sampleFeaturesUri)
+      task <- postRequest(paste(bbrc.service,"match",sep="/"),bbrc.params)
+      oobFeaturesUri <- getResult(task)
   
-      sampleFeatures <- getDataset(sampleFeaturesUri)
-      sampleFeatures <- as.data.frame(t(apply(ds.sample, 1, sampleFeatureRow, fds=sampleFeatures)), stringsAsFactors=F)
+      sampleFeatures <- getDataset(oobFeaturesUri)
+      sampleFeatures <- as.data.frame(t(apply(ds.oob, 1, sampleFeatureRow, fds=sampleFeatures)), stringsAsFactors=F)
       sampleFeatures["SMILES"] <- NULL
       apply( sampleFeatures[,names(sampleFeatures) != "SMILES"], 2, function(x) as.numeric(x) )
-      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.sample[,ds.endpoint],ds.levels))
+      class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.oob[,ds.endpoint],ds.levels))
   
       deleteRequest(sampleFeaturesUri)
       deleteRequest(sampleUri)
+      deleteRequest(oobUri)
      
       as.list(as.data.frame(class.support))
     }
@@ -121,7 +128,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
   }
   else
-    bb <- del
+    bb <<- del
   
   # Filter patterns with enough sampling support
   if (do.ot.log) otLog("Filtering")
@@ -156,21 +163,24 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       spl <- bb[bb$levels==l,p]
       spl <- spl[complete.cases(spl)]
       for (spv in sp.values) {
-        chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/n))
+        chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
+        if (do.ot.log) otLog(paste("    spv",spv))
+        if (do.ot.log) otLog(paste("    CHS",chisqv))
       }
     }
+    if (do.ot.log) otLog("")
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
 
   }
 
-  # if (do.ot.log) otLog(ans.patterns)
-  # if (do.ot.log) otLog(ans.p.values)
-  n.stripped.cst <<- sum(ans.p.values<=0.95)
-  n.kept <- sum(ans.p.values>0.95)
+  if (do.ot.log) otLog(ans.patterns)
+  if (do.ot.log) otLog(ans.p.values)
+  n.stripped.cst <<- sum(is.nan(ans.p.values) | ans.p.values<=0.95)
+  n.kept <- sum(!is.nan(ans.p.values) & ans.p.values>0.95)
   if (do.ot.log) otLog(paste("Stripped",n.stripped.cst,"patterns, kept",n.kept))
-  ans.patterns <<- ans.patterns[ans.p.values>0.95]
-  ans.p.values <<- ans.p.values[ans.p.values>0.95]
+  ans.patterns <<- ans.patterns[!is.nan(ans.p.values) & ans.p.values>0.95]
+  ans.p.values <<- ans.p.values[!is.nan(ans.p.values) & ans.p.values>0.95]
 
   if (do.ot.log) otLog("Done")
 }
