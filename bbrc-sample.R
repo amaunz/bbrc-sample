@@ -51,7 +51,8 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     bbrc.service=BBRC,
                     dataset.service=paste(SERVER,"dataset",sep='/'),
                     do.ot.log=F,
-                    random.seed=1) {
+                    random.seed=1,
+                    do.backbone=T) {
 
   do.ot.log <<- do.ot.log # should be global
   merge.time.start <<- NULL
@@ -102,7 +103,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       oobUri <- getResult(task)
 
       prediction.feature.uri <- paste(sampleUri, "feature", curlEscape(ds.endpoint), sep="/")
-      bbrc.params <- list( dataset_uri=sampleUri, prediction_feature=prediction.feature.uri, min_frequency=as.character(min.frequency.per.sample))
+      bbrc.params <- list( dataset_uri=sampleUri, prediction_feature=prediction.feature.uri, min_frequency=as.character(min.frequency.per.sample), backbone=tolower(as.character(do.backbone)))
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
       bbrc.params <- list( dataset_uri=oobUri, feature_dataset_uri=sampleFeaturesUri)

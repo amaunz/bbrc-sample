@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2012.4.27)  9 MAY 2012 09:10
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=latex 2012.4.27)  16 MAY 2012 11:35
 entering extended mode
  %&-line parsing enabled.
 **bbrc-sample.tex --src-specials
@@ -225,6 +225,10 @@ Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
 \ALG@tmplength=\skip62
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texmf-texlive/tex/latex/setspace/setspace.sty
+Package: setspace 2000/12/01 6.7 Contributed and Supported LaTeX2e package
+
+Package: `setspace' 6.7 <2000/12/01>
 )
 \@indexfile=\write3
 \openout3 = `bbrc-sample.idx'.
@@ -233,18 +237,18 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 (./bbrc-sample.aux)
 \openout1 = `bbrc-sample.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 87.
-LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 88.
+LaTeX Font Info:    ... okay on input line 88.
  ABD: EveryShipout initializing macros
 (/usr/share/texmf-texlive/tex/latex/graphics/color.sty
 Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
@@ -256,20 +260,20 @@ Package color Info: Driver file: dvips.def on input line 130.
 
 (/usr/share/texmf-texlive/tex/latex/graphics/dvipsnam.def
 File: dvipsnam.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
-))
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 114.
- [1
+)) [1
 
-] [2] [3]
-(./bbrc-sample.aux) ) 
+]
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 126.
+ [2] [3]
+(./bbrc-sample.bbl) [4] (./bbrc-sample.aux) ) 
 Here is how much of TeX's memory you used:
- 2859 strings out of 495062
- 36976 string characters out of 1182644
- 92752 words of memory out of 3000000
- 5982 multiletter control sequences out of 15000+50000
+ 2897 strings out of 495062
+ 37609 string characters out of 1182644
+ 90131 words of memory out of 3000000
+ 6013 multiletter control sequences out of 15000+50000
  10551 words of font info for 39 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 27i,12n,43p,579b,298s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 27i,12n,43p,820b,298s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on bbrc-sample.dvi (3 pages, 12436 bytes).
+Output written on bbrc-sample.dvi (4 pages, 15612 bytes).
