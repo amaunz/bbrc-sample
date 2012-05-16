@@ -178,9 +178,15 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   # if (do.ot.log) otLog(ans.p.values)
   n.stripped.cst <<- sum(is.nan(ans.p.values) | ans.p.values<=0.95)
   n.kept <- sum(!is.nan(ans.p.values) & ans.p.values>0.95)
+  #n.stripped.cst <<- sum(is.nan(ans.p.values)) ## FOR EXPERIMENTS
+  #n.kept <- sum(!is.nan(ans.p.values)) ## FOR EXPERIMENTS
+
   if (do.ot.log) otLog(paste("Stripped",n.stripped.cst,"patterns, kept",n.kept))
   ans.patterns <<- ans.patterns[!is.nan(ans.p.values) & ans.p.values>0.95]
   ans.p.values <<- ans.p.values[!is.nan(ans.p.values) & ans.p.values>0.95]
+  #ans.patterns <<- ans.patterns[!is.nan(ans.p.values)] ## FOR EXPERIMENTS
+  #ans.p.values <<- ans.p.values[!is.nan(ans.p.values)] ## FOR EXPERIMENTS
+
 
   if (do.ot.log) otLog("Done")
 }
