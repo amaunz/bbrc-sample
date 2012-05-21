@@ -52,11 +52,13 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     dataset.service=paste(SERVER,"dataset",sep='/'),
                     do.ot.log=F,
                     random.seed=1,
-                    do.backbone=T) {
+                    do.backbone=T,
+                    method="mle") {
 
   do.ot.log <<- do.ot.log # should be global
   merge.time.start <<- NULL
   merge.time.end <<- NULL
+  if (method!="mle" & method!="mean") { cat("Method not supported. Using 'mle' (default)"); method="mle" }
 
   # load dataset
   ds <- getDataset(dataset.uri)
@@ -158,17 +160,33 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     sp.zero <- sp == 0 # AM: remove zero entries from failed matches
     if (do.ot.log) if (sum(sp.zero>0)) otLog(paste("Pattern",p,": removed",sum(sp.zero),"zero matches"))
     sp <- sp[!sp.zero]
-    dsp <- prop.table(table(sp)) # Categorical distribution for p
-    sp.values <- as.numeric(names(dsp))
-    chisqv <- 0.0
-    for (l in ds.levels) {
-      spl <- bb[bb$levels==l,p]
-      spl <- spl[complete.cases(spl)]
-      spl <- spl[!sp.zero]
-      for (spv in sp.values) {
-        chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
+
+    # Maximum Likelihood Estimate
+    if (method=="mle") {
+      dsp <- prop.table(table(sp)) # Categorical distribution for p
+      sp.values <- as.numeric(names(dsp))
+      chisqv <- 0.0
+      for (l in ds.levels) {
+        spl <- bb[bb$levels==l,p]
+        spl <- spl[complete.cases(spl)]
+        spl <- spl[!sp.zero]
+        for (spv in sp.values) {
+          chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
+        }
       }
     }
+
+    # Simple Means
+    else {
+      chisqv <- 0.0
+      for (l in ds.levels) {
+        spl <- bb[bb$levels==l,p]
+        spl <- spl[complete.cases(spl)]
+        spl <- spl[!sp.zero]
+        chisqv <- chisqv + squaredErr(mean(spl), (mean(sp)*ds.table[l]/ds.n))
+      }
+    }
+
     ans.patterns <<- c(ans.patterns, p)
     ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
 
