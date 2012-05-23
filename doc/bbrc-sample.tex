@@ -89,7 +89,7 @@
 \setstretch{1.1}
 
 \begin{center}
-\begin{huge}Out-Of-Bag Predictive Graph Mining\end{huge}
+\begin{huge}Out-Of-Bag Discriminative Graph Mining\end{huge}
 
 Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Germany
 \end{center}
@@ -170,19 +170,19 @@ Patterns mined by BBRC are canonical, therefore a hash table can be used to gath
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \begin{algorithm}
-  \caption{Calculate BBRC descriptors on bootstrap samples of a database}
+  \caption{Estimate pattern significance on out-of-bag instances}
   \label{alg:bbrc-sample}
 \begin{algorithmic}[1]
-  \Require $n, minSamplingSupport, minFrequencyPerSample$
+  \Require $dataBase, numBoots, minSamplingSupport, minFrequencyPerSample$
   \State $hash \gets \{\}$
-  \For{$i:=1 \to n$} \Comment{Done in parallel}
-    \State $res \gets BBRC(drawSample(n), minFrequencyPerSample)$
+  \For{$i:=1 \to numBoots$} \Comment{Done in parallel}
+    \State $res \gets BBRC(drawSample(size(dataBase)), minFrequencyPerSample)$
     \State $insert(hash,res)$
   \EndFor
   \State $ans \gets \emptyset$
   \For{$pattern \in keys(hash)$}
     \If{$length(hash[pattern]) \geq minSamplingSupport$}
-      \If{$(p=SignificanceTest(hash[pattern]))>1-\alpha$}
+    \If{$(p=SignificanceTest(hash[pattern]))>1-\alpha$} \Comment{Test as in section \ref{ss:significanceTesting}}
         \State $ans\gets ans \cup (pattern,p)$
       \EndIf
     \EndIf
@@ -196,6 +196,48 @@ Line 1 creates an initially empty hash table to gather results from BBRC mining 
 Post-processing the results is very fast and incurs negligible overhead compared to the graph mining step. It consists of removing patterns that (line 8) were not generated often enough by the sampling process (have not enough entries in the hash table), or which (line 9) do not significantly deviate from the overall distribution of classes, as assessed by the probabilistic $\chi^2$ test described in section \ref{ss:significanceTesting}.
 
 For better readability, the listing does not show how the results in $ans$ are used further. They are processed as follows: the caller of Algorithm \ref{alg:bbrc-sample} matches the patterns back onto the graphs of the original database ($G$), which yields an instantiation matrix, with compounds in the rows and patterns (molecular fragments) in the columns. This matching is again done in parallel, and matrix entries can either be of type binary (occurrence vs no occurrence) or frequency (how many times the pattern occurs).
+
+\section{Experiments}
+Experiments were conducted to assess the quality of the out-of-bag estimation.
+
+\subsection{Comparison of $p$-Values}
+Three methods were compared by their ability to estimate the discriminative potential of patterns, by assessing the deviation between the $p$-values of patterns, as
+a) estimated by the respective method, and 
+b) obtained by matching the patterns to an independent test set
+
+The methods compared are
+
+\begin{enumerate}
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values probabilistically with Algorithm \ref{alg:bbrc-sample} (method=MLE).}
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values non-probabilistically with Algorithm \ref{alg:bbrc-sample} (by simply taking the mean of support levels $l$ for each target class, method=MEAN).}
+  \item{Single runs of the BBRC algorithm (method=BBRC).} 
+\end{enumerate}
+
+The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
+\begin{algorithm}
+  \caption{Estimation of $p$-values}
+  \label{alg:pValEstimate}
+\begin{algorithmic}[1]
+  \Require $graphDatabase, method$ \Comment{method is MLE, MEAN, or BBRC}
+  \State $\mathbf{R_1}=\left[ \right]$
+  \State $\mathbf{R_2}=\left[ \right]$
+  \For{$i:=1 \to 50$}
+    \State $[trainSet, testSet] = splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
+    \State $\left[ \mathbf{patterns}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
+    \State $\mathbf{p'} = match(\mathbf{patterns}, test)$ 
+    \State $ \mathbf{R_1} = \left[ \mathbf{R_1},\| E_1(\mathbf{p'}, \mathbf{p})\|_1 \right]$
+    \State $ \mathbf{R_2} = \left[ \mathbf{R_2},\| E_2(\mathbf{p'}, \mathbf{p})\|_1 \right]$
+  \EndFor
+  \Ensure $\mathbf{R_1},\mathbf{R_2}$
+\end{algorithmic}
+\end{algorithm}
+
+Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of patterns and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The patterns are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
+\begin{enumerate}
+  \item $E1 = |p-p'| := \sum_i |p(i) -p'(i)|$
+  \item $E2 = \|p-p'\|^2 := \sum_i (p(i) -p'(i))^2$
+\end{enumerate}
+
 
 \bibliography{bbrc-sample}
 \bibliographystyle{plain}
