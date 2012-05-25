@@ -96,19 +96,21 @@ Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Ge
 
 \section{Abstract}
 Class-correlated subgraph descriptors are calculated repeatedly on bootstrap samples of a database of molecular graphs, where each database graph is associated with one from a finite set of target classes. 
-The association between descriptors and the target class are aggregated over the \emph{out-of-bag} instances. Accordingly, the process follows the out-of-bag estimation approach, however, the application to graph mining is a novelty. 
-In fact, class-correlated graph mining is an unstable, supervised process and should therefore be seen in close context to model learning.
-The implementation presented is completely parallelized: several bootstrap samples are processed at a time and matched onto the out-of-bag instances. 
+The associations between descriptors and target classes are recorded over the \emph{out-of-bag} instances according to the well-known out-of-bag estimation approach. However, its application to graph mining is a novelty, since the latter is widely regarded as a computationally intensive task, which lends itself not easily to sampling. 
+However, class-correlated, discriminative graph mining is an unstable, supervised process and should therefore be seen in close context to model learning.
+The algorithmic implementation presented here uses  the efficient BBRC algorithm for mining the graphs inside each sample. Several bootstrap samples are processed at a time and matched onto the out-of-bag instances.  
 A probabilistic chi-square test is performed on the most frequently sampled descriptors (patterns) using a poisson maximum likelihood estimate.
 Patterns surviving the test are mapped back on the database molecules, using a parallelized molecular fragment matching method.
-Inside each sample, the efficient BBRC algorithm is employed for mining the graphs. 
 
 \section{Introduction}
-A deficiency of any data mining approach is that of selection bias: no training set is a faithful representation of true state of affairs. For the case of target-class correlated graph mining, this means that there is no way of inferring the exact relationships between chemical fragments and chemical reactivity. Moreover, class-correlated graph mining is an unstable process, where slight changes in the training data lead to quite different results. 
+A major impediment in data mining is known as selection bias: no training set (sample) is a faithful representation of true state of affairs (the distribution from which the sample was drawn). For the case of discriminative graph mining, this means that there is no way of inferring the exact relationships between chemical fragments and chemical reactivity. Moreover, class-correlated graph mining is an unstable process, where slight changes in the training data lead to quite different results. 
 %This is especially true for graph-mining methods that extract only the most correlated fragments from all feasible fragments (sparse selection).
-It has been shown that estimates obtained from out-of-bag instances (the latter obtained via bootstrap sampling) can drastically improve on estimates obtained from a single model, built using the whole training data, in the case of unstable prediction models \cite{breiman96oob}.
+It has been shown that estimates obtained from the out-of-bag instances of a bootstrap sampling process can drastically improve on estimates obtained from a single model, built using the whole training data, in the case of unstable prediction models \cite{breiman96oob}.
 
-In contrast to traditional out-of-bag-estimation, however, the focus is not on estimating the quality of certain model characteristics (such as node class probability), but instead the frequencies of class-correlated subgraphs on the target classes. The latter can be seen as a sort of model statistics, too, in that they are the outputs of supervised selection processes. However, no bagged predictor is built, since graph mining is about descriptor generation, and thus is a preprocessing step to model building.
+In contrast to traditional out-of-bag-estimation, however, the focus of this work is not on estimating the quality of certain model characteristics (such as node class probability), but instead the frequencies of class-correlated subgraphs on the target classes. The latter can be seen as a sort of model statistics, too, in that they are the outputs of supervised selection processes. However, no bagged predictor is built, since graph mining is about descriptor generation, and thus is a preprocessing step to model building.
+
+\section{Related Work}
+Method comp. Filter, Embedded (Tsuda). Sampling from POG (Hasan)
 
 \section{Methods}
 \subsection{Bootstrapping Graph Databases}
@@ -125,11 +127,11 @@ Define
 \begin{itemize}
   \item the frequency of support value $j$ on class $i$ as 
     \begin{equation}
-        w_{i,j}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0
+        w_{i,j}(x):=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0
     \end{equation}
   \item the frequency of support value $j$ on class $i$, given the sum of support value frequencies equals $h$, as 
     \begin{equation}
-      w_{i,j,h}:=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0
+      w_{i,j,h}(x):=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0
     \end{equation}
   \item the cumulative frequency of support value $j$ over classes as 
     \begin{equation}
@@ -146,14 +148,15 @@ Consider the finite set of support values $J \subset \mathbb{N}_0$ with $w_j > 0
 Consider the \textsc{Poisson} distribution for support value $k$ in class $i$, given the sum of support values equals $j$.
 \begin{align}
   p(k\vert\lambda_{i,j}) &= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
-  \lambda_{i,j}&=\sum_{l \in \mathbb{N}} l*w_{i,l,j} / \sum_{l \in \mathbb{N}} w_{i,l,j}
+  \lambda_{i,j}&=\left( \sum_{l \in \mathbb{N}} l*w_{i,l,j} \right) / \sum_{l \in \mathbb{N}} w_{i,l,j}
 \end{align}
-Parameter $\lambda_{i,j}$ is the sample mean, which is in turn the Maximum Likelihood Estimate of the \textsc{Poisson} distribution.
+Parameter $\lambda_{i,j}$ is the sample mean, which is in turn the maximum likelihood estimate of the \textsc{Poisson} distribution.
 
 \subsection{Significance Testing}
 \label{ss:significanceTesting}
-Consider the probabilistic version of the $\chi^2$ distribution test, defined as
+Consider the probabilistic version of the $\chi^2$ distribution test with Yates correction, defined as
 \begin{align}
+  \label{align:probX2}
   \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)-0.5)^2}{E_j(k_i)} \right)
 \end{align}
 where 
@@ -161,7 +164,21 @@ where
   E_j(k_i) = \frac{j * h_i}{\vert G\vert}
 \end{align}
 
-the expected support value on class $i$ when the sum of support values is $j$. Note that it is derived from $j$, the current support value, and the target class size. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)$, i.e. the degrees of freedom equals the number of target classes minus one.
+is the expected support value on class $i$ when the sum of support values is $j$. Note that it is derived from $j$, the current support value, and the target class size. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)$, i.e. the degrees of freedom equals the number of target classes minus one.
+
+Consider also the non-probabilistic version, a simplification of equation (\ref{align:probX2}):
+
+\begin{align}
+  \label{align:ordX2}
+  \chi^2 = \sum_{i \in H} \frac{(\overline{m}-E_i-0.5)^2}{E_i} 
+\end{align}
+
+with parameters
+\begin{align}
+  \overline{m}=\left( \sum_{l \in \mathbb{N}} j*w_{j} \right) / \sum_{l \in \mathbb{N}} w_{j}, \quad E_i = \frac{\overline{m} * h_i}{\vert G\vert}, \quad \overline{m_i}=\lambda_{i,j},
+\end{align}
+being the sample mean frequency over classes, the expected frequency for class $i$, and the sample mean frequency for class $i$, respectively.
+
 
 \section{Algorithm}
 
@@ -208,9 +225,9 @@ b) obtained by matching the patterns to an independent test set
 The methods compared are
 
 \begin{enumerate}
-  \item{Out-of-bag estimation of $p$-values by computing chi-square values probabilistically with Algorithm \ref{alg:bbrc-sample} (method=MLE).}
-  \item{Out-of-bag estimation of $p$-values by computing chi-square values non-probabilistically with Algorithm \ref{alg:bbrc-sample} (by simply taking the mean of support levels $l$ for each target class, method=MEAN).}
-  \item{Single runs of the BBRC algorithm (method=BBRC).} 
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to equation (\ref{align:probX2}). Denote this method by MLE.}
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to equation (\ref{align:ordX2}). Denote this method by MEAN.}
+  \item{Single runs of the BBRC algorithm. Denote this method by BBRC.} 
 \end{enumerate}
 
 The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
@@ -225,8 +242,8 @@ The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 
     \State $[trainSet, testSet] = splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
     \State $\left[ \mathbf{patterns}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
     \State $\mathbf{p'} = match(\mathbf{patterns}, test)$ 
-    \State $ \mathbf{R_1} = \left[ \mathbf{R_1},\| E_1(\mathbf{p'}, \mathbf{p})\|_1 \right]$
-    \State $ \mathbf{R_2} = \left[ \mathbf{R_2},\| E_2(\mathbf{p'}, \mathbf{p})\|_1 \right]$
+    \State $ \mathbf{R_1} = \left[ \mathbf{R_1}, E_1(\mathbf{p'}, \mathbf{p^B}) \right]$
+    \State $ \mathbf{R_2} = \left[ \mathbf{R_2}, E_2(\mathbf{p'}, \mathbf{p^B}) \right]$
   \EndFor
   \Ensure $\mathbf{R_1},\mathbf{R_2}$
 \end{algorithmic}
@@ -234,8 +251,8 @@ The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 
 
 Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of patterns and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The patterns are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
 \begin{enumerate}
-  \item $E1 = |p-p'| := \sum_i |p(i) -p'(i)|$
-  \item $E2 = \|p-p'\|^2 := \sum_i (p(i) -p'(i))^2$
+  \item $E1 := \sum_i \Big|\,p^B(i) -p'(i) \,\Big|$
+  \item $E2 := \sum_i \left(\, p^B(i) -p'(i) \,\right)^2$
 \end{enumerate}
 
 
