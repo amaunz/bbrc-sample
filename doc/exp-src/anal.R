@@ -1,5 +1,5 @@
 library(xtable)
-assays <- c("SAL", "MOU", "RAT", "MCC")
+assays <- c("SAL", "MOU", "RAT", "MCC", "KAZ")
 
 res = NULL
 for (i in 1:length(assays)) {

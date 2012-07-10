@@ -19,18 +19,20 @@
 
 
 # packages installed
-if (sum(installed.packages()[,1]=="RCurl")==0) install.packages('RCurl')
-if (sum(installed.packages()[,1]=="doMC")==0) install.packages('doMC')
+for (p in c('RCurl', 'doMC')) { 
+  if (!suppressPackageStartupMessages(suppressWarnings(require(p,character.only=T)))) { 
+    install.packages(p)
+    suppressPackageStartupMessages(require(p,character.only=T)) 
+  }
+}
+registerDoMC(4)
 
 # load packages and libs
-if (file.exists("bbrc-sample-psqerr.R")) { 
-  source("bbrc-sample-psqerr.R") 
+if (file.exists("bbrc-sample-lib.R")) { 
+  source("bbrc-sample-lib.R") 
 } else { 
-  source("bbrc-sample/bbrc-sample-psqerr.R") 
+  source("bbrc-sample/bbrc-sample-lib.R") 
 }
-suppressPackageStartupMessages(library('RCurl'))
-suppressPackageStartupMessages(library('doMC'))
-registerDoMC(4)
 
 # set global variables here
 SERVER <- "http://toxcreate3.in-silico.ch:8082"
@@ -153,31 +155,74 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   if (do.ot.log) otLog("Chisq")
   ans.patterns <<- c()
   ans.p.values <<- c()
-  for (p in names(bb)[names(bb) != "levels"]) {
-    sp <- rep(0,length(bb$levels) / length(ds.levels))
-    for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
-    sp <- sp[complete.cases(sp)] 
-    sp.zero <- sp == 0 # AM: remove zero entries from failed matches
-    if (do.ot.log) if (sum(sp.zero>0)) otLog(paste("Pattern",p,": removed",sum(sp.zero),"zero matches"))
-    sp <- sp[!sp.zero]
 
-    # Maximum Likelihood Estimate
-    if (method=="mle") {
-      dsp <- prop.table(table(sp)) # Categorical distribution for p
-      sp.values <- as.numeric(names(dsp))
+  # Maximum Likelihood Estimate
+  if (method=="mle") {
+
+    # find correlated class for oob estimated patterns
+    sp <- apply( bb[names(bb) != "levels"], 2, getLevelVecFromBB, as.numeric(bb$levels) )
+    sp <- lapply( sp, factor, levels=ds.levels )
+    sp <- lapply( sp, table ) # raw support per level
+    sp <- lapply( sp, function(x) x+1) # add-one smoothing
+    dsp <- lapply( sp, prop.table ) # relative support per level
+    sigFor <- lapply( dsp, getMaxClass, prop.table(ds.table))
+
+    # cycle through all the patterns
+    for (p in names(bb)[names(bb) != "levels"]) {
+
+      # identify patterns with the same class bias
+      myclass = sigFor[[p]] # get all patterns' class bias
+      myfriends = sigFor[names(sigFor)!=p] # select the rest of p's
+      myfriends = unlist(names(myfriends[unlist(lapply( myfriends, function(x) x==myclass))])) # friends: patterns w same class bias
+
+      # analyse p's list, remove missing and zeroes
+      sp <- rep(0,length(bb$levels) / length(ds.levels)) # fused list
+      for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
+
+      sp <- sp[complete.cases(sp)] # (1)
+      sp.zero <- sp == 0 # AM: remove zero entries from failed matches
+
+      # now the interesting part
       chisqv <- 0.0
       for (l in ds.levels) {
-        spl <- bb[bb$levels==l,p]
-        spl <- spl[complete.cases(spl)]
-        spl <- spl[!sp.zero]
-        for (spv in sp.values) {
-          chisqv <- chisqv + dsp[as.character(spv)] * rectIntegrate(f=wSquaredErr,from=0,to=10000,lambda=mean(spl[sp==spv]),spx=(ds.table[l]*spv/ds.n))
-        }
-      }
-    }
 
-    # Simple Means
-    else {
+        # clean up p's data
+        spl <- bb[bb$levels==l,p] # spl = 'support-per-level'
+        spl <- spl[complete.cases(spl)] # same as (1)
+        spl <- spl[!sp.zero] # must use sp.zero index, not local!
+
+        # calc friends weight based on MLE (TODO: extend to multinom)
+        friendsPvals = lapply ( 
+                dsp[myfriends], 
+                function(prob) { 
+                  sapply ( seq_along(spl), function(idx,spl,size,prob) dbinom(spl[idx],sp[idx],prob[l]), spl, sp, prob )
+                }
+              )
+
+        # re-estimate p's support-per-level based on friends' mean prob
+        splPvals <- sapply ( seq_along(spl), 
+                        function(idx,friendsPvals) {
+                          mean(sapply(friendsPvals, "[" , idx))
+                        }, friendsPvals )
+
+        chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*ds.table[l]/ds.n))
+      }
+      ans.patterns <<- c(ans.patterns, p)
+      ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
+    }
+  }
+
+
+  # Simple Means
+  else {
+    for (p in names(bb)[names(bb) != "levels"]) {
+      sp <- rep(0,length(bb$levels) / length(ds.levels)) # length for fused classes
+      for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
+      sp <- sp[complete.cases(sp)] 
+      sp.zero <- sp == 0 # AM: remove zero entries from failed matches
+      if (do.ot.log) if (sum(sp.zero>0)) otLog(paste("Pattern",p,": removed",sum(sp.zero),"zero matches"))
+      sp <- sp[!sp.zero]
+
       chisqv <- 0.0
       for (l in ds.levels) {
         spl <- bb[bb$levels==l,p]
@@ -185,11 +230,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
         spl <- spl[!sp.zero]
         chisqv <- chisqv + squaredErr(mean(spl), (mean(sp)*ds.table[l]/ds.n))
       }
+      ans.patterns <<- c(ans.patterns, p)
+      ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
     }
-
-    ans.patterns <<- c(ans.patterns, p)
-    ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
-
   }
 
   # if (do.ot.log) otLog(ans.patterns)
