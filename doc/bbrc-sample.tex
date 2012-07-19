@@ -95,27 +95,28 @@ Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Ge
 \end{center}
 
 \section{Abstract}
-Subgraph descriptors are repeatedly mined on bootstrap samples of databases of molecular graphs, where each graph in a database is associated with one from a finite set of target classes. 
+Subgraph descriptors are repeatedly mined on bootstrap samples of several databases of molecular graphs, where each graph in a database is associated with one from a finite set of target classes. 
 The associations between descriptors and target classes are recorded over the out-of-bag instances and used to estimate significance values of the descriptors. 
-The estimation is done via two different schemes, namely mean values and maximum likelihood estimation.
-We show that both methods improve greatly on the unstable process of discriminative subgraph mining in terms of bias and accuracy.
+We investigate two different schemes for the estimation of significance, involving mean values and a maximum likelihood estimation.
+We show that both methods improve greatly on the otherwise unstable process of discriminative subgraph mining in terms of bias and accuracy.
 
 \section{Introduction}
 A major impediment in data mining is that no sample is a faithful representation of the distribution from which the sample was drawn. 
-For example, in discriminative subgraph mining, there is no way of inferring the exact correlatons between chemical fragments and the target classes, which can serve to identify chemical reactivity of compounds that incorporate or not incorporate the fragments, since only finite samples can be processed by a computer. 
+For example, in discriminative subgraph mining, there is no way of inferring the exact correlations between chemical fragments and the target classes, which can serve to identify chemical reactivity of compounds that incorporate or not incorporate the fragments, since only finite samples can be processed by a computer. 
 Moreover, class-correlated graph mining is an unstable process, where slight changes in the sample lead to very different results. 
 Fortunately, estimates obtained from the out-of-bag instances of a bootstrap sampling process can drastically improve on estimates obtained from the whole sample \cite{bylander02estimating, breiman96oob}.
 
 Subgraph mining is often used as a preprocessing step to model building, because class-correlated subgraphs are useful as descriptors for chemical datasets \cite{bringmann10lego,maunz11efficient}.
-In contrast to bagging, no combined predictor is generated in this work, at least not in the sense of a model. Instead, it employs the out-of-bag instances to estimate the frequencies of the subgraphs on the target classes and finally combine the most predictive descriptors into a data set. 
-Class-correlated subgraph mining is supervised process that should be seen in close context to model building. Thus, the generated data set could be regarded, in analogy to a bagged predictor, as ``bagged descriptor set''.
-
+This work employs the out-of-bag instances to estimate the frequencies of the subgraphs on the target classes and finally combine the most predictive descriptors into a data set. 
+In contrast to bagging, no combined predictor is generated in this work, at least not in the strict sense. 
+However, class-correlated subgraph mining is supervised process that should be seen in close context to model building. 
+Thus, the generated data set could be regarded, in analogy to a bagged predictor, as ``bagged descriptor set''.
 
 \section{Related Work}
 
-Subgraph boosting \cite{saigo09gboost} is an integrated procedure that employs subsampling internally and creates a model. The method presented here is clearly different from subgraph boosting (and from boosting in general), because it calculates descriptors that can be used in wide variety of models afterwards. 
+Subgraph boosting \cite{saigo09gboost} is an integrated procedure that employs subsampling internally and creates a model. The method presented here is clearly different from subgraph boosting (and from boosting in general), because it calculates descriptors that can be used in wide variety of models afterwards. It is similar in that it outputs a small collection of most discriminative subgraphs, however, the collection computed here is much more stable, because it is robust against perturbations of the dataset.
 
-Out-of-bag methods have been used to re-estimate node probabilities and node error rates in decision trees \cite{breiman96oob} as well as the accuracy \cite{bylander02estimating, breiman96oob} and bias \cite{bylander02estimating} of the associated bagged predictor.
+Out-of-bag methods have been used to robustly (re-)estimate node probabilities and node error rates in decision trees \cite{breiman96oob} as well as the accuracy \cite{bylander02estimating, breiman96oob} and bias \cite{bylander02estimating} of the associated bagged predictor.
 
 \section{Methods}
 \subsection{Bootstrapping Graph Databases}
