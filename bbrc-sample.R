@@ -200,12 +200,12 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
               )
 
         # re-estimate p's support-per-level based on friends' mean prob
-        splPvals <- sapply ( seq_along(spl), 
+        logSplPvals <- sapply ( seq_along(spl), 
                         function(idx,friendsPvals) {
-                          mean(sapply(friendsPvals, "[" , idx))
+                          curPVals=sapply(friendsPvals, "[" , idx)
+                          cumsum(log(curPVals))[length(curPVals)]
                         }, friendsPvals )
-
-        chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*ds.table[l]/ds.n))
+        chisqv <- chisqv + squaredErr(exp(wlogmean(log(spl),logSplPvals)), (mean(sp)*ds.table[l]/ds.n))
       }
       ans.patterns <<- c(ans.patterns, p)
       ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))

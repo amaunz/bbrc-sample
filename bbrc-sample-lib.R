@@ -64,3 +64,41 @@ squaredErr <- function(x, spx) {
   (x-spx-0.5)^2 / spx
 }
 
+
+#' Computes the cumulative sum in terms of logarithmic in- and output 
+#' Useful to avoid numerical underflow when summing products of probabilities 
+#' When using this function, one can sum sums of log probabilities 
+#' See also: http://goo.gl/aJopi 
+#' @param logx a vector of log numbers (need not be probabilities) 
+#' @return the log of the sum of the exponentiated input 
+#' @examples { 
+#'   x=c(1,2,3) 
+#'   exp(logsum(log(x))) 
+#'   # 6 
+#' } 
+
+logsum <- function(logx) {
+  mypi=max(logx)
+  mysum=0
+  for (i in 1:length(logx)) {
+    mysum = mysum + exp(logx[i]-mypi)
+  }
+  mypi + log(mysum)
+}
+
+
+#' Computes the weighted mean in terms of log
+#' @param logx a vector of log numbers (need not be probabilities) 
+#' @param logw a vector of log weights (need not be probabilities) 
+#' @return the log of the weighted mean of the exponentiated input 
+#' @examples { 
+#'   weighted.mean(c(1,2),c(2,1)) # 1.33333333
+#'   exp(wlogmean(log(c(1,2)),log(c(2,1)))) # 1.33333333
+#' } 
+
+wlogmean <- function (logx,logw) {
+    names(logx)=NULL
+    names(logw)=NULL
+    logsum(logx+logw)-logsum(logw)
+}
+
