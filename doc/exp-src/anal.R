@@ -86,7 +86,7 @@ runPairedTests <- function(x,y,alpha=.05) {
 }
 
 
-tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.001, outputFile="sign.tex") {
+tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.0001, outputFile="sign.tex") {
   res = NULL
   if (length(assays)>0) {
     results=list()
