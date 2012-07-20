@@ -124,4 +124,4 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
 }
 
 tests(assays=c("SAL", "RAT", "MCC", "KAZ"))
-#anal(assays=c("SAL", "RAT", "MCC", "KAZ"), outputFile="anal.tex")
+anal(assays=c("SAL", "RAT", "MCC", "KAZ"))
