@@ -300,29 +300,29 @@ The process was repeated 100 times, with N=50 bootstrap samples for methods 1 an
   \label{alg:pValEstimate}
 \begin{algorithmic}[1]
   \Require $graphDatabase, method$ \Comment{method is MLE, MEAN, or BBRC}
-  \State $\mathbf{R_1}=\left[ \right]$
-  \State $\mathbf{R_2}=\left[ \right]$
+  \State $\mathbf{E_1}=\left[ \right]$
+  \State $\mathbf{E_2}=\left[ \right]$
   \For{$i:=1 \to 50$}
     \State $[trainSet, testSet] = splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
     \State $\left[ \mathbf{subgraphs}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
     \State $\mathbf{p'} = match(\mathbf{subgraphs}, test)$ 
-    \State $ \mathbf{R_1} = \left[ \mathbf{R_1}, E_1(\mathbf{p'}, \mathbf{p^B}) \right]$
-    \State $ \mathbf{R_2} = \left[ \mathbf{R_2}, E_2(\mathbf{p'}, \mathbf{p^B}) \right]$
+    \State $ \mathbf{E_1} = \left[ \mathbf{E_1}, E_1(\mathbf{p'}, \mathbf{p^B}) \right]$
+    \State $ \mathbf{E_2} = \left[ \mathbf{E_2}, E_2(\mathbf{p'}, \mathbf{p^B}) \right]$
   \EndFor
-  \Ensure $\mathbf{R_1},\mathbf{R_2}$
+  \Ensure $\mathbf{E_1},\mathbf{E_2}$
 \end{algorithmic}
 \end{algorithm}
 
 Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of subgraphs and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The subgraphs are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
 \begin{enumerate}
-  \item $E1 := \sum_i \Big|\,p^B(i) -p'(i) \,\Big|$
-  \item $E2 := \sum_i \left(\, p^B(i) -p'(i) \,\right)^2$
+  \item $E_1 := \frac{1}{n} \sum_i \,p^B(i) -p'(i) \,$, to identify bias.
+  \item $E_2 := \frac{1}{n} \sum_i \Big|\,p^B(i) -p'(i) \,\Big|$, to assess accuracy
 \end{enumerate}
 
-Table \ref{t:anal} details the results. 
+Table \ref{t:anal} details the results (mean values across bootstraps)
 \input{anal}
 
-Table \ref{t:sign} details the results. 
+Table \ref{t:sign} details the results ($n$=100). 
 \input{sign}
 
 \bibliography{bbrc-sample}
