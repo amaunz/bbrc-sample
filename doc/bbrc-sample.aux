@@ -12,19 +12,27 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2}Introduction}{1}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Related Work}{1}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Methods}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Bootstrapping Graph Databases}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Frequencies}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Probability Distributions}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Significance Testing}{3}}
-\newlabel{ss:significanceTesting}{{4.4}{3}}
-\newlabel{align:probX2}{{7}{3}}
-\newlabel{align:ordX2}{{9}{3}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Algorithm}{3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Implementation}{3}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Estimate pattern significance on out-of-bag instances}}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Formulation of Out-Of-Bag Discriminative Graph Mining}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Significance Estimation}{2}}
+\newlabel{s:significance-estimation}{{5}{2}}
+\newlabel{eqn:total-support}{{1}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Simple Mean}{2}}
+\newlabel{ss:simple-mean}{{5.1}{2}}
+\citation{bylander02estimating}
+\newlabel{align:meanX2}{{2}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Maximum Likelihood Estimation}{3}}
+\newlabel{ss:MLE}{{5.2}{3}}
+\newlabel{eqn:mlexpr}{{4}{3}}
+\newlabel{eqn:avgpr}{{5}{3}}
+\newlabel{eqn:avgki}{{6}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Algorithm}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Implementation}{4}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Estimate subgraph significance on out-of-bag instances}}{4}}
 \newlabel{alg:bbrc-sample}{{1}{4}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Experiments}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Comparison of $p$-Values}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Experiments}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Comparison of $p$-Values}{5}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Estimation of $p$-values}}{5}}
+\newlabel{alg:pValEstimate}{{2}{5}}
 \bibdata{bbrc-sample}
 \bibcite{bringmann10lego}{1}
 \bibcite{bylander02estimating}{2}
@@ -32,7 +40,7 @@
 \bibcite{maunz11efficient}{4}
 \bibcite{saigo09gboost}{5}
 \bibstyle{plain}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Estimation of $p$-values}}{5}}
-\newlabel{alg:pValEstimate}{{2}{5}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Analysis of BBRC sampling}}{6}}
 \newlabel{t:anal}{{1}{6}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Significance ($p$=0.001)}}{6}}
+\newlabel{t:sign}{{2}{6}}

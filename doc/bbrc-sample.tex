@@ -119,81 +119,139 @@ Subgraph boosting \cite{saigo09gboost} is an integrated procedure that employs s
 Out-of-bag methods have been used to robustly (re-)estimate node probabilities and node error rates in decision trees \cite{breiman96oob} as well as the accuracy \cite{bylander02estimating, breiman96oob} and bias \cite{bylander02estimating} of the associated bagged predictor.
 
 \section{Methods}
-\subsection{Bootstrapping Graph Databases}
-Let $G$ a set of graphs. A \emph{graph database} consists of $G$ and a function $g: G \rightarrow H$, $H \subset \mathbb{N}_0$, mapping graphs to a finite set of \emph{target classes}. Define the class sizes as $h_i=\vert\{G_j \in G \; \vert\; g(G_i)=i\}\vert$, $\forall i \in H$.
+\subsection{Formulation of Out-Of-Bag Discriminative Graph Mining}
 
-Consider a pattern generating process $F: (G,g) \rightarrow (X,k)$, $k=\left(k_1,\ldots,k_{\vert H\vert}\right)$. $X$ are called patterns, $k_i: X \rightarrow \mathbb{N}_0$ are referred to as \emph{pattern support functions} on the target classes.
+A graph database $G$ consists of $G$ and a finite set of target classes $I$,
+such that any graph is associated with some class. We refer to the subset of
+graphs in $G$ that are associated with class $i$ as $G^i$.
 
-Run non-parametric bootstrapping, by drawing $n$ samples with replacement from $G$. Ensure that each sample comprises exactly $h_i$ graphs $G$ with $g(G)=i$, drawn with uniform probability $1/h_i$ inside each class $i \in H$ (stratification).
+The procedure for estimating subgraph significance starts by splitting the graph
+database randomly into equal-sized training and test databases ($G_{Train}$ and
+$G_{Test}$). Then, bootstrapping is performed on the training data. We run
+non-parametric bootstrapping, by drawing $n=\vert G_{Train}\vert$ samples with
+replacement from  $G_{Train}$. We use stratified samples, i.e. each sample
+comprises exactly $\vert G_{Train}^i\vert$ graphs associated with class $i$, drawn with
+uniform probability $1/h_i$ inside each class $i$.
 
-The result of running $F$ on the bootstrap samples is a pattern set $X= X^{(1)}\cup\ldots\cup,X^{(n)}$, and sets of function vectors $k^{(1)},\ldots,k^{(n)}$.
+Consider further a subgraph mining process, creating pairs, each consisting of
+a subgraph and class specific support $(x,k_1,\ldots,k_{\vert I\vert})$,
+meaning that subgraph $x$ occurs $k_i$ times in (a graph with) target class
+$i$.  The result of subgraph mining on the $N$ bootstrap samples is recorded,
+such that for each $x$, the list of class specific supports is extended, finally
+yielding $(x,\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$, where $\mathbf{k_i}$
+is a vector $(k_i^1\ldots k_i^N)^T$, containing all the class specific supports
+from the $N$ bootstrap samples.
+Importantly, the $\mathbf{k_i}$ vectors in general have many missing entries
+(\emph{NA} values), due to the instability of discriminative subgraph mining, i.e.
+perturbations to the dataset (such as bootstrap sampling) yield in general a
+different selection of subgraphs. Thus, we remove the most infrequent subgraphs
+from the result set in a postprocessing step. We use a fixed threshold for the number of occurrences in the result set of $\lfloor0.3*N\rfloor$ and keep only subgraphs occurring more often.
 
-\subsection{Frequencies}
-Define
-\begin{itemize}
-  \item the frequency of support value $j$ on class $i$ as 
-    \begin{equation}
-        w_{i,j}(x):=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j}\, , \; \forall i \in H, j \in \mathbb{N}_0
-    \end{equation}
-  \item the frequency of support value $j$ on class $i$, given the sum of support value frequencies equals $h$, as 
-    \begin{equation}
-      w_{i,j,h}(x):=\sum_{l=1}^n \delta_{k_i^{(l)}(x),\, j} * \delta_{\sum_{i=1}^{\vert H \vert}k_i^{(l)}(x),\, h}\, , \; \forall i \in H, \; j,h \in \mathbb{N}_0
-    \end{equation}
-  \item the cumulative frequency of support value $j$ over classes as 
-    \begin{equation}
-      w_j(x):=\sum_{i \in H}w_{i,j}(x)
-    \end{equation}
-\end{itemize}
-The remainder of this section drops dependency on $x$ for better readability.
+On average, about 37\% (1/$e$) of training instances will not be drawn in any
+bootstrap sample. These are the out-of-bag instances, on which the estimation
+of significance values is performed. Two schemes are used for this, where both
+perform a chi-squared distribution test for each subgraph, estimating the
+deviation of the occurrences of the current subgraph from the global
+distribution of target classes. Both schemes calculate an estimated count from
+the out-of-bag occurrences obtained over all bootstrap samples. The first one
+uses a simple mean over the occurrences of the current subgraph, while the
+second one uses a maximum likelihood estimate obtained from some of the other
+subgraph, selected based on their similarity with the current subgraph. The next
+section explains the two schemes in more detail.
 
-\subsection{Probability Distributions}
-Consider the finite set of support values $J \subset \mathbb{N}_0$ with $w_j > 0, \; j \in J$, and the categorical distribution for support value $j \in J$ with parameter $W_J:=\sum_{j \in J} w_j$:
+\section{Significance Estimation}
+\label{s:significance-estimation}
+
+For each subgraph $x$, estimation of its class significance is based on the class specific supports. 
+The total support is determined from the class specific supports:
+
+\begin{equation}
+  \mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}
+  \label{eqn:total-support}
+\end{equation}
+
+The vector $\mathbf{k}$ contains the (total) support values for $x$ for each bootstrap sample.
+
+\subsection{Simple Mean}
+\label{ss:simple-mean}
+
+Consider the $\chi^2$ estimate obtained from the sample mean:
+
 \begin{align}
-  p(j|W_J) &= w_j/W_J
+  \chi^2 = \sum_{i \in I} \frac{(\overline{\mathbf{k_i}}-E_i-0.5)^2}{E_i} 
+  \label{align:meanX2}
 \end{align}
-Consider the \textsc{Poisson} distribution for support value $k$ in class $i$, given the sum of support values equals $j$.
-\begin{align}
-  p(k\vert\lambda_{i,j}) &= \operatorname{Pois}\left(\lambda_{i,j}\right), \text{where}\\
-  \lambda_{i,j}&=\left( \sum_{l \in \mathbb{N}} l*w_{i,l,j} \right) / \sum_{l \in \mathbb{N}} w_{i,l,j}
-\end{align}
-Parameter $\lambda_{i,j}$ is the sample mean, which is in turn the maximum likelihood estimate of the \textsc{Poisson} distribution.
 
-\subsection{Significance Testing}
-\label{ss:significanceTesting}
-Consider the probabilistic version of the $\chi^2$ distribution test with Yates correction, defined as
-\begin{align}
-  \label{align:probX2}
-  \chi^2 = \sum_{i \in H}\; \left( \sum_{j \in J}p(j|W_j) \int_0^{\infty}dk\; p(k|\lambda_{i,j}) \frac{(k-E_j(k_i)-0.5)^2}{E_j(k_i)} \right)
-\end{align}
 where 
-\begin{align}
-  E_j(k_i) = \frac{j * h_i}{\vert G\vert}
-\end{align}
-
-is the expected support value on class $i$ when the sum of support values is $j$. Note that it is derived from $j$, the current support value, and the target class size. Then, $p(\chi^2)=\operatorname{Chi-Square}\left(\vert H\vert-1\right)$, i.e. the degrees of freedom equals the number of target classes minus one.
-
-Consider also the non-probabilistic version, a simplification of equation (\ref{align:probX2}):
 
 \begin{align}
-  \label{align:ordX2}
-  \chi^2 = \sum_{i \in H} \frac{(\overline{m}-E_i-0.5)^2}{E_i} 
+  E_i=\frac{\overline{\mathbf{k}}*\vert G^i\vert}{\vert G \vert}
 \end{align}
 
-with parameters
-\begin{align}
-  \overline{m}=\left( \sum_{l \in \mathbb{N}} j*w_{j} \right) / \sum_{l \in \mathbb{N}} w_{j}, \quad E_i = \frac{\overline{m} * h_i}{\vert G\vert}, \quad \overline{m_i}=\lambda_{i,j},
-\end{align}
-being the sample mean frequency over classes, the expected frequency for class $i$, and the sample mean frequency for class $i$, respectively.
+is the expected count for class $i$.
 
+\subsection{Maximum Likelihood Estimation}
+\label{ss:MLE}
+
+The set of ``surviving'' subgraphs (i.e. the ones remaining after the
+postprocessing step) is rather small compared to the overall set of subgraphs.
+Moreover, the graph mining process mines only subgraphs with a significance
+value of $\ge 95\%$ on each specific bootstrap, which should yield a very similar
+class distribution, especially for these frequently occurring subgraphs.  Thus,
+we consider the latter largely independent from each other, and, in order to
+improve on simple mean estimation, we use the suspected stability across
+surviving subgraphs and take their support values into account when estimating
+support value of subgraph $x$. 
+
+The first step in this process is to extract the subgraphs with same class bias
+as $x$, i.e the class is identified in which $x$ appears more frequently than
+expected by comparing $x$'s relative (local) frequencies on the target classes
+to the overall (global) relative frequencies of target classes (i.e. on $G$).
+Note that local and global frequencies are comparable due to the stratified
+bootstrapping approach. Local ties are broken in favor of the dominant global
+class. In case of a further tie on the global level, one of the globally
+dominant classes is chosen with uniform probability. Given $x$'s class bias,
+the other subgraphs with the same class bias (biases determined in the same
+manner) are set aside.
+
+In a second step, the subgraphs with same class bias are used to correct $x$'s
+local frequencies by weighting. This approach has some similarity to the work
+by Bylander \cite{bylander02estimating}, however, his aim is to correct
+instance predictions, and his correction employs similar out-of-bag instances,
+whereas our correction happens across bootstraps, and on the subgraphs (not
+instances) obtained collectively from all the bootstrap samples.  For each
+class, we model the event that each $k_i^j \in \mathbf{k_i}$ would occur for
+each of the subgraphs with the same class bias as $x$ as a multinomial
+selection process.  More specifically, we determine the class probabilities for
+for each subgraph with the same class bias as $x$. The maximum likelihood
+estimator for such a subgraph $x'$ is the vector of relative class specific
+support values:
+\begin{equation}
+  \mathbf{\alpha} = \left(\frac{\sum{\mathbf{k_1}}}{\sum{\mathbf{k}}},\ldots,\frac{\sum{\mathbf{k_I}}}{\sum{\mathbf{k}}}\right)
+  \label{eqn:mlexpr}
+\end{equation}
+where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $x'$. Following that, for
+each $k_i^j \in \mathbf{k_i}$ pertaining to $x$, an average probability is determined from this
+collection of multinomials:
+\begin{equation}
+  p(k_i^j)=\frac{\sum_{x'} p(k_i^j; \mathbf{\alpha})}{\sum_{x'}1}
+  \label{eqn:avgpr}
+\end{equation}
+and the $k_i^j$ values are multiplied with their probabilities in a weighted average.
+\begin{equation}
+  \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j}{\sum_j1}
+  \label{eqn:avgki}
+\end{equation}
+Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value.
 
 \section{Algorithm}
 
 \subsection{Implementation}
-Patterns mined by BBRC are canonical, therefore a hash table can be used to gather results. Here, ``canonical'' means that two isomorphic subgraphs will be always represented by the same pattern string (so called \emph{SMARTS strings}, which describe molecular fragments). The algorithm using $n$ bootstrap samples is shown in Algorithm \ref{alg:bbrc-sample}.
+Subgraphs mined by BBRC are canonical, therefore a hash table can be used to gather results. Here, ``canonical'' means that two isomorphic subgraphs will be always represented by the same subgraph string (so called \emph{SMARTS strings}, which describe molecular fragments). The algorithm using $n$ bootstrap samples is shown in Algorithm \ref{alg:bbrc-sample}.
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \begin{algorithm}
-  \caption{Estimate pattern significance on out-of-bag instances}
+  \caption{Estimate subgraph significance on out-of-bag instances}
   \label{alg:bbrc-sample}
 \begin{algorithmic}[1]
   \Require $dataBase, numBoots, minSamplingSupport, minFrequencyPerSample$
@@ -203,10 +261,10 @@ Patterns mined by BBRC are canonical, therefore a hash table can be used to gath
     \State $insert(hash,res)$
   \EndFor
   \State $ans \gets \emptyset$
-  \For{$pattern \in keys(hash)$}
-    \If{$length(hash[pattern]) \geq minSamplingSupport$}
-    \If{$(p=SignificanceTest(hash[pattern]))>1-\alpha$} \Comment{Test as in section \ref{ss:significanceTesting}}
-        \State $ans\gets ans \cup (pattern,p)$
+  \For{$subgraph \in keys(hash)$}
+    \If{$length(hash[subgraph]) \geq minSamplingSupport$}
+    \If{$(p=SignificanceTest(hash[subgraph]))>1-\alpha$}
+        \State $ans\gets ans \cup (subgraph,p)$
       \EndIf
     \EndIf
   \EndFor
@@ -214,29 +272,29 @@ Patterns mined by BBRC are canonical, therefore a hash table can be used to gath
 \end{algorithmic}
 \end{algorithm}
 
-Line 1 creates an initially empty hash table to gather results from BBRC mining in line 3. Importantly, the result $res$ consists of patterns and support values \emph{per class}, i.e. each pattern is used as key in the hash, where the values stored are the class-specific support values. Importantly, these values correspond to the \emph{out-of-bag} instances, not the \emph{in-bag} instances (bootstrap samples). The necessary step of matching the patterns mined from the \emph{in-bag} instances (line 3) on the \emph{out-of-bag} instances is not shown. It is understood to happen inside the BBRC step and implemented using a parallelized molecular fragment matching method. On termination of the loop in line 5, each hash entry has at most $n$ support values per class.
+Line 1 creates an initially empty hash table to gather results from BBRC mining in line 3. Importantly, the result $res$ consists of subgraphs and support values \emph{per class}, i.e. each subgraph is used as key in the hash, where the values stored are the class-specific support values. Importantly, these values correspond to the \emph{out-of-bag} instances, not the \emph{in-bag} instances (bootstrap samples). The necessary step of matching the subgraphs mined from the \emph{in-bag} instances (line 3) on the \emph{out-of-bag} instances is not shown. It is understood to happen inside the BBRC step and implemented using a parallelized molecular fragment matching method. On termination of the loop in line 5, each hash entry has at most $n$ support values per class.
 
-Post-processing the results is very fast and incurs negligible overhead compared to the graph mining step. It consists of removing patterns that (line 8) were not generated often enough by the sampling process (have not enough entries in the hash table), or which (line 9) do not significantly deviate from the overall distribution of classes, as assessed by the probabilistic $\chi^2$ test described in section \ref{ss:significanceTesting}.
+Post-processing the results is very fast and incurs negligible overhead compared to the graph mining step. It consists of removing subgraphs that (line 8) were not generated often enough by the sampling process (have not enough entries in the hash table), or which (line 9) do not significantly deviate from the overall distribution of classes, as assessed by the appropriate $\chi^2$ test variant .
 
-For better readability, the listing does not show how the results in $ans$ are used further. They are processed as follows: the caller of Algorithm \ref{alg:bbrc-sample} matches the patterns back onto the graphs of the original database ($G$), which yields an instantiation matrix, with compounds in the rows and patterns (molecular fragments) in the columns. This matching is again done in parallel, and matrix entries can either be of type binary (occurrence vs no occurrence) or frequency (how many times the pattern occurs).
+For better readability, the listing does not show how the results in $ans$ are used further. They are processed as follows: the caller of Algorithm \ref{alg:bbrc-sample} matches the subgraphs back onto the graphs of the original database ($G$), which yields an instantiation matrix, with compounds in the rows and subgraphs (molecular fragments) in the columns. This matching is again done in parallel, and matrix entries can either be of type binary (occurrence vs no occurrence) or frequency (how many times the subgraph occurs).
 
 \section{Experiments}
 Experiments were conducted to assess the quality of the out-of-bag estimation.
 
 \subsection{Comparison of $p$-Values}
-Three methods were compared by their ability to estimate the discriminative potential of patterns, by assessing the deviation between the $p$-values of patterns, as
+Three methods were compared by their ability to estimate the discriminative potential of subgraphs, by assessing the deviation between the $p$-values of subgraphs, as
 a) estimated by the respective method, and 
-b) obtained by matching the patterns to an independent test set
+b) obtained by matching the subgraphs to an independent test set
 
 The methods compared are
 
 \begin{enumerate}
-  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to equation (\ref{align:probX2}). Denote this method by MLE.}
-  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to equation (\ref{align:ordX2}). Denote this method by MEAN.}
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to section \ref{ss:MLE}. Denote this method by MLE.}
+  \item{Out-of-bag estimation of $p$-values by computing chi-square values with Algorithm \ref{alg:bbrc-sample}, according to section \ref{ss:simple-mean}. Denote this method by MEAN.}
   \item{Single runs of the BBRC algorithm. Denote this method by BBRC.} 
 \end{enumerate}
 
-The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
+The process was repeated 100 times, with N=50 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
 \begin{algorithm}
   \caption{Estimation of $p$-values}
   \label{alg:pValEstimate}
@@ -246,8 +304,8 @@ The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 
   \State $\mathbf{R_2}=\left[ \right]$
   \For{$i:=1 \to 50$}
     \State $[trainSet, testSet] = splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
-    \State $\left[ \mathbf{patterns}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
-    \State $\mathbf{p'} = match(\mathbf{patterns}, test)$ 
+    \State $\left[ \mathbf{subgraphs}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
+    \State $\mathbf{p'} = match(\mathbf{subgraphs}, test)$ 
     \State $ \mathbf{R_1} = \left[ \mathbf{R_1}, E_1(\mathbf{p'}, \mathbf{p^B}) \right]$
     \State $ \mathbf{R_2} = \left[ \mathbf{R_2}, E_2(\mathbf{p'}, \mathbf{p^B}) \right]$
   \EndFor
@@ -255,15 +313,17 @@ The process was repeated 50 times, with 100 bootstrap samples for methods 1 and 
 \end{algorithmic}
 \end{algorithm}
 
-Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of patterns and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The patterns are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
+Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of subgraphs and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The subgraphs are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
 \begin{enumerate}
   \item $E1 := \sum_i \Big|\,p^B(i) -p'(i) \,\Big|$
   \item $E2 := \sum_i \left(\, p^B(i) -p'(i) \,\right)^2$
 \end{enumerate}
 
-Table \ref{t:anal} details the results.
-
+Table \ref{t:anal} details the results. 
 \input{anal}
+
+Table \ref{t:sign} details the results. 
+\input{sign}
 
 \bibliography{bbrc-sample}
 \bibliographystyle{plain}
