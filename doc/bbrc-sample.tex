@@ -227,19 +227,19 @@ for each subgraph with the same class bias as $x$. The maximum likelihood
 estimator for such a subgraph $x'$ is the vector of relative class specific
 support values:
 \begin{equation}
-  \mathbf{\alpha} = \left(\frac{\sum{\mathbf{k_1}}}{\sum{\mathbf{k}}},\ldots,\frac{\sum{\mathbf{k_I}}}{\sum{\mathbf{k}}}\right)
+  \mathbf{\alpha_{x'}} = \left(\frac{1+\sum{\mathbf{k_1}}}{\vert I\vert+\sum{\mathbf{k}}},\ldots,\frac{1+\sum{\mathbf{k_{\vert I\vert}}}}{\vert I\vert+\sum{\mathbf{k}}}\right)
   \label{eqn:mlexpr}
 \end{equation}
 where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $x'$. Following that, for
 each $k_i^j \in \mathbf{k_i}$ pertaining to $x$, an average probability is determined from this
 collection of multinomials:
 \begin{equation}
-  p(k_i^j)=\frac{\sum_{x'} p(k_i^j; \mathbf{\alpha})}{\sum_{x'}1}
+  p(k_i^j)=\frac{\sum_{x'} p(k_i^j; \mathbf{\alpha_{x'}})}{\sum_{x'}1}
   \label{eqn:avgpr}
 \end{equation}
 and the $k_i^j$ values are multiplied with their probabilities in a weighted average.
 \begin{equation}
-  \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j}{\sum_j1}
+  \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j p(k_i^j)}{\sum_j p(k_i^j)}
   \label{eqn:avgki}
 \end{equation}
 Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value.

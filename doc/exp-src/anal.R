@@ -27,7 +27,7 @@ anal <- function (assays=c(), outputFile="anal.tex") {
      for (j in 1:2) { 
        file <- paste(assays[i],"_E",j,".csv",sep="")
        data <- read.csv( file )
-       meanData <- data.frame(apply(data,2,mean))
+       meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.3f",mean(x)),"(",sprintf("%.4f",sd(x)),")")))
        add <- if (is.null(add)) meanData else cbind(add,meanData)
      }
   
