@@ -1,5 +1,5 @@
 "date","repo","branch","commit","dataset","num boots","min sampling support","nr hits"
-"17.07.2012","opentox-ruby","development","0648d0fed033f0e5a593107da1ca257a6fd8b99e","SAL",50,15,"false"
+"23.07.2012","opentox-ruby","development","0648d0fed033f0e5a593107da1ca257a6fd8b99e","SAL",50,15,"false"
 ,"algorithm","development","c04e4b8ccad8b14fa0176d1f2b1fb5c305c96849",,,,
 ,"amaunz/ bbrc-sample","development","c082b4411340882e7863a23bd6a406e18ba02b76",,,,
 ,"amaunz/ last-utils","development","6562a3d581a6141f946098e68fc2a3f80f0446b1",,,,
