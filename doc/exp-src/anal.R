@@ -39,19 +39,19 @@ anal <- function (assays=c(), outputFile="anal.tex") {
      # Nr features
      file <- paste(assays[i],"_nr_features",".csv",sep="")
      data <- read.csv( file )
-     meanData <- data.frame(apply(data,2,mean))
+     meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
      # Nr stripped mss
      file <- paste(assays[i],"_n_stripped_mss",".csv",sep="")
      data <- read.csv( file )
-     meanData <- data.frame(apply(data,2,mean))
+     meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
      # Nr stripped cst
      file <- paste(assays[i],"_n_stripped_cst",".csv",sep="")
      data <- read.csv( file )
-     meanData <- data.frame(apply(data,2,mean))
+     meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
      assayNames=matrix(rep(assays[i],3),3,1)
@@ -110,8 +110,28 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
     res=data.frame(results)
     rowNames=unlist(lapply(pairsList,function(x) paste(x,collapse=" vs. ")))
     row.names(res) = rowNames
-    names(res) = sapply(names(res), function(x) gsub("\\."," ", x))
 
+    resNew<-NULL
+    for (error in c("E1", "E2")) {
+      resBroken<-NULL
+      for (assay in assays) {
+        print(assay)
+        colName<-paste(assay,error,sep=".")
+        if (is.null(resBroken))  { 
+          resBroken <- res[,colName,drop=F]
+          names(resBroken) = assay  
+        } 
+        else { 
+          rBNames = c(names(resBroken), assay)
+          resBroken <- cbind(resBroken, res[,colName,drop=F])
+          names(resBroken) = rBNames
+        } 
+      }
+      row.names(resBroken) <- paste(row.names(res), error)
+      print(resBroken)
+      if (is.null(resNew)) resNew<-resBroken else resNew<-rbind(resNew,resBroken)
+    }
+    res<-resNew
   }
   if (!is.null(res)) {
     print(
@@ -170,8 +190,9 @@ plots <- function(assays, error="E1", layout=c(1,length(assays))) {
 
 
 #' Main
-tests (assays=c("SAL", "RAT", "MCC", "KAZ"))
-anal  (assays=c("SAL", "RAT", "MCC", "KAZ"))
+assays=c("SAL", "MCC", "KAZ", "MOU", "RAT")
+tests (assays=assays)
+anal  (assays=assays)
 postscript(file="bp.eps",horizontal=F,paper="special",width=12, height=5)
-plots (assays=c("SAL", "RAT", "MCC", "KAZ"), layout=c(2,2))
+plots (assays=assays, layout=c(3,2))
 dev.off()
