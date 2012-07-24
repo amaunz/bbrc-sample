@@ -136,7 +136,7 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
 #' @example {
 #'   plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-plots <- function(assays, error="E1") {
+plots <- function(assays, error="E1", layout=c(1,length(assays))) {
   res = NULL
   methods=c("MLE", "MEAN", "BBRC")
   if (length(assays)>0) {
@@ -164,7 +164,7 @@ plots <- function(assays, error="E1") {
     res=results
   }
   if (!is.null(res)) {
-    bpCollection( data=res, layout=c(1,4), xlab=error )
+    bpCollection( data=res, layout=layout, xlab=error )
   }
 }
 
@@ -172,6 +172,6 @@ plots <- function(assays, error="E1") {
 #' Main
 tests (assays=c("SAL", "RAT", "MCC", "KAZ"))
 anal  (assays=c("SAL", "RAT", "MCC", "KAZ"))
-postscript(file="bp.eps",horizontal=F,paper="special",width=8,height=8)
-plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
+postscript(file="bp.eps",horizontal=F,paper="special",width=12, height=5)
+plots (assays=c("SAL", "RAT", "MCC", "KAZ"), layout=c(2,2))
 dev.off()

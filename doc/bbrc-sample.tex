@@ -223,31 +223,32 @@ instances) obtained collectively from all the bootstrap samples.  For each
 class, we model the event that each $k_i^j \in \mathbf{k_i}$ would occur for
 each of the subgraphs with the same class bias as $x$ as a multinomial
 selection process.  More specifically, we determine the class probabilities for
-for each subgraph with the same class bias as $x$. The maximum likelihood
-estimator for such a subgraph $x'$ is the vector of relative class specific
-support values:
+for each subgraph $x'$ with the same class bias as $x$ with a maximum
+likelihood estimator. It is the smoothed vector of relative class specific support
+values, defined as:
 \begin{equation}
-  \mathbf{\alpha_{x'}} = \left(\frac{1+\sum{\mathbf{k_1}}}{\vert I\vert+\sum{\mathbf{k}}},\ldots,\frac{1+\sum{\mathbf{k_{\vert I\vert}}}}{\vert I\vert+\sum{\mathbf{k}}}\right)
+  \mathbf{\alpha_{x'}} = \left(\frac{1+\vert\mathbf{k_1}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert}_1,\ldots,\frac{1+\vert\mathbf{k_{\vert I\vert}}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert_1}\right)
   \label{eqn:mlexpr}
 \end{equation}
-where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $x'$. Following that, for
-each $k_i^j \in \mathbf{k_i}$ pertaining to $x$, an average probability is determined from this
-collection of multinomials:
+where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $x'$, and $\vert\cdot\vert_1$ is the one-norm (the sum of the vector elements). Following that, for
+each tuple $(k_1^j,\ldots,k_{\vert I\vert}^j)$ pertaining to $x$, a probability distribution is
+determined from this collection of multinomials:
 \begin{equation}
-  p(k_i^j)=\frac{\sum_{x'} p(k_i^j; \mathbf{\alpha_{x'}})}{\sum_{x'}1}
+  p((k_1^j,\ldots,k_{\vert I\vert}^j))=\frac{\sum_{x'} p((k_1^j,\ldots,k_{\vert I\vert}^j); \mathbf{\alpha_{x'}})}{\sum_{x'}1}
   \label{eqn:avgpr}
 \end{equation}
-and the $k_i^j$ values are multiplied with their probabilities in a weighted average.
+Finally, the $k_i^j$ values pertaining to $x$ are corrected in a weighted average
+based on this probability distribution:
 \begin{equation}
-  \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j p(k_i^j)}{\sum_j p(k_i^j)}
+  \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j p((k_1^j,\ldots,k_{\vert I\vert}^j))}{\sum_j p((k_1^j,\ldots,k_{\vert I\vert}^j))}
   \label{eqn:avgki}
 \end{equation}
-Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value.
+Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value of $x$.
 
 \section{Algorithm}
 
 \subsection{Implementation}
-Subgraphs mined by BBRC are canonical, therefore a hash table can be used to gather results. Here, ``canonical'' means that two isomorphic subgraphs will be always represented by the same subgraph string (so called \emph{SMARTS strings}, which describe molecular fragments). The algorithm using $n$ bootstrap samples is shown in Algorithm \ref{alg:bbrc-sample}.
+The approach works in two steps: Firstly, the results of the individual bootstrap samples are collectively stored in a hash. Two isomorphic subgraphs will be always represented by the same string identifier (\emph{SMARTS}, a kind of regular expression to describe molecular fragments). Secondly, a post-processing step filters out frequent and significant subgraphs. The algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm \ref{alg:bbrc-sample}.
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \begin{algorithm}
@@ -255,28 +256,50 @@ Subgraphs mined by BBRC are canonical, therefore a hash table can be used to gat
   \label{alg:bbrc-sample}
 \begin{algorithmic}[1]
   \Require $dataBase, numBoots, minSamplingSupport, minFrequencyPerSample$
-  \State $hash \gets \{\}$
-  \For{$i:=1 \to numBoots$} \Comment{Done in parallel}
-    \State $res \gets BBRC(drawSample(size(dataBase)), minFrequencyPerSample)$
-    \State $insert(hash,res)$
-  \EndFor
-  \State $ans \gets \emptyset$
-  \For{$subgraph \in keys(hash)$}
-    \If{$length(hash[subgraph]) \geq minSamplingSupport$}
-    \If{$(p=SignificanceTest(hash[subgraph]))>1-\alpha$}
-        \State $ans\gets ans \cup (subgraph,p)$
+  \If{$numBoots=1$}
+    \State $ans \gets BBRC(dataBase, minFrequencyPerSample)$
+  \Else
+    \State $hash \gets \{\}$
+    \For{$i:=1 \to numBoots$} \Comment{Parallel Processing}
+        \State $res \gets BBRC(drawBsSample(dataBase), minFrequencyPerSample)$
+      \State $insert(hash,res)$
+    \EndFor
+    \State $ans \gets \emptyset$
+    \For{$subgraph \in keys(hash)$}
+      \If{$length(hash[subgraph]) \geq minSamplingSupport$}
+      \If{$(p=SignificanceTest(hash[subgraph]))>1-\alpha$}
+          \State $ans\gets ans \cup (subgraph,p)$
+        \EndIf
       \EndIf
-    \EndIf
-  \EndFor
+    \EndFor
+  \EndIf
   \Ensure $ans$
 \end{algorithmic}
 \end{algorithm}
 
-Line 1 creates an initially empty hash table to gather results from BBRC mining in line 3. Importantly, the result $res$ consists of subgraphs and support values \emph{per class}, i.e. each subgraph is used as key in the hash, where the values stored are the class-specific support values. Importantly, these values correspond to the \emph{out-of-bag} instances, not the \emph{in-bag} instances (bootstrap samples). The necessary step of matching the subgraphs mined from the \emph{in-bag} instances (line 3) on the \emph{out-of-bag} instances is not shown. It is understood to happen inside the BBRC step and implemented using a parallelized molecular fragment matching method. On termination of the loop in line 5, each hash entry has at most $n$ support values per class.
+We consider the case where $numBoots>1$. Line 4 creates an initially empty hash table to gather results from BBRC mining
+in line 6. Importantly, the result $res$ consists of subgraphs and support
+values \emph{per class}, i.e. each subgraph is used as key in the hash, where
+the values stored are the class-specific support values. Importantly, these
+values correspond to the out-of-bag instances, not the in-bag instances
+(bootstrap samples). The necessary step of matching the subgraphs on the
+out-of-bag instances happens inside the BBRC step. On termination of the loop
+in line 8, each hash entry has at most $N$ support values per class.
 
-Post-processing the results is very fast and incurs negligible overhead compared to the graph mining step. It consists of removing subgraphs that (line 8) were not generated often enough by the sampling process (have not enough entries in the hash table), or which (line 9) do not significantly deviate from the overall distribution of classes, as assessed by the appropriate $\chi^2$ test variant .
+Post-processing the results is very fast and incurs negligible overhead
+compared to the graph mining step. It consists of removing subgraphs that (line
+11) were not generated often enough by the sampling process (have not enough
+entries in the hash table, as determined by $minSamplingSupport$), or which
+(line 12) do not significantly deviate from the overall distribution of classes,
+as assessed by the appropriate $\chi^2$ test variant .
 
-For better readability, the listing does not show how the results in $ans$ are used further. They are processed as follows: the caller of Algorithm \ref{alg:bbrc-sample} matches the subgraphs back onto the graphs of the original database ($G$), which yields an instantiation matrix, with compounds in the rows and subgraphs (molecular fragments) in the columns. This matching is again done in parallel, and matrix entries can either be of type binary (occurrence vs no occurrence) or frequency (how many times the subgraph occurs).
+%For better readability, the listing does not show how the results in $ans$ are
+%processed further: The caller of Algorithm \ref{alg:bbrc-sample} matches the
+%subgraphs back onto the graphs of the original database ($G$), which yields an
+%instantiation matrix, with compounds in the rows and subgraphs (molecular
+%fragments) in the columns. This matching is again done in parallel, and matrix
+%entries can either be of type binary (occurrence vs no occurrence) or frequency
+%(how many times the subgraph occurs).
 
 \section{Experiments}
 Experiments were conducted to assess the quality of the out-of-bag estimation.
@@ -294,17 +317,16 @@ The methods compared are
   \item{Single runs of the BBRC algorithm. Denote this method by BBRC.} 
 \end{enumerate}
 
-The process was repeated 100 times, with N=50 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
+The process was repeated 100 times, with 50 bootstrap samples for methods 1 and 2. The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
 \begin{algorithm}
   \caption{Estimation of $p$-values}
   \label{alg:pValEstimate}
 \begin{algorithmic}[1]
   \Require $graphDatabase, method$ \Comment{method is MLE, MEAN, or BBRC}
-  \State $\mathbf{E_1}=\left[ \right]$
-  \State $\mathbf{E_2}=\left[ \right]$
+  \State $\mathbf{E_1}=\mathbf{E_2}=\left[ \right]$
   \For{$i:=1 \to 50$}
     \State $[trainSet, testSet] = splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
-    \State $\left[ \mathbf{subgraphs}, \mathbf{p^B} \right] = method(trainSet,numBoots=100,\dots)$ \Comment{parameter numBoots ignored for BBRC}
+    \State $\left[ \mathbf{subgraphs}, \mathbf{p^B} \right] = Algorithm \ref{alg:bbrc-sample}(trainSet,numBoots=100,\dots)$ \Comment{$numBoots=1$ for BBRC}
     \State $\mathbf{p'} = match(\mathbf{subgraphs}, test)$ 
     \State $ \mathbf{E_1} = \left[ \mathbf{E_1}, E_1(\mathbf{p'}, \mathbf{p^B}) \right]$
     \State $ \mathbf{E_2} = \left[ \mathbf{E_2}, E_2(\mathbf{p'}, \mathbf{p^B}) \right]$
@@ -313,10 +335,18 @@ The process was repeated 100 times, with N=50 bootstrap samples for methods 1 an
 \end{algorithmic}
 \end{algorithm}
 
-Lines 1 and 2 initialize empty vectors that capture the residuals in estimation. Inside the main loop, a stratified split (i.e. proportions of target classes inside each split equal overall proportions) generates training and test set of equal size. The training set is treated by the selected method, which returns a vector of subgraphs and a vector of $p$-values, called $\mathbf{p^B}$ (line 5). The subgraphs are matched on the test set, yielding $p$-values $\mathbf{p'}$ (line 6). Finally, the residual vectors capture the differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
+Line 1 initializes empty vectors that capture the residuals in
+estimation. Inside the main loop, a stratified split (i.e. proportions of
+target classes inside each split equal overall proportions) generates a training
+and a test set of equal size. The training set is treated by the selected method,
+which returns a vector of subgraphs and a vector of $p$-values, called
+$\mathbf{p^B}$ (line 4). The subgraphs are matched on the test set, yielding
+$p$-values $\mathbf{p'}$ (line 5). Finally, the residual vectors capture the
+differences between $\mathbf{p^B}$ and  $\mathbf{p'}$ by two different metrics:
+
 \begin{enumerate}
-  \item $E_1 := \frac{1}{n} \sum_i \,p^B(i) -p'(i) \,$, to identify bias.
-  \item $E_2 := \frac{1}{n} \sum_i \Big|\,p^B(i) -p'(i) \,\Big|$, to assess accuracy
+  \item $E_1 := \frac{1}{n} \sum_{i=1}^n \,p^B_i -p'_i \,$, to identify bias.
+  \item $E_2 := \frac{1}{n} \sum_{i=1}^n \Big|\,p^B_i -p'_i \,\Big|$, to assess accuracy
 \end{enumerate}
 
 Table \ref{t:anal} details the results (mean values across bootstraps)
@@ -327,7 +357,7 @@ Table \ref{t:sign} details the results ($n$=100).
 
 \begin{figure}[t]
   \begin{center}
-    \includegraphics{bp.eps}
+    \includegraphics[width=16cm]{bp.eps}
   \end{center}
   \caption{Boxplots}
   \label{fig:bp}
