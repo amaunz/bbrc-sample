@@ -121,6 +121,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.oob[,ds.endpoint],ds.levels))
   
       deleteRequest(sampleFeaturesUri)
+      deleteRequest(oobFeaturesUri)
       deleteRequest(sampleUri)
       deleteRequest(oobUri)
      
