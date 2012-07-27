@@ -81,7 +81,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   }
 
   ds.endpoint.type <- class(ds[,ds.endpoint])
-  if (ds.endpoint.type != "numeric" && ds.endpoint.type != "character") return("Wrong endpoint type")
+  if (ds.endpoint.type != "numeric" && ds.endpoint.type != "character") stop("Wrong endpoint type")
   ds.factors <- factor(ds[,ds.endpoint])
   ds.levels <<- levels(ds.factors)
   ds.table <- table(ds.factors)
@@ -121,6 +121,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       class.support <- apply(sampleFeatures,2,function(x) supportPerFactor(x,ds.oob[,ds.endpoint],ds.levels))
   
       deleteRequest(sampleFeaturesUri)
+      deleteRequest(oobFeaturesUri)
       deleteRequest(sampleUri)
       deleteRequest(oobUri)
      
@@ -160,7 +161,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   if (method=="mle") {
 
     # find correlated class for oob estimated patterns
-    sp <- apply( bb[names(bb) != "levels"], 2, getLevelVecFromBB, as.numeric(bb$levels) )
+    sp <- apply( bb[names(bb) != "levels"], 2, getLevelVecFromBB, bb$levels )
     sp <- lapply( sp, factor, levels=ds.levels )
     sp <- lapply( sp, table ) # raw support per level
     sp <- lapply( sp, function(x) x+1) # add-one smoothing
