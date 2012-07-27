@@ -179,34 +179,40 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       # analyse p's list, remove missing and zeroes
       sp <- rep(0,length(bb$levels) / length(ds.levels)) # fused list
       for (l in ds.levels) sp <- sp + bb[bb$levels==l,p]
-
       sp <- sp[complete.cases(sp)] # (1)
       sp.zero <- sp == 0 # AM: remove zero entries from failed matches
 
       # now the interesting part
+      # calc friends weight based on MLE
+      spltable <- NULL
+      for (l in ds.levels) {
+        newcol = bb[bb$levels==l,p,drop=F]
+        if (is.null(spltable)) spltable = newcol else spltable = cbind(spltable, newcol)
+      }
+      spltable <- spltable[complete.cases(spltable),,drop=F]
+      spltable <- spltable[!sp.zero,,drop=F]
+
+      friendsPvals = lapply ( 
+        dsp[myfriends], 
+        function(prob) { 
+          apply ( spltable, 1, function(x,prob) dmultinom(x,prob=prob), prob )
+        }
+      )
+
       chisqv <- 0.0
       for (l in ds.levels) {
-
         # clean up p's data
         spl <- bb[bb$levels==l,p] # spl = 'support-per-level'
         spl <- spl[complete.cases(spl)] # same as (1)
         spl <- spl[!sp.zero] # must use sp.zero index, not local!
 
-        # calc friends weight based on MLE (TODO: extend to multinom)
-        friendsPvals = lapply ( 
-                dsp[myfriends], 
-                function(prob) { 
-                  sapply ( seq_along(spl), function(idx,spl,size,prob) dbinom(spl[idx],sp[idx],prob[l]), spl, sp, prob )
-                }
-              )
-
         # re-estimate p's support-per-level based on friends' mean prob
-        logSplPvals <- sapply ( seq_along(spl), 
+        splPvals <- sapply ( seq_along(spl), 
                         function(idx,friendsPvals) {
-                          curPVals=sapply(friendsPvals, "[" , idx)
-                          cumsum(log(curPVals))[length(curPVals)]
+                          mean(sapply(friendsPvals, "[" , idx))
                         }, friendsPvals )
-        chisqv <- chisqv + squaredErr(exp(wlogmean(log(spl),logSplPvals)), (mean(sp)*ds.table[l]/ds.n))
+
+        chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*ds.table[l]/ds.n))
       }
       ans.patterns <<- c(ans.patterns, p)
       ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
