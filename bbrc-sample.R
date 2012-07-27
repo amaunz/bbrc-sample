@@ -191,6 +191,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       }
       spltable <- spltable[complete.cases(spltable),,drop=F]
       spltable <- spltable[!sp.zero,,drop=F]
+      names(spltable) = ds.levels
 
       friendsPvals = lapply ( 
         dsp[myfriends], 
