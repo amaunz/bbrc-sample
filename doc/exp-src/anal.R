@@ -19,37 +19,39 @@ source("anal-lib.R")
 #' or chi-squared test
 #' @param assays Specify an assay vector
 #' @param outputFile Specify Latex output file
+#' @param dir Directory to process
 #' @return Produces a latex table
 #' @example {
 #'   anal(assays=c("SAL", "RAT", "MCC", "KAZ"), outputFile="anal.tex")
 #' }
-anal <- function (assays=c(), outputFile="anal.tex") {
+anal <- function (assays=c(), outputFile="anal.tex", dir) {
   res = NULL
   for (i in 1:length(assays)) {
      add = NULL
      
      # Errors
      for (j in 1:2) { 
-       file <- paste(assays[i],"_E",j,".csv",sep="")
+       file <- paste(dir,"/",assays[i],"/",assays[i],"_E",j,".csv",sep="")
        data <- na.omit( read.csv( file ) )
        meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.3f",mean(x)),"(",sprintf("%.4f",sd(x)),")")))
        add <- if (is.null(add)) meanData else cbind(add,meanData)
      }
   
      # Nr features
-     file <- paste(assays[i],"_nr_features",".csv",sep="")
+     # SAL_bbrc_ds_nr_com.csv  SAL_bbrc_ds_nr_f.csv
+     file <- paste(dir,"/",assays[i],"/",assays[i],"_","bbrc_ds_nr_f.csv",sep="")
      data <- read.csv( file )
      meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
      # Nr stripped mss
-     file <- paste(assays[i],"_n_stripped_mss",".csv",sep="")
+     file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_mss",".csv",sep="")
      data <- read.csv( file )
      meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
      # Nr stripped cst
-     file <- paste(assays[i],"_n_stripped_cst",".csv",sep="")
+     file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_cst",".csv",sep="")
      data <- read.csv( file )
      meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
@@ -86,10 +88,11 @@ anal <- function (assays=c(), outputFile="anal.tex") {
 #' @param pairsList list of pairs of methods to compare
 #' @param alpha significance level
 #' @param outputFile Latex code
+#' @param dir Directory to process
 #' @example {
 #'  tests (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.0001, outputFile="sign.tex") {
+tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.0001, outputFile="sign.tex", dir) {
   res = NULL
   if (length(assays)>0) {
     results=list()
@@ -97,7 +100,7 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
       assayRes=list()
       for (error in c("E1", "E2")) {
         errorRes=c()
-        file <- paste(assays[i],"_",error,".csv",sep="")
+        file <- paste(dir,"/",assays[i],"/",assays[i],"_",error,".csv",sep="")
         data <- na.omit ( read.csv( file ) )
         for (pairs in pairsList) {
           add <- runPairedTests(data[,pairs[1]], data[,pairs[2]], alpha)
@@ -152,18 +155,19 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
 #' Plotgroups are stacked by assays
 #' @param assays data to consider (methods are fixed)
 #' @param error Measure to plot
+#' @param dir Directory to process
 #' @return bwplot from lattice package
 #' @example {
 #'   plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-plots <- function(assays, error="E1", layout=c(1,length(assays))) {
+plots <- function(assays, error="E1", layout=c(1,length(assays)), dir) {
   res = NULL
   methods=c("MLE", "MEAN", "BBRC")
   if (length(assays)>0) {
     results=NULL
     for (i in 1:length(assays)) {
       assayRes=list()
-      file <- paste(assays[i],"_",error,".csv",sep="")
+      file <- paste(dir,"/",assays[i],"/",assays[i],"_",error,".csv",sep="")
       data <- na.omit( read.csv( file ) )
       errorRes=NULL
       mLabls=NULL
@@ -191,8 +195,9 @@ plots <- function(assays, error="E1", layout=c(1,length(assays))) {
 
 #' Main
 assays=c("SAL", "MCC", "KAZ", "MOU", "RAT")
-tests (assays=assays)
-anal  (assays=assays)
+dir="exp3"
+tests (assays=assays, dir=dir)
+anal  (assays=assays, dir=dir)
 postscript(file="bp.eps",horizontal=F,paper="special",width=12, height=5)
-plots (assays=assays, layout=c(3,2))
+plots (assays=assays, layout=c(3,2), dir=dir)
 dev.off()
