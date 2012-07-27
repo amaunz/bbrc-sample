@@ -213,7 +213,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                           mean(sapply(friendsPvals, "[" , idx))
                         }, friendsPvals )
 
-        chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*ds.table[l]/ds.n))
+        chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*as.numeric(ds.table[l])/ds.n))
       }
       ans.patterns <<- c(ans.patterns, p)
       ans.p.values <<- c(ans.p.values, pchisq(chisqv,length(ds.levels)-1))
@@ -274,17 +274,18 @@ mergeLists = function(x, xn, levels=length(ds.levels)) {
   xus <- names(x)[names(x) %in% names(xn)]
   xnn <- names(xn)[!names(xn) %in% names(x)]
 
+
   if (length(xus)>0) {
     x.bel <- data.frame(matrix(NA,levels,dim(x)[2]))
     names(x.bel) <- names(x)
-    x.bel[1:levels,xus] <- xn[1:levels,xus]
+    x.bel[1:levels,xus] <- xn[ 1:levels, xus, drop=F ]
     x <- rbind(x,x.bel)
   }
-  
+
   if (length(xnn)>0) {
     x.rig <- data.frame(matrix(NA,dim(x)[1],length(xnn)))
     names(x.rig) <- xnn
-    x.rig[c(dim(x)[1]-levels+1,dim(x)[1]), xnn] <- xn[1:levels, xnn]
+    x.rig[ c( ((dim(x)[1])-levels+1) : dim(x)[1] ) , xnn ] <- xn [1:levels, xnn, drop=F ]
     x <- cbind(x,x.rig)
   }
 
