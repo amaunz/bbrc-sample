@@ -49,7 +49,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
                     num.boots=BOOTS, # nr of BS samples
                     min.frequency.per.sample=MIN_FREQUENCY_PER_SAMPLE, # min freq inside each sample
                     min.sampling.support=MIN_SAMPLING_SUPPORT, # min nr of BS samples that have this pattern
-                    del=NULL,
+                    cachedId=NULL,
                     bbrc.service=BBRC,
                     dataset.service=paste(SERVER,"dataset",sep='/'),
                     do.ot.log=F,
@@ -89,7 +89,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   ds.n <- dim(ds)[1]
 
   # main loop
-  if(is.null(del)) {
+  bb <<- NULL
+  # cache not set or cache file not present
+  if ( is.null(cachedId) | !file.exists(paste(cachedId,"Rdata",sep=".")) ) {
     bb <<- foreach(j=1:num.boots, .combine=mergeLists) %dopar% {
     #for (j in 1:num.boots) {
       set.seed(j+random.seed) 
@@ -132,8 +134,18 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     merge.time <<- as.numeric(merge.time.end - merge.time.start, units="secs")
     bb <<- data.frame(bb,check.names=F)
   }
-  else
-    bb <<- del
+  # cache set and file present
+  else {
+    load(paste(cachedId,"Rdata",sep=".")) # tries bb from file cachedId.Rdata
+    if (do.ot.log) otLog(paste("Loaded cache",cachedId))
+  }
+  # stop ... 
+  if (is.null(bb)) stop("bb missing")
+  # ... or proceed (but save to cache file first, if cache set)
+  if (!is.null(cachedId)) {
+    save(bb, file=paste(cachedId,"Rdata",sep="."))
+    if (do.ot.log) otLog(paste("Saved cache",cachedId))
+  }
 
   levels <- rep(ds.levels, dim(bb)[1]/length(ds.levels))
   # Filter patterns with enough sampling support
