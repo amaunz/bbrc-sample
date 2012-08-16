@@ -60,6 +60,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
   do.ot.log <<- do.ot.log # should be global
   merge.time.start <<- NULL
   merge.time.end <<- NULL
+  merge.time <<- 0
   if (method!="mle" & method!="mean") { cat("Method not supported. Using 'mle' (default)"); method="mle" }
 
   # load dataset
@@ -255,8 +256,8 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
   }
 
-  # if (do.ot.log) otLog(ans.patterns)
-  # if (do.ot.log) otLog(ans.p.values)
+  #if (do.ot.log) otLog(ans.patterns)
+  #if (do.ot.log) otLog(ans.p.values)
   n.stripped.cst <<- sum(is.nan(ans.p.values) | ans.p.values<=0.95)
   n.kept <- sum(!is.nan(ans.p.values) & ans.p.values>0.95)
   #n.stripped.cst <<- sum(is.nan(ans.p.values)) ## FOR EXPERIMENTS
