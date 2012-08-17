@@ -73,11 +73,13 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     }
     else {
       ds.endpoint <- names(ds)[2]
+      ds.endpoint.enc <- curlEscape(ds.endpoint)
       if (do.ot.log) otLog(paste("Endpoint (guessed from dataset):",ds.endpoint))
     }  
   } 
   else {
-    ds.endpoint <- curlUnescape(gsub(".*/","",prediction.feature.uri)) # select endpoint
+    ds.endpoint.enc <- gsub(".*/","",prediction.feature.uri)
+    ds.endpoint <- curlUnescape(ds.endpoint.enc) # select endpoint
     if (do.ot.log) otLog(paste("Endpoint (obtained as parameter):",ds.endpoint))
   }
 
@@ -109,7 +111,9 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
       task <- postDataset(ds.oob, dataset.service, tempFilePrefix=paste("boot_bbrc_oob",j,"_", sep=""))
       oobUri <- getResult(task)
 
-      prediction.feature.uri <- paste(sampleUri, "feature", curlEscape(ds.endpoint), sep="/")
+      prediction.feature.uri <- paste(sampleUri, "feature", ds.endpoint.enc, sep="/")
+      if (do.ot.log) otLog(paste("Prediction feature:", prediction.feature.uri))
+      
       bbrc.params <- list( dataset_uri=sampleUri, prediction_feature=prediction.feature.uri, min_frequency=as.character(min.frequency.per.sample), backbone=tolower(as.character(do.backbone)))
       task <- postRequest(bbrc.service, bbrc.params)
       sampleFeaturesUri <- getResult(task)
