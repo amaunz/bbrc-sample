@@ -14,7 +14,7 @@
 \usepackage{multirow}	% for tables
 \usepackage{graphicx}   % for including EPS
 \usepackage{rotating}
-% \usepackage{subfigure}
+\usepackage{subfigure}
 
 % % % Special mathematical fonts
 \usepackage{amssymb}
@@ -95,28 +95,106 @@ Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Ge
 \end{center}
 
 \section{Abstract}
-Subgraph descriptors are repeatedly mined on bootstrap samples of several databases of molecular graphs, where each graph in a database is associated with one from a finite set of target classes. 
-The associations between descriptors and target classes are recorded over the out-of-bag instances and used to estimate significance values of the descriptors. 
-We investigate two different schemes for the estimation of significance, involving mean values and a maximum likelihood estimation.
-We show that both methods improve greatly on the otherwise unstable process of discriminative subgraph mining in terms of bias and accuracy.
+In computational models of toxicology, subgraphs (chemical fragments) and other
+descriptors are routinely used to describe toxicological properties of
+molecules.  In this work, subgraph descriptors are repeatedly mined on
+bootstrap samples of several molecular graph databases, where each graph in a
+database is associated with one from a finite set of target classes.  The
+associations between descriptors and target classes are recorded over the
+out-of-bag instances and used to estimate the number occurrences of each
+descriptor in each target class.  We investigate two different schemes for the
+generation of significance values from these counts, involving mean values and
+maximum likelihood estimation.  We show that both methods improve estimates
+greatly, compared to single runs of discriminative subgraph mining in terms of
+bias and accuracy, with advantages for the maximum likelihood method.  The
+results may be useful for statistical models and inspection by toxicological experts,
+since the chemical fragments and their target class associations can be used as
+descriptors and are interpretable for humans.
 
 \section{Introduction}
-A major impediment in data mining is that no sample is a faithful representation of the distribution from which the sample was drawn. 
-For example, in discriminative subgraph mining, there is no way of inferring the exact correlations between chemical fragments and the target classes, which can serve to identify chemical reactivity of compounds that incorporate or not incorporate the fragments, since only finite samples can be processed by a computer. 
-Moreover, class-correlated graph mining is an unstable process, where slight changes in the sample lead to very different results. 
-Fortunately, estimates obtained from the out-of-bag instances of a bootstrap sampling process can drastically improve on estimates obtained from the whole sample \cite{bylander02estimating, breiman96oob}.
+A major issue in data mining is that no sample is a faithful representation of
+the unkown underlying distribution from which the sample was drawn.  For
+example, in discriminative subgraph mining, there is no way of inferring the
+exact correlations between chemical fragments and the target classes, which, in
+principle, could serve to identify chemical reactivity of compounds that
+incorporate or not incorporate the fragments.
 
-Subgraph mining is often used as a preprocessing step to model building, because class-correlated subgraphs are useful as descriptors for chemical datasets \cite{bringmann10lego,maunz11efficient}.
-This work employs the out-of-bag instances to estimate the frequencies of the subgraphs on the target classes and finally combine the most predictive descriptors into a data set. 
-In contrast to bagging, no combined predictor is generated in this work, at least not in the strict sense. 
-However, class-correlated subgraph mining is supervised process that should be seen in close context to model building. 
-Thus, the generated data set could be regarded, in analogy to a bagged predictor, as ``bagged descriptor set''.
+Moreover, discriminative graph mining is an unstable process, where slight
+changes in the sample lead to very different results.  However, this can be
+improved by repeatedly disturbing the sampling process deliberately. For
+example, in bootstrap sampling, estimates of generalization error obtained from
+the out-of-bag instances could drastically improve on estimates obtained from
+the sample as a whole \cite{bylander02estimating, breiman96oob}.
+
+This work employs the out-of-bag instances to estimate the frequencies of the
+subgraphs on the target classes. Infrequently occurring descriptors are
+filtered out. A statistical test is run on each remaining descriptor, and the
+$p$-values are validated on a test set. Finally, the most predictive
+descriptors are output, constituting a statistically validated, highly
+significant, discriminative subgraph set.  In contrast to bagging, no combined
+predictor is generated.  However, class-correlated subgraph mining is
+supervised process that should be seen in close context to model building (see
+section \ref{s:relatedWork}). Thus, the generated data set could be regarded,
+in analogy to a bagged predictor, as ``bagged descriptor set''. For example, a
+statistical model could be directly learned on the descriptors, incorporating their
+estimated $p$-values Also, human experts should be able to draw conlusions from
+the greatly reduced set. Being subgraphs, they can be easily matched on the
+chemical compound structure.
+
+The remainder of this work is structured as follows: We present related work with a focus on graph mining
+(section \ref{s:relatedWork}), our proposed methods for estimation of class significance
+and algorithmic implementation (sections \ref{s:significance-estimation} and
+\ref{s:Algorithm}), and experiments (section \ref{s:Experiments}), before we draw
+conclusion in section \ref{s:Conclusion}.
+
+The contributions of this work are summarized as follows:
+\begin{itemize}
+  \item Graph mining on bootstraps of a class-labeled graph database is
+    proposed as a means to stabilize estimates of multinomial distributions,
+    i.e. the subgraphs' distribution on the target classes are estimated
+    from the out-of-bag instances.
+  \item We present two schemes for the estimation step, where both are
+    able to handle multiple classes using appropriate significance tests for
+    the subgraphs' distributions. 
+  \item We validate both schemes with error estimates on the $p$-values, as
+    obtained from a separate test set. It is shown that out-of-bag estimation
+    significantly improves on estimates obtained from the whole sample and bias
+    and variance decrease with increasing dataset size.
+\end{itemize}
+
 
 \section{Related Work}
+\label{s:relatedWork}
 
-Subgraph boosting \cite{saigo09gboost} is an integrated procedure that employs subsampling internally and creates a model. The method presented here is clearly different from subgraph boosting (and from boosting in general), because it calculates descriptors that can be used in wide variety of models afterwards. It is similar in that it outputs a small collection of most discriminative subgraphs, however, the collection computed here is much more stable, because it is robust against perturbations of the dataset.
+Out-of-bag methods have been used to robustly (re-)estimate node probabilities
+and node error rates in decision trees \cite{breiman96oob} as well as the
+accuracy \cite{bylander02estimating, breiman96oob} and bias
+\cite{bylander02estimating} of the associated bagged predictor.
 
-Out-of-bag methods have been used to robustly (re-)estimate node probabilities and node error rates in decision trees \cite{breiman96oob} as well as the accuracy \cite{bylander02estimating, breiman96oob} and bias \cite{bylander02estimating} of the associated bagged predictor.
+Subgraph boosting \cite{saigo09gboost} is an integrated method that employs
+subsampling internally and creates a model. The method presented here is
+clearly different from subgraph boosting (and from boosting in general),
+because it calculates descriptors that can be used in wide variety of models
+afterwards. It is similar in that it outputs a small collection of most
+discriminative subgraphs, however, the collection computed here is much more
+stable, because it is robust against perturbations of the dataset.
+
+More often than in integrated methods, however, subgraph mining is employed as
+a preprocessing step to statistical learning, because subgraphs may be useful as
+descriptors \cite{bringmann10lego,schietgat09mcsfeatures}. To this end, there
+is a variety of well-known statistical learning algorithms available ``off the
+shelf'' \cite{hall09weka,r08language}. This makes a workflow attractive, where
+regularities and patterns are extracted from the data, represented in a unified
+format and fed into a machine learning algorithm \cite{hkr03molfea}.  However,
+subgraph mining often produces huge descriptor sets and experts would not be
+able to draw conclusions from the vast amount of very similar subgraphs, since
+the few useful patterns would be lost in the flood. Similarly, the
+high-dimensional pattern space would prevent machine learning methods from
+obtaining models in acceptable time \cite{Hasan_origami:mining}. Thus,
+post-processing is required to lower redundancy and eliminate the vast majority
+of descriptors \cite{schietgat09mcsfeatures, CMNK01Frequent, Jun04Spin}. 
+
+
 
 \section{Methods}
 \subsection{Formulation of Out-Of-Bag Discriminative Graph Mining}
@@ -196,7 +274,7 @@ is the expected count for class $i$.
 The set of ``surviving'' subgraphs (i.e. the ones remaining after the
 postprocessing step) is rather small compared to the overall set of subgraphs.
 Moreover, the graph mining process mines only subgraphs with a significance
-value of $\ge 95\%$ on each specific bootstrap, which should yield a very similar
+value of $\alpha \le 0.05\%$ on each specific bootstrap, which should yield a very similar
 class distribution, especially for these frequently occurring subgraphs.  Thus,
 we consider the latter largely independent from each other, and, in order to
 improve on simple mean estimation, we use the suspected stability across
@@ -223,7 +301,7 @@ instances) obtained collectively from all the bootstrap samples.  For each
 class, we model the event that each $k_i^j \in \mathbf{k_i}$ would occur for
 each of the subgraphs with the same class bias as $x$ as a multinomial
 selection process.  More specifically, we determine the class probabilities for
-for each subgraph $x'$ with the same class bias as $x$ with a maximum
+each subgraph $x'$ with the same class bias as $x$ with a maximum
 likelihood estimator. It is the smoothed vector of relative class specific support
 values, defined as:
 \begin{equation}
@@ -246,9 +324,17 @@ based on this probability distribution:
 Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value of $x$.
 
 \section{Algorithm}
+\label{s:Algorithm}
 
 \subsection{Implementation}
-The approach works in two steps: Firstly, the results of the individual bootstrap samples are collectively stored in a hash. Two isomorphic subgraphs will be always represented by the same string identifier (\emph{SMARTS}, a kind of regular expression to describe molecular fragments). Secondly, a post-processing step filters out frequent and significant subgraphs. The algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm \ref{alg:bbrc-sample}.
+The approach works in two steps: Firstly, the results of the individual
+bootstrap samples are collectively stored in a hash. Two isomorphic subgraphs
+will be always represented by the same string identifier (\emph{SMARTS}, a kind
+of regular expression to describe molecular fragments). Secondly, a
+post-processing step filters out frequent and significant subgraphs. The
+algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm
+\ref{alg:bbrc-sample}.
+
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 \begin{algorithm}
@@ -277,14 +363,15 @@ The approach works in two steps: Firstly, the results of the individual bootstra
 \end{algorithmic}
 \end{algorithm}
 
-We consider the case where $numBoots>1$. Line 4 creates an initially empty hash table to gather results from BBRC mining
-in line 6. Importantly, the result $res$ consists of subgraphs and support
-values \emph{per class}, i.e. each subgraph is used as key in the hash, where
-the values stored are the class-specific support values. Importantly, these
-values correspond to the out-of-bag instances, not the in-bag instances
-(bootstrap samples). The necessary step of matching the subgraphs on the
-out-of-bag instances happens inside the BBRC step. On termination of the loop
-in line 8, each hash entry has at most $N$ support values per class.
+We consider the case where $numBoots>1$. Line 4 creates an initially empty hash
+table to gather results from BBRC mining in line 6. Importantly, the result
+$res$ consists of subgraphs and support values \emph{per class}, i.e. each
+subgraph is used as key in the hash, where the values stored are the
+class-specific support values. Importantly, these values correspond to the
+out-of-bag instances, not the in-bag instances (bootstrap samples). The
+necessary step of matching the subgraphs on the out-of-bag instances happens
+inside the BBRC step. On termination of the loop in line 8, each hash entry has
+at most $N$ support values per class.
 
 Post-processing the results is very fast and incurs negligible overhead
 compared to the graph mining step. It consists of removing subgraphs that (line
@@ -302,12 +389,14 @@ as assessed by the appropriate $\chi^2$ test variant .
 %(how many times the subgraph occurs).
 
 \section{Experiments}
+\label{s:Experiments}
 Experiments were conducted to assess the quality of the out-of-bag estimation.
 
-\subsection{Comparison of $p$-Values}
-Three methods were compared by their ability to estimate the discriminative potential of subgraphs, by assessing the deviation between the $p$-values of subgraphs, as
-a) estimated by the respective method, and 
-b) obtained by matching the subgraphs to an independent test set
+\subsection{Comparison of $p$-Values} Three methods were compared by their
+ability to estimate the discriminative potential of subgraphs, by assessing the
+deviation between the $p$-values of subgraphs, as a) estimated by the
+respective method, and b) obtained by matching the subgraphs to an independent
+test set
 
 The methods compared are
 
@@ -356,12 +445,29 @@ Table \ref{t:sign} details the results ($n$=100).
 \input{sign}
 
 \begin{figure}[t]
-  \begin{center}
-    \includegraphics[width=16cm]{bp.eps}
-  \end{center}
-  \caption{Boxplots}
-  \label{fig:bp}
+  \begin{tabular}{cc}
+   \includegraphics[width=10cm]{bp1.eps} & \includegraphics[width=4.4cm]{lp1.eps} \\
+   \includegraphics[width=10cm]{bp2.eps} & \includegraphics[width=4.4cm]{lp2.eps} \\
+   \includegraphics[width=10cm]{bp3.eps} & \includegraphics[width=4.4cm]{lp3.eps} \\
+  \end{tabular}
+  \caption{Results}
+  \label{fig:bplp13}
 \end{figure}
+
+\begin{figure}[t]
+  \begin{tabular}{cc}
+   \includegraphics[width=10cm]{bp4.eps} & \includegraphics[width=4.4cm]{lp4.eps} \\
+   \includegraphics[width=10cm]{bp5.eps} & \includegraphics[width=4.4cm]{lp5.eps} \\
+  \end{tabular}
+  \caption{Results}
+  \label{fig:bplp45}
+\end{figure}
+
+Figure \ref{fig:bplp13} and Figure \ref{fig:bplp45} plot the results.
+
+\section{Conclusion}
+\label{s:Conclusion}
+
 
 \bibliography{bbrc-sample}
 \bibliographystyle{plain}
