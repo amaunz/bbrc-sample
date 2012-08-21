@@ -109,57 +109,60 @@ greatly, compared to single runs of discriminative subgraph mining in terms of
 bias and accuracy, with advantages for the maximum likelihood method.  The
 results may be useful for statistical models and inspection by toxicological experts,
 since the chemical fragments and their target class associations can be used as
-descriptors and are interpretable for humans.
+descriptors and are more likely to be interpretable for human experts.
 
 \section{Introduction}
-A major issue in data mining is that no sample is a faithful representation of
-the unkown underlying distribution from which the sample was drawn.  For
-example, in discriminative subgraph mining, there is no way of inferring the
-exact correlations between chemical fragments and the target classes, which, in
-principle, could serve to identify chemical reactivity of compounds that
-incorporate or not incorporate the fragments.
+It is a fundamental problem in data mining that no sample is an exact
+representation of the unkown underlying distribution from which the sample was
+drawn.  For example, in discriminative subgraph mining, there is no way of
+inferring the exact correlations between fragments occurring in the graphs and
+the target classes, which could serve to identify the set of patterns that primarily lead to the
+occurrence of a certain target class. Finding such correlations is however a major goal
+in the research of chemical reactivity of compounds, for example (TODO: cite).
 
 Moreover, discriminative graph mining is an unstable process, where slight
-changes in the sample lead to very different results.  However, this can be
-improved by repeatedly disturbing the sampling process deliberately. For
-example, in bootstrap sampling, estimates of generalization error obtained from
-the out-of-bag instances could drastically improve on estimates obtained from
-the sample as a whole \cite{bylander02estimating, breiman96oob}.
+changes in the sample lead to very different subgraph sets. Fortunately, this
+can be rectified by repeatedly disturbing the sampling process deliberately and
+creating estimations from many samples together. For example, in bootstrap
+sampling, estimates of generalization error obtained from the out-of-bag
+instances were shown to drastically improve on estimates obtained from the sample as a
+whole \cite{bylander02estimating, breiman96oob}.
 
 This work employs the out-of-bag instances to estimate the frequencies of the
-subgraphs on the target classes. Infrequently occurring descriptors are
-filtered out. A statistical test is run on each remaining descriptor, and the
-$p$-values are validated on a test set. Finally, the most predictive
-descriptors are output, constituting a statistically validated, highly
-significant, discriminative subgraph set.  In contrast to bagging, no combined
-predictor is generated.  However, class-correlated subgraph mining is
-supervised process that should be seen in close context to model building (see
-section \ref{s:relatedWork}). Thus, the generated data set could be regarded,
-in analogy to a bagged predictor, as ``bagged descriptor set''. For example, a
-statistical model could be directly learned on the descriptors, incorporating their
-estimated $p$-values Also, human experts should be able to draw conlusions from
-the greatly reduced set. Being subgraphs, they can be easily matched on the
-chemical compound structure.
+subgraphs on the target classes that govern the training data. Infrequently
+occurring descriptors are filtered out. A statistical test is run on each
+remaining descriptor, and its class-specific occurrences, $p$-values, and other
+measures, are validated on a test set. Finally, the most predictive descriptors
+are output, constituting a statistically validated, highly significant,
+discriminative subgraph set.  In contrast to bagging, no combined predictor is
+generated.  However, class-correlated subgraph mining is supervised process
+that should be seen in close context to model building (see section
+\ref{s:relatedWork}). Thus, the generated data set could be regarded, in
+analogy to a bagged predictor, as ``bagged descriptor set''. For example, a
+statistical model could be directly learned on the descriptors, incorporating
+their estimated $p$-values Also, human experts should be able to draw
+conlusions from the greatly reduced set. Being subgraphs, they can be easily
+matched on the chemical compound structure.
 
 The remainder of this work is structured as follows: We present related work with a focus on graph mining
 (section \ref{s:relatedWork}), our proposed methods for estimation of class significance
 and algorithmic implementation (sections \ref{s:significance-estimation} and
-\ref{s:Algorithm}), and experiments (section \ref{s:Experiments}), before we draw
+\ref{s:Algorithm}), and estimations on distribution, class significance, and more using experimental data (section \ref{s:Experiments}), before we draw
 conclusion in section \ref{s:Conclusion}.
 
 The contributions of this work are summarized as follows:
 \begin{itemize}
-  \item Graph mining on bootstraps of a class-labeled graph database is
+  \item Graph mining on bootstrap samples of a class-labeled graph database is
     proposed as a means to stabilize estimates of multinomial distributions,
     i.e. the subgraphs' distribution on the target classes are estimated
     from the out-of-bag instances.
   \item We present two schemes for the estimation step, where both are
     able to handle multiple classes using appropriate significance tests for
     the subgraphs' distributions. 
-  \item We validate both schemes with error estimates on the $p$-values, as
-    obtained from a separate test set. It is shown that out-of-bag estimation
-    significantly improves on estimates obtained from the whole sample and bias
-    and variance decrease with increasing dataset size.
+  \item We validate both schemes with error estimates on the target class
+    distributions and $p$-values, as obtained from a separate test set.
+    Out-of-bag estimation significantly improves on estimates obtained from the
+    whole sample and bias and variance decrease with increasing dataset size.
 \end{itemize}
 
 
@@ -170,9 +173,10 @@ Out-of-bag methods have been used to robustly (re-)estimate node probabilities
 and node error rates in decision trees \cite{breiman96oob} as well as the
 accuracy \cite{bylander02estimating, breiman96oob} and bias
 \cite{bylander02estimating} of the associated bagged predictor.
+TODO: MORE MATERIAL
 
 Subgraph boosting \cite{saigo09gboost} is an integrated method that employs
-subsampling internally and creates a model. The method presented here is
+subsampling internally, alternating between graph mining and model building. The method presented here is
 clearly different from subgraph boosting (and from boosting in general),
 because it calculates descriptors that can be used in wide variety of models
 afterwards. It is similar in that it outputs a small collection of most
@@ -192,18 +196,62 @@ the few useful patterns would be lost in the flood. Similarly, the
 high-dimensional pattern space would prevent machine learning methods from
 obtaining models in acceptable time \cite{Hasan_origami:mining}. Thus,
 post-processing is required to lower redundancy and eliminate the vast majority
-of descriptors \cite{schietgat09mcsfeatures, CMNK01Frequent, Jun04Spin}. 
+of descriptors \cite{schietgat09mcsfeatures, CMNK01Frequent, Jun04Spin}. In
+the approach presented here, however, small sets of discriminative subgraphs are calculated
+already in the main algorithm.
 
 
 
 \section{Methods}
+
+\subsection{Basic Graph Theory}
+\label{ss:BasicGraphTheory}
+%TODO: refer to set theory (reader must be familiar with).\\
+%DATABASE
+We assume a graph database $G=(\mathbf{g}, \Sigma, a)$, where 
+$\mathbf{g}$ is a set of graphs, 
+$\Sigma \ne \emptyset$  is a totally ordered set of labels and 
+%
+%TARGET CLASSES
+$a: \mathbf{g} \rightarrow C$, $C \subset \mathbb{N}$, is a function that assigns one from a finite set of \emph{class values} to every graph in the database. 
+The set of target classes $C$ may consist of more than two values.
+%
+%GRAPH
+Every graph $g \in \mathbf{g}$ is a labeled, undirected graph, i.e. a tuple $g=(V,E,\Sigma,\lambda)$, where 
+$V\ne \emptyset$ is a finite set of nodes and 
+$E \subseteq V = \{\{v_1, v_2\} \in \{V \times V\}, v_1 \ne v_2\}$ is a set of edges and 
+$\lambda: V\cup E \rightarrow \Sigma$ is a label function. 
+
+%PATH
+An ordered set of nodes $\{ v_1, \ldots, v_m\}$ is a path between $v_1$ and $v_m$, if $\{v_i, v_{i+1}\} \in E, i \in \{1,\ldots,m-1\}$ and $v_i \neq v_j$ for all $i,j\in \{1,\ldots,m\}$. 
+We only consider connected graphs here, i.e. there is a path between each two nodes in the graph.
+
+%TREE
+Assuming a graph with $n$ nodes, then the graph is a tree if it has no more than $n-1$ edges (due to the requirement of connected graphs, it must also have at least $n-1$ edges).
+Obviously, any path is a tree, but not \emph{vice versa}.
+A rooted tree is an ordinary tree with a designated root node.
+If a tree has no root, it is called free tree to emphasize the difference.
+
+%SUBGRAPH
+A subgraph $g'=(V',E',\Sigma',\lambda')$ of $g$ is a graph such that 
+\begin{itemize}
+  \item $V' \subseteq V$ and $E' \subseteq E$ with $V' \ne \emptyset$ and $E' \ne \emptyset$,
+  \item $g'$ is connected, and
+  \item $\lambda'(v_1)=\lambda(v_2)$ whenever $v_1=v_2$, and $\lambda'(e_1)=\lambda(e_2)$ whenever $e_1=e_2$ for all $v_1 \in V'$, $v_2 \in V$, $e_2 \in E'$, $e_2 \in E$.
+\end{itemize}
+We say that $g'$ is a subgraph of $g$ and that $g'$ covers $g$. The patterns generated by graph mining in this work are free, connected, subtrees. TODO: MORE MATERIAL
+%OCCURRENCES
+The subset of $\mathbf{g}$ that $g'$ covers is referred to as the occurrences of $g'$, and its size as support of $g'$ in $\mathbf{g}$, denoted by $supp(g', \mathbf{g})$.
+
+
 \subsection{Formulation of Out-Of-Bag Discriminative Graph Mining}
 
-A graph database $G$ consists of $G$ and a finite set of target classes $I$,
-such that any graph is associated with some class. We refer to the subset of
-graphs in $G$ that are associated with class $i$ as $G^i$.
+A graph database consists of a set of graphs $G$ and a finite set of target
+classes $I$, such that any graph is associated with exactly one class. There
+may exist more than two classes. We refer to the subset of graphs in $G$ that
+are associated with class $i$ as $G^i$.
 
-The procedure for estimating subgraph significance starts by splitting the graph
+The procedure for estimating subgraph distributions starts by splitting the graph
 database randomly into equal-sized training and test databases ($G_{Train}$ and
 $G_{Test}$). Then, bootstrapping is performed on the training data. We run
 non-parametric bootstrapping, by drawing $n=\vert G_{Train}\vert$ samples with
@@ -212,11 +260,11 @@ comprises exactly $\vert G_{Train}^i\vert$ graphs associated with class $i$, dra
 uniform probability $1/h_i$ inside each class $i$.
 
 Consider further a subgraph mining process, creating pairs, each consisting of
-a subgraph and class specific support $(x,k_1,\ldots,k_{\vert I\vert})$,
-meaning that subgraph $x$ occurs $k_i$ times in (a graph with) target class
+a subgraph and class specific support $(g,k_1,\ldots,k_{\vert I\vert})$,
+meaning that subgraph $g$ occurs $k_i$ times in (a graph with) target class
 $i$.  The result of subgraph mining on the $N$ bootstrap samples is recorded,
-such that for each $x$, the list of class specific supports is extended, finally
-yielding $(x,\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$, where $\mathbf{k_i}$
+such that for each $g$, the list of class specific supports is extended, finally
+yielding $(g,\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$, where $\mathbf{k_i}$
 is a vector $(k_i^1\ldots k_i^N)^T$, containing all the class specific supports
 from the $N$ bootstrap samples.
 Importantly, the $\mathbf{k_i}$ vectors in general have many missing entries
@@ -227,20 +275,20 @@ from the result set in a postprocessing step. We use a fixed threshold for the n
 
 On average, about 37\% (1/$e$) of training instances will not be drawn in any
 bootstrap sample. These are the out-of-bag instances, on which the estimation
-of significance values is performed. Two schemes are used for this, where both
+of target class distribution is performed. Two schemes are used for this, where both
 perform a chi-squared distribution test for each subgraph, estimating the
 deviation of the occurrences of the current subgraph from the global
 distribution of target classes. Both schemes calculate an estimated count from
 the out-of-bag occurrences obtained over all bootstrap samples. The first one
 uses a simple mean over the occurrences of the current subgraph, while the
 second one uses a maximum likelihood estimate obtained from some of the other
-subgraph, selected based on their similarity with the current subgraph. The next
+subgraphs, selected based on their similarity with the current subgraph. The next
 section explains the two schemes in more detail.
 
 \section{Significance Estimation}
 \label{s:significance-estimation}
 
-For each subgraph $x$, estimation of its class significance is based on the class specific supports. 
+For each subgraph $g$, estimation of its class significance is based on the class specific supports on the out-of-bag instances. 
 The total support is determined from the class specific supports:
 
 \begin{equation}
@@ -248,9 +296,9 @@ The total support is determined from the class specific supports:
   \label{eqn:total-support}
 \end{equation}
 
-The vector $\mathbf{k}$ contains the (total) support values for $x$ for each bootstrap sample.
+The vector $\mathbf{k}$ contains the (total) support values for $g$ for each bootstrap sample.
 
-\subsection{Simple Mean}
+\subsection{Sample Mean}
 \label{ss:simple-mean}
 
 Consider the $\chi^2$ estimate obtained from the sample mean:
@@ -279,60 +327,60 @@ class distribution, especially for these frequently occurring subgraphs.  Thus,
 we consider the latter largely independent from each other, and, in order to
 improve on simple mean estimation, we use the suspected stability across
 surviving subgraphs and take their support values into account when estimating
-support value of subgraph $x$. 
+support value of subgraph $g$. 
 
 The first step in this process is to extract the subgraphs with same class bias
-as $x$, i.e the class is identified in which $x$ appears more frequently than
-expected by comparing $x$'s relative (local) frequencies on the target classes
+as $g$, i.e the class is identified in which $g$ appears more frequently than
+expected by comparing $g$'s relative (local) frequencies on the target classes
 to the overall (global) relative frequencies of target classes (i.e. on $G$).
 Note that local and global frequencies are comparable due to the stratified
 bootstrapping approach. Local ties are broken in favor of the dominant global
 class. In case of a further tie on the global level, one of the globally
-dominant classes is chosen with uniform probability. Given $x$'s class bias,
+dominant classes is chosen with uniform probability. Given $g$'s class bias,
 the other subgraphs with the same class bias (biases determined in the same
 manner) are set aside.
 
-In a second step, the subgraphs with same class bias are used to correct $x$'s
+In a second step, the subgraphs with same class bias are used to correct $g$'s
 local frequencies by weighting. This approach has some similarity to the work
 by Bylander \cite{bylander02estimating}, however, his aim is to correct
 instance predictions, and his correction employs similar out-of-bag instances,
 whereas our correction happens across bootstraps, and on the subgraphs (not
 instances) obtained collectively from all the bootstrap samples.  For each
 class, we model the event that each $k_i^j \in \mathbf{k_i}$ would occur for
-each of the subgraphs with the same class bias as $x$ as a multinomial
+each of the subgraphs with the same class bias as $g$ as a multinomial
 selection process.  More specifically, we determine the class probabilities for
-each subgraph $x'$ with the same class bias as $x$ with a maximum
+each subgraph $g'$ with the same class bias as $g$ with a maximum
 likelihood estimator. It is the smoothed vector of relative class specific support
 values, defined as:
 \begin{equation}
-  \mathbf{\alpha_{x'}} = \left(\frac{1+\vert\mathbf{k_1}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert}_1,\ldots,\frac{1+\vert\mathbf{k_{\vert I\vert}}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert_1}\right)
+  \mathbf{\alpha_{g'}} = \left(\frac{1+\vert\mathbf{k_1}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert}_1,\ldots,\frac{1+\vert\mathbf{k_{\vert I\vert}}\vert_1}{\vert I\vert+\vert\mathbf{k}\vert_1}\right)
   \label{eqn:mlexpr}
 \end{equation}
-where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $x'$, and $\vert\cdot\vert_1$ is the one-norm (the sum of the vector elements). Following that, for
-each tuple $(k_1^j,\ldots,k_{\vert I\vert}^j)$ pertaining to $x$, a probability distribution is
+where the $\mathbf{k_i}$ and $\mathbf{k}$ pertain to $g'$, and $\vert\cdot\vert_1$ is the one-norm (the sum of the vector elements). Following that, for
+each tuple $(k_1^j,\ldots,k_{\vert I\vert}^j)$ pertaining to $g$, a probability distribution is
 determined from this collection of multinomials:
 \begin{equation}
-  p((k_1^j,\ldots,k_{\vert I\vert}^j))=\frac{\sum_{x'} p((k_1^j,\ldots,k_{\vert I\vert}^j); \mathbf{\alpha_{x'}})}{\sum_{x'}1}
+  p((k_1^j,\ldots,k_{\vert I\vert}^j))=\frac{\sum_{g'} p((k_1^j,\ldots,k_{\vert I\vert}^j); \mathbf{\alpha_{g'}})}{\sum_{g'}1}
   \label{eqn:avgpr}
 \end{equation}
-Finally, the $k_i^j$ values pertaining to $x$ are corrected in a weighted average
+Finally, the $k_i^j$ values pertaining to $g$ are corrected in a weighted average
 based on this probability distribution:
 \begin{equation}
   \overline{\mathbf{k_i}}=\frac{\sum_j k_i^j p((k_1^j,\ldots,k_{\vert I\vert}^j))}{\sum_j p((k_1^j,\ldots,k_{\vert I\vert}^j))}
   \label{eqn:avgki}
 \end{equation}
-Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value of $x$.
+Then, equation \ref{align:meanX2} is applied to determine the $\chi^2$ value of $g$.
 
 \section{Algorithm}
 \label{s:Algorithm}
 
 \subsection{Implementation}
-The approach works in two steps: Firstly, the results of the individual
+The approach works in two steps: First, the results of the individual
 bootstrap samples are collectively stored in a hash. Two isomorphic subgraphs
 will be always represented by the same string identifier (\emph{SMARTS}, a kind
-of regular expression to describe molecular fragments). Secondly, a
+of regular expression to describe molecular fragments). Second, a
 post-processing step filters out frequent and significant subgraphs. The
-algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm
+algorithm using $numBoots=N$ bootstrap samples, as shown in Algorithm
 \ref{alg:bbrc-sample}.
 
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
