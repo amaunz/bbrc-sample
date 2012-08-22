@@ -289,7 +289,7 @@ lineplots <- function(assays, error="E1", dir) {
 
 #' Main
 
-dir="exp8"
+dir="exp9"
 assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU")
 alpha=0.025
 
