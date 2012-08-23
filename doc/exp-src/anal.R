@@ -207,7 +207,7 @@ boxplots <- function(assays, error="E1", layout=c(1,length(assays)), dir) {
 #' @example {
 #'   plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-lineplots <- function(assays, error="E1", dir) {
+lineplots <- function(assays, error="E1", dir, yOffset) {
 
   if (length(assays)>0) {
     results=NULL
@@ -261,7 +261,7 @@ lineplots <- function(assays, error="E1", dir) {
     plot(resultsMLE$AssaySize,resultsMLE[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[1],axes=F,ann=F,ylim=c(min_y,max_y))
     axis(2, las=1, cex.axis=1.0)
     axis(1, lab=F, at=resultsMLE$AssaySize)
-    text(x=resultsMLE$AssaySize, y=min_y-0.0075, srt=45, adj=1, labels=paste(resultsMLE$Assay, sep=""),xpd=T, cex=1.0)
+    text(x=resultsMLE$AssaySize, y=min_y-yOffset, srt=45, adj=1, labels=paste(resultsMLE$Assay, sep=""),xpd=T, cex=1.0)
     box()
     lines(resultsMLE$AssaySize,resultsMLE[[paste("SD ",error,sep="")]],type='o',col=plot_colors[2],pch=22,lty=2)
 
@@ -295,7 +295,7 @@ alpha=0.025
 
 # statistical tests and comparison table
 tests (assays=assays, errors=c("E1","E2","E3","E5"), dir=dir, alpha=alpha)
-anal  (assays=assays, dir=dir)
+#anal  (assays=assays, dir=dir)
 
 
 # boxplots (for-loop produces empty plots for reasons unknown)
@@ -322,7 +322,10 @@ dev.off()
 
 # lineplots, ordered by dataset size (for-loop works)
 for (e in seq(1,5)) {
+  yOffset=0.12
+  if (e==1) yOffset = 0.016
+  if (e==2 || e==3) yOffset = 0.014
   postscript(file=paste("lp",e,".eps",sep=""),horizontal=F,paper="special",width=4, height=3)
-  lineplots (assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU"), error=paste("E",e,sep=""), dir=dir)
+  lineplots (assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU"), error=paste("E",e,sep=""), dir=dir, yOffset=yOffset)
   dev.off()
 }
