@@ -29,7 +29,7 @@
 \usepackage{setspace}
 \usepackage[compact]{titlesec}
 \usepackage{mdwlist}
-\usepackage[left=2cm,top=1cm,right=2cm,nohead,nofoot]{geometry}
+%\usepackage[left=2cm,top=1cm,right=2cm,nohead,nofoot]{geometry}
 
 \algnotext{EndFor}
 \algnotext{EndIf}
@@ -38,25 +38,25 @@
 
 % --- FORMAT ---------------------------------------------------------
 
-%% % % Page Style
-%% Lamport, L., LaTeX : A Documentation Preparation System User's Guide and Reference Manual, Addison-Wesley Pub Co., 2nd edition, August 1994.
-%\topmargin -2.0cm        % s. Lamport p.163
-%\oddsidemargin -0.5cm   % s. Lamport p.163
-%\evensidemargin -0.5cm  % wie oddsidemargin aber fr left-hand pages
-%\textwidth 17.5cm
-%\textheight 22.94cm 
-%\parskip 7.2pt           % spacing zwischen paragraphen
-%% \renewcommand{\baselinestretch}{2}\normalsize
-%\parindent 0pt		 % Einrcken von Paragraphen
-%\headheight 14pt
-%\pagestyle{fancy}
-%\lhead{}
-%\chead{\bfseries}
-%\rhead{\thepage}
-%\lfoot{}
-%\cfoot{}
-%\rfoot{}
-%\renewcommand{\textfloatsep}{1.5em}
+% % % Page Style
+% Lamport, L., LaTeX : A Documentation Preparation System User's Guide and Reference Manual, Addison-Wesley Pub Co., 2nd edition, August 1994.
+\topmargin -2.0cm        % s. Lamport p.163
+\oddsidemargin -0.5cm   % s. Lamport p.163
+\evensidemargin -0.5cm  % wie oddsidemargin aber fr left-hand pages
+\textwidth 17.5cm
+\textheight 22.94cm 
+\parskip 7.2pt           % spacing zwischen paragraphen
+% \renewcommand{\baselinestretch}{2}\normalsize
+\parindent 0pt		 % Einrcken von Paragraphen
+\headheight 14pt
+\pagestyle{fancy}
+\lhead{}
+\chead{\bfseries}
+\rhead{\thepage}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+\renewcommand{\textfloatsep}{1.5em}
 
 % % % Proofs: QED-Box
 \renewenvironment{proof}[1][\proofname]{\par
@@ -144,8 +144,7 @@ to identify the set of patterns that primarily lead to the occurrence of the
 effect, e.g. the relations between molecular fragments and exhibited toxicity
 of molecules. Finding such relations is, however, a major goal in the research
 of chemical reactivity of compounds (toxicology), for example in computational
-models, such as structure activity relationships (QSARs). Graph mining is also
-used in other areas of research such as TODO: cite.
+models, such as structure activity relationships (QSARs) (citation needed).
 
 Moreover, discriminative graph mining is an unstable process, where slight
 changes in the sample lead to very different subgraph sets. Fortunately, this
@@ -179,21 +178,20 @@ our proposed methods for estimating support values and $p$-values (section
 values and $p$-values on publicly available databases of
 various sizes and numbers of target classes (section \ref{s:Experiments}),
 before we draw conclusions (section \ref{s:Conclusion}).
-
 The contributions of this work are summarized as follows:
 \begin{itemize*}
   \item Repeated discriminative graph mining on bootstrap samples of a
     class-labeled graph database is proposed as a means to stabilize estimates
     for subgraph properties, such as support values per class, compared to
-    single runs of discriminative graph mining. An important application is
-    toxicology, especially the identification of chemical fragments related to
-    chemical reactivity.
-  \item Two methods for the estimation of support values are described. Both
+    single runs of discriminative graph mining. An important area of
+    application is the identification of chemical fragments related to chemical
+    reactivity from toxicology.
+  \item Two methods for the estimation of support values are described, where both
     handle multiple classes. Significance tests are applied to these
-    distributions and insignificant subgraphs are removed from the results.  
+    estimated values and insignificant subgraphs are removed from the results.  
   \item The estimated support values, predicted $p$-values, and predicted class
     associations are empirically validated on molecular databases of various
-    sizes.  The results indicate significant improvements over estimates
+    sizes.  The results indicate significant improvements over 
     ordinary discriminative graph mining, where the effect is larger the
     smaller the datasets are.  We conclude that out-of-bag estimation has the
     potential to generate concise, highly discriminative descriptor sets for
@@ -210,7 +208,7 @@ node error rates in decision trees \cite{breiman96oob} as well as the
 generalization error and accuracy of bagged predictors
 \cite{bylander02estimating}. In the work by Bylander
 \cite{bylander02estimating}, generalization error was well modeled by
-out-of-bag estimation, and its small bias could be further improved by a
+out-of-bag estimation, and its already small bias could be further reduced by a
 correction method, where, in order to correct the prediction of a given
 instance, similar out-of-bag instances with the same target class were
 employed. However, the method of out-of-bag estimation is not confined to these
@@ -279,8 +277,8 @@ the overview by Chi \emph{et al.} \cite{CMNK01Frequent}.
 \label{ss:significance-test}
 % general chisq test
 For a given subgraph $g$, we seek a $|I| \times 2$ contingency table that lists the
-support per class in the first column and the overall distribution of target
-classes in the second column, see Table \ref{t-ContingencyTableIndTest}.
+support values per class in the first column and the overall distribution of target
+classes in the second column, as in Table \ref{t-ContingencyTableIndTest}.
 \begin{table}[t]
   \centering
   \begin{tabular}{|l|l|l|}
@@ -318,7 +316,7 @@ which maintains the overall class proportions in each sample (see section
 
 \subsection{Formulation of Out-Of-Bag Discriminative Graph Mining}
 \label{ss:oob-dgm}
-We refer to the subset of a graph database $G$ that contains all the graphs $g$
+We refer to the subset that contains all the graphs $g \in G$
 with $a(g)=i$ as $G^i$.  The procedure first splits the graph database randomly
 into equal-sized training and test databases $G_{Train}$ and $G_{Test}$.
 Subsequently, stratified bootstrapping is performed on the training data, such
@@ -326,9 +324,9 @@ that each sample comprises $\vert G_{Train}^i\vert$ graphs associated with
 class $i$, drawn with replacement and uniform probability inside each
 class $i$.  On average, about 37\% (1/$e$) of training instances (molecules)
 will not be drawn in any bootstrap sample (out-of-bag instances). Subgraph mining mines
-the subgraphs on the in-bag instances, but looks up the support values per
+the subgraphs on the drawn instances, but looks up the support values per
 class on the out-of-bag instances, by performing subgraph isomorphism tests
-(matching).
+(so-called ``matching'').
 
 After the inital split, the bootstrapping is repeated $N$ times, where in each
 iteration, pairs of subgraphs and support values per class
@@ -340,18 +338,17 @@ where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)^T$, containing all the
 support values.  
 
 The total support is determined from the class specific support values by
-summing across target classes: $\mathbf{k}=\sum_{i=1}^{\vert I\vert}
-\mathbf{k_i}$.  The vector $\mathbf{k}$ contains the (total) support values for
-each bootstrap sample, obtained by summing up vectors $\mathbf{k_i}$.  The
-vectors $\mathbf{k_i}$ are generally sparse, due to the instability of
-discriminative graph mining, i.e. perturbations to the dataset (such as
-bootstrap sampling) yield almost always a different (but overlapping) selection
-of subgraphs. To cope with the variety of rare subgraphs, a fixed threshold
-removes all subgraphs with less than $\lfloor0.3*N\rfloor$ entries in the list
-of support values, after the end of bootstrapping.
+summing up vectors $\mathbf{k_i}$ across target classes:
+$\mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}$. The vectors $\mathbf{k_i}$
+are generally sparse, due to the instability of discriminative graph mining,
+i.e. perturbations to the dataset (such as bootstrap sampling) yield almost
+always a different (but overlapping) selection of subgraphs. To cope with the
+variety of rare subgraphs, a fixed threshold removes all subgraphs with less
+than $\lfloor0.3*N\rfloor$ entries in the list of support values, after the end
+of bootstrapping.
 
 The estimation of support values is performed seperately for each remaining
-subgraph. Two methods described in the next sections are employed, based either
+subgraph. Two methods, described in the next sections, are employed, based either
 on the sample mean support per class, and using data of the current subgraph
 only, or on a maximum likelihood estimate, involving some of the other
 subgraphs. Then, the significance test from section \ref{ss:significance-test}
@@ -368,15 +365,10 @@ value of $k$ is the sum of the $k_i$.
 \label{ss:MLE}
 Here, we employ some of the other subgraphs to form estimates for the $k_i$.
 The first step in this process is to extract the subgraphs with the same class
-bias as $g$, i.e. the class is identified in which $g$ appears more frequently
-than expected by comparing $g$'s relative (local) frequencies on the target
-classes to the overall (global) relative frequencies of target classes $G^i$.
-Local ties are broken in favor of the dominant global class. In case of a
-further tie on the global level, one of the globally dominant classes is chosen
-with uniform probability. Given $g$'s class bias, the other subgraphs with the
-same class bias are set aside.
-
-In a second step, the subgraphs with the same class bias are used to correct
+bias as $g$ (see section \ref{ss:significance-test}).  Local ties are broken in
+favor of the dominant global class. In case of a further tie on the global
+level, one of the globally dominant classes is chosen with uniform probability.
+In a second step, the subgraphs with the same class bias as $g$ are used to correct
 $g$'s local frequencies by weighting. This approach has some similarity to the
 work by Bylander \cite{bylander02estimating}, however, his aim is to correct
 instance predictions, and his correction employs similar out-of-bag instances,
@@ -420,7 +412,7 @@ coverage \cite{maunz11efficient}.  It is characterized by low running times in
 practice and small result set sizes. In the output, two isomorphic subgraphs
 are always represented by the same string identifier.  We employ SMARTS as
 identifier, a kind of regular expression to encode molecular fragments as
-strings.  This allows to store results in a hash structure using SMARTS as
+strings.  This approach allows to store results in a hash structure using SMARTS as
 keys.
 
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -431,43 +423,45 @@ keys.
   {\small \begin{algorithmic}[1]
   \Require $dataBase, numBoots, minSamplingSupport, method, minFrequencyPerSample, alpha$
   \If{$numBoots=1$}
-    \State $ans \gets BBRC(dataBase, minFrequencyPerSample, alpha)$
+    \State $[subgraphs, values] \gets BBRC(dataBase, minFrequencyPerSample, alpha)$
   \Else
     \State $hash \gets \{\}$
     \For{$i:=1 \to numBoots$} \Comment{Parallel Processing}
-        \State $res \gets BBRC(drawBsSample(dataBase), minFrequencyPerSample, alpha)$
-      \State $insert(hash,matchOOB(res))$
+      \State $sample,OOB \gets drawBsSample(dataBase)$
+      \State $[subgraphs, values] \gets BBRC(sample, minFrequencyPerSample, alpha)$
+      \State $insert(hash,match(subgraphs,OOB))$
     \EndFor
-    \State $ans \gets \emptyset$
+    \State $[subgraphs, values] \gets []$
     \For{$subgraph \in keys(hash)$}
       \If{$length(hash[subgraph]) \geq minSamplingSupport$}
-      \If{$(p \gets SignificanceTest(hash[subgraph]), method) < alpha$}
-          \State $ans\gets ans \cup (subgraph,p)$
+        \State $[candidateSupportValues, candidateBias] \gets method(hash[subgraph])$
+        \If{$candidatePValue \gets SignificanceTest(candidateSupportVals) < alpha$}
+          \State $subgraphs \gets subgraphs \cup subgraph$
+          \State $values \gets values \cup [candidateSupportValues, candidatePValue, candidateBias]$
         \EndIf
       \EndIf
     \EndFor
   \EndIf
-  \Ensure $ans$
+  \Ensure $[subgraphs, values]$
 \end{algorithmic}}
 \end{algorithm}
 The algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm
 \ref{alg:bbrc-sample}.  We consider the case where $numBoots>1$ first.  Line 4
 creates an initially empty hash table to gather results from BBRC mining in
-line 6. The resulting subgraphs $res$ are matched on the out-of-bag instances
-in line 7, where the values stored in the hash are the support values per
-class. It should be stressed that these values correspond to the out-of-bag
-instances, not the in-bag instances (bootstrap samples). On termination of the
-loop in line 8, each hash entry has at most $N$ support values per class.
-Post-processing the results is very fast and incurs negligible overhead
-compared to the graph mining step. It consists of removing subgraphs that (line
-11) were not generated often enough by the sampling process (have not enough
-entries in the hash table, as determined by $minSamplingSupport$), or which
-(line 12) do not significantly deviate from the overall distribution of
-classes, as assessed by the $\chi^2$ test (section \ref{ss:significance-test}),
-with contingency table calculated according to mean (section
-\ref{ss:simple-mean}) or maximum likelihood estimation (section \ref{ss:MLE})
-method.\\ If $numBoots=1$, support values per class are obtained directly from
-a single BBRC run, without any matching (see section \ref{ss:Error-estimation}).
+line 7. The resulting subgraphs are matched on the out-of-bag instances in line
+8, and the results stored in the hash. On termination of the loop, each hash
+entry has at most $N$ support values per class.  Post-processing the results is
+very fast and incurs negligible overhead compared to the graph mining step. It
+consists of removing subgraphs that (line 11) were not generated often enough
+by the sampling process (have not enough entries in the hash table, as
+determined by $minSamplingSupport$), or which (line 13) do not significantly
+deviate from the overall distribution of classes, as assessed by the $\chi^2$
+test (section \ref{ss:significance-test}), with contingency table calculated
+according to mean (section \ref{ss:simple-mean}) or maximum likelihood
+estimation (section \ref{ss:MLE}) method. If $numBoots=1$, support values per
+class are obtained directly from a single BBRC run, without any matching (see
+section \ref{ss:Error-estimation}). Note that BBRC and matching compute support
+values, $p$-values and biases directly from their respective results.
 
 \section{Experiments}
 \label{s:Experiments}
@@ -475,8 +469,8 @@ a single BBRC run, without any matching (see section \ref{ss:Error-estimation}).
 \subsection{Experimental Setup} 
 \label{ss:Error-estimation} 
 Three methods were compared by their ability to estimate the discriminative
-potential of subgraphs, by assessing the deviation between the class specific
-support values, and $p$-values of subgraphs, as a) estimated by the respective
+potential of subgraphs, by assessing the deviations between the class specific
+support values, $p$-values, and biases of subgraphs, as a) estimated by the respective
 method, and b) obtained by matching the subgraphs onto an independent test set.
 The methods compared are
 \begin{enumerate*} 
@@ -484,19 +478,17 @@ The methods compared are
     to section \ref{ss:MLE}. Denote this method by MLE.
   \item Out-of-bag estimation with Algorithm \ref{alg:bbrc-sample}, according
     to section \ref{ss:simple-mean}. Denote this method by MEAN.
-  \item Single runs of the BBRC algorithm. Denote this method by BBRC. Here,
-    the significance test from section \ref{ss:significance-test} is performed
-    inside BBRC.
+  \item Single runs of the BBRC algorithm. Denote this method by BBRC.
 \end{enumerate*}
 
 The process was repeated 100 times for methods 1, 2, and 3, with 100 bootstrap samples for methods 1 
 and 2. Five different error measures to compare the methods were assessed:
 \begin{enumerate*}
-  \item $E_1$, the mean of     $ p^B_i -p'_i \,$                                                                                    over subgraphs, i.e. the bias of $p$-value errors.
-  \item $E_2$, the mean of     $ \Big|\,p^B_i -p'_i \,\Big|$                                                                        over subgraphs, i.e. the absolute $p$-values errors.
-  \item $E_3$, the mean of     $ \Big(\,\frac{1}{|I|} \sum_{i=1}^{|I|} \,\Big|\,\frac{k^B_i}{k^B} - \frac{k'_i}{k'} \,\Big|\,\Big)$ over subgraphs, i.e. the relative support value errors.
-  \item $E_4$, 1 - the mean of $ \delta(bias^B_i, bias'_ix)$                                                                        over subgraphs, i.e. the fraction with wrongly recognized class bias.
-  \item $E_5$, 1 - the mean of $ \delta(p^B_i \le \alpha, p'_i \le \alpha)$                                                         over subgraphs, i.e. the fraction wrongly recognized as significant.
+  \item $E_1$, the mean of     $ p^B_i -p^T_i \,$                                                                                    over subgraphs, i.e. the bias of $p$-value errors.
+  \item $E_2$, the mean of     $ \Big|\,p^B_i -p^T_i \,\Big|$                                                                        over subgraphs, i.e. the absolute $p$-values errors.
+  \item $E_3$, the mean of     $ \Big(\,\frac{1}{|I|} \sum_{i=1}^{|I|} \,\Big|\,\frac{k^B_i}{k^B} - \frac{k^T_i}{k^T} \,\Big|\,\Big)$ over subgraphs, i.e. the relative support value errors.
+  \item $E_4$, 1 - the mean of $ \delta(bias^B_i, bias^T_ix)$                                                                        over subgraphs, i.e. the fraction with wrongly recognized class bias.
+  \item $E_5$, 1 - the mean of $ \delta(p^B_i \le \alpha, p^T_i \le \alpha)$                                                         over subgraphs, i.e. the fraction wrongly recognized as significant.
 \end{enumerate*}
 
 The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
@@ -506,13 +498,13 @@ The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
   {\small \begin{algorithmic}[1]
   \Require $graphDatabase, method$ \Comment{method is MLE, MEAN, or BBRC}
   \State $\mathbf{E_1}=\mathbf{E_2}=\mathbf{E_3}=\mathbf{E_4}=\mathbf{E_5}=\left[ \right]$
-  \For{$i:=1 \to 50$}
+  \For{$i:=1 \to 100$}
     \State $[trainSet, testSet] \gets splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
     \State $numBoots \gets 100;\;\textbf{if}\; method=BBRC\; numBoots \gets 1$
-    \State $\left[ \mathbf{subgraphs}, \mathbf{res^B} \right] \gets Algorithm\,\ref{alg:bbrc-sample}(trainSet,numBoots,alpha=0.05)$ \Comment{$numBoots=1$ for BBRC}
-    \State $\mathbf{res'} \gets match(\mathbf{subgraphs}, test)$ 
+    \State $\left[ subgraphs, values^B \right] \gets Algorithm\,\ref{alg:bbrc-sample}(trainSet,numBoots,alpha=0.05)$ \Comment{$numBoots=1$ for BBRC}
+    \State $\left[ subgraphs, values^T \right] \gets match(subgraphs, testSet)$ 
     \For{$j:=1 \to 5$}
-      \State $ \mathbf{E_j} \gets \left[ \mathbf{E_j}, E_j(\mathbf{res'}, \mathbf{res^B}) \right]$
+      \State $ \mathbf{E_j} \gets \left[ \mathbf{E_j}, errorJ(values^T, values^B) \right]$
     \EndFor
   \EndFor
   \Ensure $\mathbf{E_1},\mathbf{E_2},\mathbf{E_3},\mathbf{E_4},\mathbf{E_5}$
@@ -523,14 +515,14 @@ Line 1 initializes empty vectors that capture the residuals in estimation.
 Inside the main loop, a stratified split (i.e. proportions of target classes
 inside each split equal overall proportions) generates a training and a test
 set of equal size. The training set is treated by the selected method, which
-returns a vector of subgraphs and a vector $\mathbf{res^B}$ of values,
-including $p$, class support, and bias (line 4). The subgraphs are matched on
-the test set, yielding similar values $\mathbf{res'}$ (line 5). Finally, the
-residual vectors capture the differences between $\mathbf{res^B}$ and
-$\mathbf{res'}$ by the error measures.
+returns a vector of subgraphs and a vector $\mathbf{values^B}$ of values,
+including $p$, class support, and bias (line 5). The subgraphs are matched on
+the test set, yielding analogous values $\mathbf{values^T}$ (line 6). Finally, the
+residual vectors capture the differences between $\mathbf{values^B}$ and
+$\mathbf{values^T}$ by the error measures E1 - E5.
 
-Six molecular, class labeled datasets were obtained. The first five were drawn
-from the carcinogenic potency database
+Six molecular, class labeled datasets were used in the experiments. The first
+five were drawn from the carcinogenic potency database
 (CPDB)\footnote{\url{http://potency.berkeley.edu/cpdb.html}}, namely ``Combined
 Carcinogenicity and Mutagenicity'' (MUL, 4 classes, 677 compounds),
 ``\emph{Salmonella} Mutagenicity'' (SAL, 2 classes, 800 compounds), ``Mouse
