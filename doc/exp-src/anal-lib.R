@@ -3,8 +3,8 @@ runPairedTests <- function(x,y,alpha=.05) {
   add <- ""
   tP <- t.test(x,y,paired=T)$p.value
   wP <- wilcox.test(x,y,paired=T)$p.value
-  if (tP < alpha) add <- paste(add,"t",sep="")
-  if (wP < alpha) add <- paste(add,"w",sep="")
+  if (!is.nan(tP) && tP < alpha) add <- paste(add,"t",sep="")
+  if (!is.nan(wP) && wP < alpha) add <- paste(add,"w",sep="")
   add
 }
 

@@ -294,7 +294,7 @@ assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU")
 alpha=0.025
 
 # statistical tests and comparison table
-tests (assays=assays, errors=c("E1","E2","E3","E5"), dir=dir, alpha=alpha)
+tests (assays=assays, errors=c("E1","E2","E3","E4","E5"), dir=dir, alpha=alpha)
 #anal  (assays=assays, dir=dir)
 
 
