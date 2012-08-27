@@ -152,23 +152,21 @@ can be rectified by deliberately, repeatedly disturbing the sampling process
 and combining estimations over many samples. For example, in bootstrap
 sampling, estimates of generalization error obtained from the out-of-bag
 instances were shown to drastically improve on estimates obtained from the
-sample as a whole \cite{bylander02estimating, breiman96oob}.  
+sample as a whole \cite{bylander02estimating, breiman96oob}. Such a workflow is
+easily embedded when building a bagged predictor based on subgraph descriptors,
+where it may be obtained as a valuable by-product, as demonstrated by Breiman
+\cite{breiman96oob}.
 
 This work employs out-of-bag instances with the aim to more precisely
 estimating the frequencies (support values) of the subgraphs on the target
 classes that govern the training data than is possible with ordinary
-discriminative graph mining. Infrequently occurring subgraphs are filtered
-out after the bootstrapping.  For each remaining subgraph, a significance test
-is run using the estimated support values to filter out insignificant
-subgraphs.  This results in a statistically validated, highly significant,
-discriminative subgraph set.  In contrast to bagging, statistical models of the
-target classes are not the subject of this work.  However, class-correlated
-graph mining is supervised process that should be seen in close context to
-model building (see section \ref{s:relatedWork}). For example, a statistical
-model could be directly learned on the subgraph descriptors, incorporating
-their estimated support values. Moreover, human experts should be able to draw
-conclusions from the greatly reduced set. Being subgraphs, they can be easily
-matched on the chemical compound structure.
+discriminative graph mining. Infrequently occurring subgraphs are filtered out
+after the bootstrapping.  For each remaining subgraph, a significance test is
+run using the estimated support values to filter out insignificant subgraphs.
+This results in a statistically validated, highly significant, discriminative
+subgraph set, which may serve for diagnostic or predictive reasoning. Moreover,
+human experts should be able to draw conclusions from the greatly reduced set.
+Being subgraphs, they can be easily matched on the chemical compound structure.
 
 The remainder of this work is structured as follows: We present related work
 with a focus on discriminative graph mining (section \ref{s:relatedWork}),
@@ -256,17 +254,17 @@ finite set of nodes and $E \subseteq V = \{\{v_1, v_2\} \in \{V \times V\}, v_1
 label function.  We only consider connected graphs here, i.e.  there is a path
 between each two nodes in the graph.
 
-A subgraph $g'=(V',E',\Sigma',\lambda')$ of $g$ is a graph such that $V'
+A graph $g'=(V',E',\Sigma',\lambda')$ subgraph-isomorphic to $g$ if $V'
 \subseteq V$ and $E' \subseteq E$ with $V' \ne \emptyset$ and $E' \ne
 \emptyset$, $\lambda'(v_1)=\lambda(v_2)$ whenever $v_1=v_2$, and
 $\lambda'(e_1)=\lambda(e_2)$ whenever $e_1=e_2$, for all nodes and edges in
-$g'$.  If $g'$ is a subgraph of $g$, we also say that $g'$ covers $g$.  The
-subset of the database instances $G$ that $g'$ covers is referred to as the
-occurrences of $g'$, and its size as support of $g'$.  As a special case, the
-size of the subset of occurrences with $a(g)=i$, for any $g$ in the
-occurrences, is referred to as the support of $g'$ for class $i$. Thus, any
-subgraph has associated support values per class, ranging each between 0 and
-the support of $g'$.
+$g'$. Then, graph $g'$ is also referred to as a subgraph of $g$ -- we also say
+that $g'$ covers $g$.  The subset of the database instances $G$ that $g'$
+covers is referred to as the occurrences of $g'$, and its size as support of
+$g'$.  As a special case, the size of the subset of occurrences with $a(g)=i$,
+for any $g$ in the occurrences, is referred to as the support of $g'$ for class
+$i$. Thus, any subgraph has associated support values per class, ranging each
+between 0 and the support of $g'$.
 
 The subgraphs considered in this work are free subtrees. Here, we define a tree
 as a graph with exactly $n-1$ edges that connects its $n$ nodes. A free tree is
