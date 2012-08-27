@@ -30,12 +30,13 @@ anal <- function (assays=c(), outputFile="anal.tex", dir) {
      add = NULL
      
      # Errors
-     for (j in 1:2) { 
+     for (j in 1:5) { 
        file <- paste(dir,"/",assays[i],"/",assays[i],"_E",j,".csv",sep="")
        data <- na.omit( read.csv( file ) )
-       meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.3f",mean(x)),"(",sprintf("%.4f",sd(x)),")")))
+       meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.4f",mean(x)),"(",sprintf("%.4f",sd(x)),")")))
        add <- if (is.null(add)) meanData else cbind(add,meanData)
      }
+     add$AssaySize=assaySizes()[[assays[i]]]
   
      # Nr features
      # SAL_bbrc_ds_nr_com.csv  SAL_bbrc_ds_nr_f.csv
@@ -44,31 +45,37 @@ anal <- function (assays=c(), outputFile="anal.tex", dir) {
      meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
      add <- if (is.null(add)) meanData else cbind(add,meanData)
   
-     # Nr stripped mss
-     file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_mss",".csv",sep="")
-     data <- read.csv( file )
-     meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
-     add <- if (is.null(add)) meanData else cbind(add,meanData)
+     ## Nr stripped mss
+     #file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_mss",".csv",sep="")
+     #data <- read.csv( file )
+     #meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
+     #add <- if (is.null(add)) meanData else cbind(add,meanData)
   
-     # Nr stripped cst
-     file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_cst",".csv",sep="")
-     data <- read.csv( file )
-     meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
-     add <- if (is.null(add)) meanData else cbind(add,meanData)
-  
+     ## Nr stripped cst
+     #file <- paste(dir,"/",assays[i],"/",assays[i],"_n_stripped_cst",".csv",sep="")
+     #data <- read.csv( file )
+     #meanData <- data.frame(apply(data,2,function(x) mean(x,na.rm=T)))
+     #add <- if (is.null(add)) meanData else cbind(add,meanData)
+
      assayNames=matrix(rep(assays[i],3),3,1)
      methodNames=rownames(add)
      add <- cbind(assayNames, methodNames, add)
      rownames(add)=NULL
      res = if (is.null(res)) add else rbind(res,add)
   }
+
+
   
   if (!is.null(res)) {
-    colnames(res) = c("Assay", "Method", "E1", "E2", "Subgraphs", "Stripped MSS", "Stripped CST")
+    
+    colnames(res) = c("Assay", "Method", "E1", "E2", "E3", "E4", "E5", "AssaySize", "Subgraphs")
+    res=res[with(res, order(AssaySize)), ]
+    res$AssaySize=NULL
+    rownames(res)=NULL
+
     print(
           xtable(
                  res,
-                 digits=c(3,3,3,3,3,1,1,1),
                  label="t:anal",
                  caption="Bias and Accuracy",
                  ), 
@@ -92,13 +99,13 @@ anal <- function (assays=c(), outputFile="anal.tex", dir) {
 #' @example {
 #'  tests (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.0001, outputFile="sign.tex", dir) {
+tests <- function(assays, errors=c("E1", "E2", "E3", "E4", "E5"), pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE","MEAN")), alpha=0.0001, outputFile="sign.tex", dir) {
   res = NULL
   if (length(assays)>0) {
     results=list()
     for (i in 1:length(assays)) {
       assayRes=list()
-      for (error in c("E1", "E2")) {
+      for (error in errors) {
         errorRes=c()
         file <- paste(dir,"/",assays[i],"/",assays[i],"_",error,".csv",sep="")
         data <- na.omit ( read.csv( file ) )
@@ -115,10 +122,9 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
     row.names(res) = rowNames
 
     resNew<-NULL
-    for (error in c("E1", "E2")) {
+    for (error in errors) {
       resBroken<-NULL
       for (assay in assays) {
-        print(assay)
         colName<-paste(assay,error,sep=".")
         if (is.null(resBroken))  { 
           resBroken <- res[,colName,drop=F]
@@ -131,7 +137,6 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
         } 
       }
       row.names(resBroken) <- paste(row.names(res), error)
-      print(resBroken)
       if (is.null(resNew)) resNew<-resBroken else resNew<-rbind(resNew,resBroken)
     }
     res<-resNew
@@ -160,7 +165,7 @@ tests <- function(assays, pairsList=list(c("MLE","BBRC"),c("MEAN","BBRC"),c("MLE
 #' @example {
 #'   plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
 #' }
-plots <- function(assays, error="E1", layout=c(1,length(assays)), dir) {
+boxplots <- function(assays, error="E1", layout=c(1,length(assays)), dir) {
   res = NULL
   methods=c("MLE", "MEAN", "BBRC")
   if (length(assays)>0) {
@@ -188,16 +193,139 @@ plots <- function(assays, error="E1", layout=c(1,length(assays)), dir) {
     res=results
   }
   if (!is.null(res)) {
-    bpCollection( data=res, layout=layout, xlab=error )
+    bpCollection( bpdata=res, layout=layout, xlab=error )
   }
 }
 
+#' Generate boxplots for assays
+#' Plots are stacked by methods
+#' Plotgroups are stacked by assays
+#' @param assays data to consider (methods are fixed)
+#' @param error Measure to plot
+#' @param dir Directory to process
+#' @return bwplot from lattice package
+#' @example {
+#'   plots (assays=c("SAL", "RAT", "MCC", "KAZ"))
+#' }
+lineplots <- function(assays, error="E1", dir, yOffset) {
+
+  if (length(assays)>0) {
+    results=NULL
+    for (i in 1:length(assays)) {
+      file <- paste(dir,"/",assays[i],"/",assays[i],"_",error,".csv",sep="")
+      data <- na.omit( read.csv( file ) )
+      meanData <- data.frame(apply(data,2,function(x) mean(x)))
+      sdData <- data.frame(apply(data,2,function(x) sd(x)))
+      myData <- cbind(meanData,sdData)
+      #file <- paste(dir,"/",assays[i],"/",assays[i],"_E2.csv",sep="")
+      #data <- na.omit( read.csv( file ) )
+      #meanData <- data.frame(apply(data,2,function(x) mean(x)))
+      #sdData <- data.frame(apply(data,2,function(x) sd(x)))
+      #myData <- cbind(myData,meanData,sdData)
+      names(myData) <- c(paste("Mean ",error,sep=""), 
+                         paste("SD ",error,sep=""))
+      myData$Assay = rep(assays[i],dim(myData)[1])
+      myData$AssaySize = rep(assaySizes()[[assays[i]]], dim(myData)[1])
+      myData$Method = row.names(myData)
+      if (is.null(results)) results=myData else results=rbind(results,myData)
+    }
+
+    row.names(results)=NULL
+
+    max_y=max(
+              c(results[[paste("Mean ",error,sep="")]], 
+                results[[paste("SD ",error,sep="")]]
+               ))
+
+    min_y=min(
+              c(results[[paste("Mean ",error,sep="")]], 
+                results[[paste("SD ",error,sep="")]]
+               ))
+
+
+
+    resultsMLE <- results[results$Method=="MLE",]
+    resultsMLE <- resultsMLE[with(resultsMLE, order(AssaySize)), ]
+    resultsMLE$AssaySize <- log10(resultsMLE$AssaySize)
+
+    resultsMEAN <- results[results$Method=="MEAN",]
+    resultsMEAN <- resultsMEAN[with(resultsMEAN, order(AssaySize)), ]
+ 
+    resultsBBRC <- results[results$Method=="BBRC",]
+    resultsBBRC <- resultsBBRC[with(resultsBBRC, order(AssaySize)), ]
+
+    max_x=max(resultsMLE$AssaySize)
+    plot_colors=c('darkseagreen4','darkseagreen1','maroon1','maroon4','lightgoldenrod4','lightgoldenrod3')
+    par(mar=c(4.2, 3.8, 0.2, 0.2))
+
+    plot(resultsMLE$AssaySize,resultsMLE[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[1],axes=F,ann=F,ylim=c(min_y,max_y))
+    axis(2, las=1, cex.axis=1.0)
+    axis(1, lab=F, at=resultsMLE$AssaySize)
+    text(x=resultsMLE$AssaySize, y=min_y-yOffset, srt=45, adj=1, labels=paste(resultsMLE$Assay, sep=""),xpd=T, cex=1.0)
+    box()
+    lines(resultsMLE$AssaySize,resultsMLE[[paste("SD ",error,sep="")]],type='o',col=plot_colors[2],pch=22,lty=2)
+
+    lines(resultsMLE$AssaySize,resultsMEAN[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[3],pch=21,lty=1)
+    lines(resultsMLE$AssaySize,resultsMEAN[[paste("SD ",error,sep="")]],type='o',col=plot_colors[4],pch=22,lty=2)
+
+    lines(resultsMLE$AssaySize,resultsBBRC[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[5],pch=21,lty=1)
+    lines(resultsMLE$AssaySize,resultsBBRC[[paste("SD ",error,sep="")]],type='o',col=plot_colors[6],pch=22,lty=2)
+
+    title(xlab= "Log of Dataset Size",ylab="Error")
+    legend(max_x+log10(0.5), max_y, c(
+                                      paste("Mean MLE",sep=""),
+                                      paste("SD MLE",sep=""),
+                                      paste("Mean MEAN",sep=""),
+                                      paste("SD MEAN",sep=""),
+                                      paste("Mean BBRC",sep=""),
+                                      paste("SD BBRC",sep="")
+                                    ), cex=1.0, col=plot_colors, pch=21:22, lty=1:2, bty="n")
+
+  }
+
+}
+
+
 
 #' Main
-assays=c("SAL", "MCC", "KAZ", "MOU", "RAT")
-dir="exp3"
-tests (assays=assays, dir=dir)
-anal  (assays=assays, dir=dir)
-postscript(file="bp.eps",horizontal=F,paper="special",width=12, height=5)
-plots (assays=assays, layout=c(3,2), dir=dir)
+
+dir="exp9"
+assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU")
+alpha=0.025
+
+# statistical tests and comparison table
+tests (assays=assays, errors=c("E1","E2","E3","E4","E5"), dir=dir, alpha=alpha)
+#anal  (assays=assays, dir=dir)
+
+
+# boxplots (for-loop produces empty plots for reasons unknown)
+postscript(file=paste("bp1.eps",sep=""),horizontal=F,paper="special",width=8, height=5)
+boxplots (assays=assays, error="E1",layout=c(3,2), dir=dir)
 dev.off()
+
+postscript(file=paste("bp2.eps",sep=""),horizontal=F,paper="special",width=8, height=5)
+boxplots (assays=assays, error="E2",layout=c(3,2), dir=dir)
+dev.off()
+
+postscript(file=paste("bp3.eps",sep=""),horizontal=F,paper="special",width=8, height=5)
+boxplots (assays=assays, error="E3",layout=c(3,2), dir=dir)
+dev.off()
+
+postscript(file=paste("bp4.eps",sep=""),horizontal=F,paper="special",width=8, height=5)
+boxplots (assays=assays, error="E4",layout=c(3,2), dir=dir)
+dev.off()
+
+postscript(file=paste("bp5.eps",sep=""),horizontal=F,paper="special",width=8, height=5)
+boxplots (assays=assays, error="E5",layout=c(3,2), dir=dir)
+dev.off()
+
+
+# lineplots, ordered by dataset size (for-loop works)
+for (e in seq(1,5)) {
+  yOffset=0.12
+  if (e==1) yOffset = 0.016
+  if (e==2 || e==3) yOffset = 0.014
+  postscript(file=paste("lp",e,".eps",sep=""),horizontal=F,paper="special",width=4, height=3)
+  lineplots (assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU"), error=paste("E",e,sep=""), dir=dir, yOffset=yOffset)
+  dev.off()
+}

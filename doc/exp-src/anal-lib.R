@@ -3,8 +3,8 @@ runPairedTests <- function(x,y,alpha=.05) {
   add <- ""
   tP <- t.test(x,y,paired=T)$p.value
   wP <- wilcox.test(x,y,paired=T)$p.value
-  if (tP < alpha) add <- paste(add,"t",sep="")
-  if (wP < alpha) add <- paste(add,"w",sep="")
+  if (!is.nan(tP) && tP < alpha) add <- paste(add,"t",sep="")
+  if (!is.nan(wP) && wP < alpha) add <- paste(add,"w",sep="")
   add
 }
 
@@ -12,11 +12,11 @@ runPairedTests <- function(x,y,alpha=.05) {
 # Produces a layout[0] x layout[1] boxplot-collection
 # Each boxplot-collection consists of levels(data$plotLabel) many boxplots
 # @param data data frame with columns plotLabel (factor), plotCollectionLabel (factor), values (numeric)
-bpCollection <- function ( data=NULL, layout=c(0,0), xlab="xlab") {
-  if (!is.null(data)) {
+bpCollection <- function ( bpdata=NULL, layout=c(0,0), xlab="xlab") {
+  if (!is.null(bpdata)) {
     cols = list(col="black",cex=0.75,fill="gray")
     bwplot( plotLabel ~ values | plotCollectionLabel, 
-            data = data, 
+            data = bpdata, 
             xlab=xlab,
             layout=layout, 
             pch="|", 
@@ -32,3 +32,7 @@ bpCollection <- function ( data=NULL, layout=c(0,0), xlab="xlab") {
   }
 }
  
+assaySizes <- function () {
+  list(KAZ=4069, RAT=1128, MCC=1051, MOU=914, SAL=800, MUL=678)
+}
+
