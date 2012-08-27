@@ -182,7 +182,7 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
     sp <- lapply( sp, factor, levels=ds.levels )
     sp <- lapply( sp, table ) # raw support per level
     sp <- lapply( sp, function(x) x+1) # add-one smoothing
-    dsp <- lapply( sp, prop.table ) # relative support per level
+    dsp <- lapply( sp, prop.table ) # relative support per level, per instance
     sigFor <- lapply( dsp, getMaxClass, prop.table(ds.table))
 
     # cycle through all the patterns
@@ -225,10 +225,16 @@ bootBbrc = function(dataset.uri, # dataset to process (URI)
         spl <- spl[!sp.zero] # must use sp.zero index, not local!
 
         # re-estimate p's support-per-level based on friends' mean prob
-        splPvals <- sapply ( seq_along(spl), 
+        if (length(friendsPvals)>0) {
+          splPvals <- sapply ( seq_along(spl), 
                         function(idx,friendsPvals) {
                           mean(sapply(friendsPvals, "[" , idx))
                         }, friendsPvals )
+        } 
+        else {
+          # it is possible that there are no friends!
+          splPvals <- rep(1,length(spl))
+        }
 
         chisqv <- chisqv + squaredErr(weighted.mean(spl,splPvals), (mean(sp)*as.numeric(ds.table[l])/ds.n))
       }
