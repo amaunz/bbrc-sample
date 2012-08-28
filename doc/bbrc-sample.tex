@@ -135,38 +135,30 @@ also small, compared to ordinary graph mining, and may thus be beneficial
 for statistical models, as well as for inspection by toxicological experts.
 
 \section{Introduction}
-It is a fundamental fact that no finite sample can be an exact representation
-of the unknown underlying distribution from which the sample was drawn.  For
-example, in discriminative graph mining on class-labeled graph databases,
-there is no way of inferring the exact correlations between graph fragments
-(subgraphs) and the effect symbolized by the target classes, which could serve
-to identify the set of patterns that primarily lead to the occurrence of the
-effect, e.g. the relations between molecular fragments and exhibited toxicity
-of molecules. Finding such relations is, however, a major goal in the research
-of chemical reactivity of compounds (toxicology), for example in computational
-models, such as structure activity relationships (QSARs) (citation needed).
+Discriminative graph mining is a supervised learning task with the goal to
+extract graph fragments (subgraphs) from a class-labeled graph database, which
+have strong associations to the classes. For example, the subgraphs may be molecular fragments that
+induce toxicity. Accordingly, finding such associations is a major goal in the
+research of chemical reactivity of compounds \cite{kazius05derivation}. However, discriminative graph
+mining is an unstable process, i.e. slight changes in the sample may lead to very
+different subgraph sets. 
 
-Moreover, discriminative graph mining is an unstable process, where slight
-changes in the sample lead to very different subgraph sets. Fortunately, this
-can be rectified by deliberately, repeatedly disturbing the sampling process
-and combining estimations over many samples. For example, in bootstrap
-sampling, estimates of generalization error obtained from the out-of-bag
-instances were shown to drastically improve on estimates obtained from the
-sample as a whole \cite{bylander02estimating, breiman96oob}. Such a workflow is
-easily embedded when building a bagged predictor based on subgraph descriptors,
-where it may be obtained as a valuable by-product, as demonstrated by Breiman
-\cite{breiman96oob}.
+When building a bagged predictor, supervised learning is performed on bootstrap
+samples of the training data individually, and estimates are obtained from the
+out-of-bag instances, which saves computational effort compared to
+crossvalidation on the bootstrap samples. Estimates of generalization error obtained by bagging were
+shown to drastically improve on estimates obtained from the training data as a
+whole, especially in the context of unstable learning tasks \cite{breiman96oob}. 
 
 This work employs out-of-bag instances with the aim to more precisely
 estimating the frequencies (support values) of the subgraphs on the target
-classes that govern the training data than is possible with ordinary
-discriminative graph mining. Infrequently occurring subgraphs are filtered out
-after the bootstrapping.  For each remaining subgraph, a significance test is
-run using the estimated support values to filter out insignificant subgraphs.
-This results in a statistically validated, highly significant, discriminative
-subgraph set, which may serve for diagnostic or predictive reasoning. Moreover,
-human experts should be able to draw conclusions from the greatly reduced set.
-Being subgraphs, they can be easily matched on the chemical compound structure.
+classes that govern the training data, compared to ordinary discriminative
+graph mining.  Infrequently occurring subgraphs are filtered out after the
+bootstrapping, which removes the instability to a large extent.  For each
+remaining subgraph, a significance test is run using the estimated support
+values to filter out insignificant subgraphs.  This results in a statistically
+validated, highly significant, discriminative subgraph set, which may serve for
+diagnostic or predictive reasoning. 
 
 The remainder of this work is structured as follows: We present related work
 with a focus on discriminative graph mining (section \ref{s:relatedWork}),
@@ -192,9 +184,8 @@ The contributions of this work are summarized as follows:
     sizes.  The results indicate significant improvements over 
     ordinary discriminative graph mining, where the effect is larger the
     smaller the datasets are.  We conclude that out-of-bag estimation has the
-    potential to generate concise, highly discriminative descriptor sets for
-    use in statistical models and/or expert inspection of the molecular
-    fragments.
+    potential to generate concise, highly discriminative subgraph sets for
+    use in statistical models and/or expert inspection.
 \end{itemize*}
 
 
@@ -203,39 +194,37 @@ The contributions of this work are summarized as follows:
 
 Out-of-bag methods have been used to robustly estimate node probabilities and
 node error rates in decision trees \cite{breiman96oob} as well as the
-generalization error and accuracy of bagged predictors
-\cite{bylander02estimating}. In the work by Bylander
+generalization error and accuracy of bagged predictors. In the work by Bylander
 \cite{bylander02estimating}, generalization error was well modeled by
 out-of-bag estimation, and its already small bias could be further reduced by a
 correction method, where, in order to correct the prediction of a given
 instance, similar out-of-bag instances with the same target class were
 employed. However, the method of out-of-bag estimation is not confined to these
-examples, and may be used to estimate general statistical properties.
+examples, and may be used to also estimate other statistical properties in
+supervised learning.
 
-Subgraph mining is often employed as a preprocessing step to statistical
-learning, because subgraphs may be useful as descriptors
-\cite{bringmann10lego,schietgat09mcsfeatures}. To this end, there is a variety
-of well-known statistical learning algorithms available ``off the shelf''
-\cite{hall09weka,r08language}. This makes a workflow attractive, where
-regularities and patterns are extracted from the data, represented in a unified
-format and fed into a machine learning algorithm \cite{hkr03molfea}.  However,
-graph mining often produces huge descriptor sets and experts would not be
-able to draw conclusions from the vast amount of very similar subgraphs, since
-the few useful patterns would be lost in the flood.  Similarly, the
-high-dimensional pattern space would prevent machine learning methods from
-obtaining models in acceptable time \cite{Hasan_origami:mining}.  Thus,
-post-processing would be required to lower redundancy and eliminate the vast
-majority of subgraphs \cite{schietgat09mcsfeatures, CMNK01Frequent, Jun04Spin}. 
+Discriminative subgraph mining is often employed as a preprocessing step to
+statistical learning, because such subgraphs may be useful as descriptors
+\cite{bringmann10lego}. Nowadays, there is a variety of well-known statistical
+learning algorithms available ``off the shelf'', which makes a workflow
+attractive where subgraphs are extracted from the data, represented in a
+unified format, and fed into a machine learning algorithm \cite{hkr03molfea}.
+Usually, discriminative subgraphs are mined using a user-defined significance
+threshold. A subgraph is in the result, if it passes a statistical test with
+regard to its association to the target classes.  However, graph mining often
+produces huge descriptor sets even with very tight bounds on discriminative
+power, which would prevent machine learning methods from obtaining models in
+acceptable time \cite{Hasan_origami:mining}.  Thus, post-processing would be
+required to lower redundancy and eliminate the vast majority of subgraphs
+\cite{Jun04Spin}. 
 
 Subgraph boosting \cite{saigo09gboost} is an integrated method that employs
 subsampling internally, alternating between graph mining and model building.
-The method presented here is clearly different from subgraph boosting (and from
-boosting in general), because it calculates descriptors that can be used in
-wide variety of models afterwards. It is similar in that it outputs a small
-collection of most discriminative subgraphs. However, the collection computed
-here proves to be much more stable, and robust against perturbations of the
-dataset.
-
+The method presented here is clearly different from boosting, because it
+calculates descriptors that can be used in wide variety of models afterwards.
+It is similar in that it calculates a small collection of most discriminative
+subgraphs. However, it is also stable against perturbations of the
+dataset, which is not the case in boosting.
 
 
 \section{Methods}
@@ -403,15 +392,14 @@ According to section \ref{ss:oob-dgm}, graph mining proceeds in two steps:
 mining the bootstrap sample and -- for each subgraph found -- looking up
 support values per class on the out-of-bag instances.  The mining step is
 implemented using a discriminative graph mining algorithm of choice. In this
-work, an in-house development, called backbone refinement class mining (BBRC)
-\cite{maunz09largescale}, is used.  It has high compression potential, which
-has been shown theoretically and empirically, while retaining good database
-coverage \cite{maunz11efficient}.  It is characterized by low running times in
-practice and small result set sizes. In the output, two isomorphic subgraphs
-are always represented by the same string identifier.  We employ SMARTS as
-identifier, a kind of regular expression to encode molecular fragments as
-strings.  This approach allows to store results in a hash structure using SMARTS as
-keys.
+work, our algorithm backbone refinement class mining (BBRC) is used
+\cite{maunz09largescale}. It has high compression potential, which has been
+shown theoretically and empirically, while retaining good database coverage
+\cite{maunz11efficient}. BBRC takes a significance threshold, as well as a
+minimum support parameter. In its output, two isomorphic subgraphs are always
+represented by the same string identifier.  We employ SMARTS as identifier, a
+kind of regular expression to encode molecular fragments as strings.  This
+approach allows to store results in a hash structure using SMARTS as keys.
 
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
