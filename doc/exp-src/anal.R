@@ -33,7 +33,7 @@ anal <- function (assays=c(), outputFile="anal.tex", dir) {
      for (j in 1:5) { 
        file <- paste(dir,"/",assays[i],"/",assays[i],"_E",j,".csv",sep="")
        data <- na.omit( read.csv( file ) )
-       meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.4f",mean(x)),"(",sprintf("%.4f",sd(x)),")")))
+       meanData <- data.frame(apply(data,2,function(x) paste(sprintf("%.4f",mean(x))," (",sprintf("%.4f",sd(x)),")",sep="")))
        add <- if (is.null(add)) meanData else cbind(add,meanData)
      }
      add$AssaySize=assaySizes()[[assays[i]]]
@@ -289,8 +289,8 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
 
 #' Main
 
-dir="exp9"
-assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU")
+dir="exp10"
+assays=c("INT", "MCC", "RAT", "MUL", "KAZ", "MOU")
 alpha=0.025
 
 # statistical tests and comparison table
@@ -326,6 +326,6 @@ for (e in seq(1,5)) {
   if (e==1) yOffset = 0.016
   if (e==2 || e==3) yOffset = 0.014
   postscript(file=paste("lp",e,".eps",sep=""),horizontal=F,paper="special",width=4, height=3)
-  lineplots (assays=c("SAL", "MCC", "RAT", "MUL", "KAZ", "MOU"), error=paste("E",e,sep=""), dir=dir, yOffset=yOffset)
+  lineplots (assays=assays, error=paste("E",e,sep=""), dir=dir, yOffset=yOffset)
   dev.off()
 }

@@ -507,17 +507,18 @@ the test set, yielding analogous values $\mathbf{values^T}$ (line 6). Finally, t
 residual vectors capture the differences between $\mathbf{values^B}$ and
 $\mathbf{values^T}$ by the error measures E1 - E5.
 
-Six molecular, class labeled datasets were used in the experiments. The first
-five were drawn from the carcinogenic potency database
-(CPDB)\footnote{\url{http://potency.berkeley.edu/cpdb.html}}, namely ``Combined
-Carcinogenicity and Mutagenicity'' (MUL, 4 classes, 677 compounds),
-``\emph{Salmonella} Mutagenicity'' (SAL, 2 classes, 800 compounds), ``Mouse
-Carcinogenicity'' (MOU, 2 classes, 914 compounds), ``Multi-Cell Call'' (MCC, 2
-classes, 1050 compounds), and ``Rat Carcinogenicity'' (RAT, 2 classes, 1128
-compounds). The sixth is the Kazius/Bursi mutagenicity dataset
-\cite{kazius05derivation} (KAZ, 2 classes, 4069 compounds).  The MUL dataset
-labels consist of all four cross-combinations of the binary MCC and SAL labels,
-for all chemicals with both values for both labels present.
+Six molecular, class labeled datasets were used in the experiments. 
+Four were drawn from the carcinogenic potency database
+(CPDB)\footnote{\url{http://potency.berkeley.edu/cpdb.html}}, namely 
+``Combined Carcinogenicity and Mutagenicity'' (MUL, 4 classes, 677 compounds),
+``Mouse Carcinogenicity'' (MOU, 2 classes, 914 compounds), 
+``Multi-Cell Call'' (MCC, 2 classes, 1050 compounds), and 
+``Rat Carcinogenicity'' (RAT, 2 classes, 1128 compounds). 
+MUL's labels consist of the four cross-combinations of binary carcinogenicity
+and mutagenicity labels from the CPDB, for all chemicals with both values for
+both labels present.
+A rather small dataset, describing human intestinal absorption (INT, 3 classes, 458 compounds) \cite{Suenderhauf10Combinatorial}, as well as
+the rather large Kazius/Bursi mutagenicity dataset (KAZ, 2 classes, 4069 compounds), \cite{kazius05derivation} were also used.
 
 \subsection{Results}
 \label{ss:Results}

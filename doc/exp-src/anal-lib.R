@@ -33,6 +33,6 @@ bpCollection <- function ( bpdata=NULL, layout=c(0,0), xlab="xlab") {
 }
  
 assaySizes <- function () {
-  list(KAZ=4069, RAT=1128, MCC=1051, MOU=914, SAL=800, MUL=678)
+  list(KAZ=4069, RAT=1128, MCC=1051, MOU=914, SAL=800, MUL=678, INT=458)
 }
 
