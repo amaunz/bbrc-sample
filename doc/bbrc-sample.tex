@@ -1,16 +1,61 @@
-%\documentclass[a4paper,10pt]{article}
-\documentclass{article}
+% This is "sig-alternate.tex" V1.9 April 2009
+% This file should be compiled with V2.4 of "sig-alternate.cls" April 2009
+%
+% This example file demonstrates the use of the 'sig-alternate.cls'
+% V2.4 LaTeX2e document class file. It is for those submitting
+% articles to ACM Conference Proceedings WHO DO NOT WISH TO
+% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
+% The 'sig-alternate.cls' file will produce a similar-looking,
+% albeit, 'tighter' paper resulting in, invariably, fewer pages.
+%
+% ----------------------------------------------------------------------------------------------------------------
+% This .tex file (and associated .cls V2.4) produces:
+%       1) The Permission Statement
+%       2) The Conference (location) Info information
+%       3) The Copyright Line with ACM data
+%       4) NO page numbers
+%
+% as against the acm_proc_article-sp.cls file which
+% DOES NOT produce 1) thru' 3) above.
+%
+% Using 'sig-alternate.cls' you have control, however, from within
+% the source .tex file, over both the CopyrightYear
+% (defaulted to 200X) and the ACM Copyright Data
+% (defaulted to X-XXXXX-XX-X/XX/XX).
+% e.g.
+% \CopyrightYear{2007} will cause 2007 to appear in the copyright line.
+% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the copyright line.
+%
+% ---------------------------------------------------------------------------------------------------------------
+% This .tex source is an example which *does* use
+% the .bib file (from which the .bbl file % is produced).
+% REMEMBER HOWEVER: After having produced the .bbl file,
+% and prior to final submission, you *NEED* to 'insert'
+% your .bbl file into your source .tex file so as to provide
+% ONE 'self-contained' source file.
+%
+% ================= IF YOU HAVE QUESTIONS =======================
+% Questions regarding the SIGS styles, SIGS policies and
+% procedures, Conferences etc. should be sent to
+% Adrienne Griscti (griscti@acm.org)
+%
+% Technical questions _only_ to
+% Gerald Murray (murray@hq.acm.org)
+% ===============================================================
+%
+% For tracking purposes - this is V1.9 - April 2009
 
-\usepackage{a4wide}
-\usepackage[latin1]{inputenc}
-\usepackage{fancyhdr}
+\documentclass{sig-alternate}
+  \pdfpagewidth=8.5truein
+  \pdfpageheight=11truein
 
-% % % Watermark
-\usepackage{eso-pic}
-\usepackage{type1cm}
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
 
-% % % Figures
-% \usepackage{listings}
+
 \usepackage{multirow}	% for tables
 \usepackage{graphicx}   % for including EPS
 \usepackage{rotating}
@@ -21,101 +66,92 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsfonts}
-\usepackage{amsthm}
 \usepackage{bm}
 \usepackage{srctex}
-\usepackage{algorithm}
+\usepackage[linesnumbered,algo2e,noend]{algorithm2e}
 \usepackage{algpseudocode}
 \usepackage{setspace}
-\usepackage[compact]{titlesec}
+%\usepackage[compact]{titlesec}
 \usepackage{mdwlist}
 %\usepackage[left=2cm,top=1cm,right=2cm,nohead,nofoot]{geometry}
 
 \algnotext{EndFor}
 \algnotext{EndIf}
-\makeindex
-\makeatletter
-
-% --- FORMAT ---------------------------------------------------------
-
-% % % Page Style
-% Lamport, L., LaTeX : A Documentation Preparation System User's Guide and Reference Manual, Addison-Wesley Pub Co., 2nd edition, August 1994.
-\topmargin -2.0cm        % s. Lamport p.163
-\oddsidemargin -0.5cm   % s. Lamport p.163
-\evensidemargin -0.5cm  % wie oddsidemargin aber fr left-hand pages
-\textwidth 17.5cm
-\textheight 22.94cm 
-\parskip 7.2pt           % spacing zwischen paragraphen
-% \renewcommand{\baselinestretch}{2}\normalsize
-\parindent 0pt		 % Einrcken von Paragraphen
-\headheight 14pt
-\pagestyle{fancy}
-\lhead{}
-\chead{\bfseries}
-\rhead{\thepage}
-\lfoot{}
-\cfoot{}
-\rfoot{}
-\renewcommand{\textfloatsep}{1.5em}
-
-% % % Proofs: QED-Box
-\renewenvironment{proof}[1][\proofname]{\par
-  \pushQED{\qed}%
-  \normalfont \topsep6\p@\@plus6\p@\relax
-  \trivlist
-  \item[\hskip\labelsep
-        \itshape
-    #1\@addpunct{:}]\ignorespaces
-}{
-  \popQED\endtrivlist\@endpefalse
-}
-\makeatother
-
-% % % Alphabetic footnote marks
-\renewcommand{\thefootnote}{\alph{footnote}}
-
-% % % Watermark
-% \makeatletter
-% \AddToShipoutPicture{%
-% \setlength{\@tempdimb}{.5\paperwidth}%
-% \setlength{\@tempdimc}{.5\paperheight}%
-% \setlength{\unitlength}{1pt}%
-% \makebox(960,1470){%
-% \rotatebox{315}{%
-% \textcolor[gray]{0.75}{%
-% \fontsize{36pt}{72pt}\selectfont{\emph{D R A F T}}}}}
-% }
-% \makeatother
-
-
-
-% --- START DOCUMENT -------------------------------------------------
 
 \begin{document}
-\setstretch{1.1}
-%\setlength{\parskip}{0pt}
-%\setlength{\parsep}{0pt}
-%\setlength{\headsep}{0pt}
-%\setlength{\topskip}{0pt}
-%\setlength{\topmargin}{0pt}
-%\setlength{\topsep}{0pt}
-%\setlength{\partopsep}{0pt}
-
-%\linespread{0.75}
 %
-%\titlespacing{\section}{0pt}{*1.5}{*1.5}
-%\titlespacing{\subsection}{0pt}{*1.0}{*1.0}
-%\titlespacing{\subsubsection}{0pt}{*0.5}{*0.5}
+% --- Author Metadata here ---
+\conferenceinfo{SAC'13}{March 18-22, 2013, Coimbra, Portugal.}
+\CopyrightYear{2013} % Allows default copyright year (2002) to be over-ridden - IF NEED BE.
+\crdata{978-1-4503-1656-9/13/03}  % Allows default copyright data (X-XXXXX-XX-X/XX/XX) to be over-ridden.
+% --- End of Author Metadata ---
 
-\begin{center}
-\begin{huge}Out-Of-Bag Discriminative Graph Mining\end{huge}
+\title{Out-Of-Bag Discriminative Graph Mining}
+%
+% You need the command \numberofauthors to handle the 'placement
+% and alignment' of the authors beneath the title.
+%
+% For aesthetic reasons, we recommend 'three authors at a time'
+% i.e. three 'name/affiliation blocks' be placed beneath the title.
+%
+% NOTE: You are NOT restricted in how many 'rows' of
+% "name/affiliations" may appear. We just ask that you restrict
+% the number of 'columns' to three.
+%
+% Because of the available 'opening page real-estate'
+% we ask you to refrain from putting more than six authors
+% (two rows with three columns) beneath the article title.
+% More than six makes the first-page appear very cluttered indeed.
+%
+% Use the \alignauthor commands to handle the names
+% and affiliations for an 'aesthetic maximum' of six authors.
+% Add names, affiliations, addresses for
+% the seventh etc. author(s) as the argument for the
+% \additionalauthors command.
+% These 'additional authors' will be output/set for you
+% without further effort on your part as the last section in
+% the body of your article BEFORE References or any Appendices.
 
-Andreas Maunz \\Institute for Physics, Hermann-Herder-Str. 3, 79104 Freiburg, Germany
-\end{center}
+\numberofauthors{3} %  in this sample file, there are a *total*
+% of EIGHT authors. SIX appear on the 'first-page' (for formatting
+% reasons) and the remaining two appear in the \additionalauthors section.
+%
+\author{
+% You can go ahead and credit any number of authors here,
+% e.g. one 'row of three' or two rows (consisting of one row of three
+% and a second row of one, two or three).
+%
+% The command \alignauthor (no curly braces needed) should
+% precede each author name, affiliation/snail-mail address and
+% e-mail address. Additionally, tag each line of
+% affiliation/address with \affaddr, and tag the
+% e-mail address with \email.
+%
+% 1st. author
+\alignauthor
+Andreas Maunz\\
+       \affaddr{Institute for Physics}\\
+       \affaddr{Hermann-Herder-Str. 3}\\
+       \affaddr{79194 Freiburg, Germany}\\
+       \email{andreas@maunz.de}
+% 2nd. author
+\alignauthor David Vorgrimmler\\
+       \affaddr{in-silico Toxicology}\\
+       \affaddr{Altkircherstr. 4}\\
+       \affaddr{4054 Basel, Switzerland}\\
+       \email{vorgrimmler@in-silico.ch}
+% 3rd. author
+\alignauthor 
+Christoph Helma\\
+       \affaddr{in-silico Toxicology}\\
+       \affaddr{Altkircherstr. 4}\\
+       \affaddr{4054 Basel, Switzerland}\\
+       \email{helma@in-silico.ch}
+}
 
-\section{Abstract}
-
-In class-labeled graph databases, each graph is associated with one from a
+\maketitle
+\begin{abstract}
+  In class-labeled graph databases, each graph is associated with one from a
 finite set of target classes.  This induces associations between subgraphs
 occurring in these graphs, and the target classes. The subgraphs with strong
 target class associations are called discriminative subgraphs.  In this work,
@@ -134,7 +170,17 @@ statistically validated, the subgraph sets created by the proposed methods are
 also small, compared to ordinary graph mining, and may thus be beneficial
 for statistical models, as well as for inspection by toxicological experts.
 
+
+\end{abstract}
+
+
+
+% A category with the (minimum) three required fields
+\category{H.2.8}{Database Applications}{Data Mining, Statistical Databases}
+\terms{Theory, Experimentation, Performance}
+
 \section{Introduction}
+\label{s:Introduction}
 Given a class-labeled graph database, discriminative graph mining is a
 supervised learning task with the goal to extract graph fragments (subgraphs)
 with strong associations to the classes, according to statistical constraints
@@ -403,37 +449,34 @@ minimum support parameter. In its output, two isomorphic subgraphs are always
 represented by the same string identifier.  We employ SMARTS as identifier, a
 kind of regular expression to encode molecular fragments as strings.  This
 approach allows to store results in a hash structure using SMARTS as keys.
-
-\renewcommand{\algorithmicrequire}{\textbf{Input:}}
-\renewcommand{\algorithmicensure}{\textbf{Output:}}
-\begin{algorithm}[t]
-  \caption{Estimate subgraph significance on out-of-bag instances}
-  \label{alg:bbrc-sample}
-  {\small \begin{algorithmic}[1]
-  \Require $dataBase, numBoots, minSamplingSupport, method, minFrequencyPerSample, alpha$
-  \If{$numBoots=1$}
-    \State $[subgraphs, values] \gets BBRC(dataBase, minFrequencyPerSample, alpha)$
-  \Else
-    \State $hash \gets \{\}$
-    \For{$i:=1 \to numBoots$} \Comment{Parallel Processing}
-      \State $sample,OOB \gets drawBsSample(dataBase)$
-      \State $[subgraphs, values] \gets BBRC(sample, minFrequencyPerSample, alpha)$
-      \State $insert(hash,match(subgraphs,OOB))$
-    \EndFor
-    \State $[subgraphs, values] \gets []$
-    \For{$subgraph \in keys(hash)$}
-      \If{$length(hash[subgraph]) \geq minSamplingSupport$}
-        \State $[candidateSupportValues, candidateBias] \gets method(hash[subgraph])$
-        \If{$candidatePValue \gets SignificanceTest(candidateSupportVals) < alpha$}
-          \State $subgraphs \gets subgraphs \cup subgraph$
-          \State $values \gets values \cup [candidateSupportValues, candidatePValue, candidateBias]$
-        \EndIf
-      \EndIf
-    \EndFor
-  \EndIf
-  \Ensure $[subgraphs, values]$
-\end{algorithmic}}
-\end{algorithm}
+%\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+%\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\begin{algorithm2e*}[t]
+  \KwData{$dataBase, numBoots, minSamplingSupport, method, minFrequencyPerSample, alpha$}
+  \KwResult{$[subgraphs, values]$}
+  \If{$numBoots=1$}{
+     $[subgraphs, values] \leftarrow BBRC(dataBase, minFrequencyPerSample, alpha)$\;
+  }
+  \Else{
+    $hash \leftarrow \{\}$\;
+    \For{$i:=1 \to numBoots$ (Parallel Processing)} { 
+      $sample,OOB \leftarrow drawBsSample(dataBase)$\;
+      $[subgraphs, values] \leftarrow BBRC(sample, minFrequencyPerSample, alpha)$\;
+      $insert(hash,match(subgraphs,OOB))$\;
+    }
+    $[subgraphs, values] \leftarrow []$\;
+    \For{$subgraph \in keys(hash)$}{
+      \If{$length(hash[subgraph]) \geq minSamplingSupport$}{
+         $[candidateSupportValues, candidateBias] \leftarrow method(hash[subgraph])$\;
+        \If{$candidatePValue \leftarrow SignificanceTest(candidateSupportVals) < alpha$}{
+          $subgraphs \leftarrow subgraphs \cup subgraph$\;
+          $values \leftarrow values \cup [candidateSupportValues, candidatePValue, candidateBias]$\;
+        }
+      }
+    }
+  }
+  \caption{Estimate subgraph significance on out-of-bag instances\label{alg:bbrc-sample}}
+\end{algorithm2e*}
 The algorithm using $numBoots=N$ bootstrap samples is shown in Algorithm
 \ref{alg:bbrc-sample}.  We consider the case where $numBoots>1$ first.  Line 4
 creates an initially empty hash table to gather results from BBRC mining in
@@ -479,27 +522,22 @@ and 2. Five different error measures to compare the methods were assessed:
   \item $E_4$, 1 - the mean of $ \delta(bias^B_i, bias^T_ix)$                                                                        over subgraphs, i.e. the fraction with wrongly recognized class bias.
   \item $E_5$, 1 - the mean of $ \delta(p^B_i \le \alpha, p^T_i \le \alpha)$                                                         over subgraphs, i.e. the fraction wrongly recognized as significant.
 \end{enumerate*}
-
+\begin{algorithm2e*}[t]
+  \KwData{$graphDatabase, method$ (method is MLE, MEAN, or BBRC)} 
+  \KwResult{$\mathbf{E_1},\mathbf{E_2},\mathbf{E_3},\mathbf{E_4},\mathbf{E_5}$}
+  $\mathbf{E_1}=\mathbf{E_2}=\mathbf{E_3}=\mathbf{E_4}=\mathbf{E_5}=\left[ \right]$\;
+  \For{$i:=1 \to 100$}{
+    $[trainSet, testSet] \leftarrow splitStratified(graphDatabase,0.5)$ \;
+    $numBoots \leftarrow 100;\;\textbf{if}\; method=BBRC\; numBoots \leftarrow 1$\;
+    $\left[ subgraphs, values^B \right] \leftarrow Algorithm\,\ref{alg:bbrc-sample}(trainSet,numBoots,alpha=0.05)$\;
+    $\left[ subgraphs, values^T \right] \leftarrow match(subgraphs, testSet)$ \;
+    \For{$j:=1 \to 5$}{
+      $\mathbf{E_j} \leftarrow \left[ \mathbf{E_j}, errorJ(values^T, values^B) \right]$\;
+    }
+  }
+  \caption{Error Measures\label{alg:pValEstimate}}
+\end{algorithm2e*}
 The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
-\begin{algorithm}[t]
-  \caption{Error Measures}
-  \label{alg:pValEstimate}
-  {\small \begin{algorithmic}[1]
-  \Require $graphDatabase, method$ \Comment{method is MLE, MEAN, or BBRC}
-  \State $\mathbf{E_1}=\mathbf{E_2}=\mathbf{E_3}=\mathbf{E_4}=\mathbf{E_5}=\left[ \right]$
-  \For{$i:=1 \to 100$}
-    \State $[trainSet, testSet] \gets splitStratified(graphDatabase,0.5)$ \Comment{Split 50:50}
-    \State $numBoots \gets 100;\;\textbf{if}\; method=BBRC\; numBoots \gets 1$
-    \State $\left[ subgraphs, values^B \right] \gets Algorithm\,\ref{alg:bbrc-sample}(trainSet,numBoots,alpha=0.05)$ \Comment{$numBoots=1$ for BBRC}
-    \State $\left[ subgraphs, values^T \right] \gets match(subgraphs, testSet)$ 
-    \For{$j:=1 \to 5$}
-      \State $ \mathbf{E_j} \gets \left[ \mathbf{E_j}, errorJ(values^T, values^B) \right]$
-    \EndFor
-  \EndFor
-  \Ensure $\mathbf{E_1},\mathbf{E_2},\mathbf{E_3},\mathbf{E_4},\mathbf{E_5}$
-\end{algorithmic}}
-\end{algorithm}
-
 Line 1 initializes empty vectors that capture the residuals in estimation.
 Inside the main loop, a stratified split (i.e. proportions of target classes
 inside each split equal overall proportions) generates a training and a test
@@ -527,27 +565,40 @@ the rather large Kazius/Bursi mutagenicity dataset (KAZ, 2 classes, 4069 compoun
 \label{ss:Results}
 
 Table \ref{t:anal} details the results (mean values across bootstraps)
-\input{anal}
+*\input{anal}
 %Table \ref{t:sign} details the results ($n$=100). 
 %\input{sign}
-\begin{figure}[t]
-  \begin{tabular}{cc}
-   \includegraphics[width=10cm]{bp1.eps} & \includegraphics[width=5.5cm]{lp1.eps} \\
-   \includegraphics[width=10cm]{bp2.eps} & \includegraphics[width=5.5cm]{lp2.eps} \\
-   \includegraphics[width=10cm]{bp3.eps} & \includegraphics[width=5.5cm]{lp3.eps} \\
+\begin{figure*}[t]
+  \begin{tabular}{ccccc}
+    \includegraphics[width=5.5cm]{lp1.eps}  &
+    \includegraphics[width=5.5cm]{lp2.eps}  &
+    \includegraphics[width=5.5cm]{lp3.eps}  &
+    \includegraphics[width=5.5cm]{lp4.eps}  &
+    \includegraphics[width=5.5cm]{lp5.eps}  \\
   \end{tabular}
   \caption{Results}
-  \label{fig:bplp13}
-\end{figure}
-\begin{figure}[t]
-  \begin{tabular}{cc}
-   \includegraphics[width=10cm]{bp4.eps} & \includegraphics[width=5.5cm]{lp4.eps} \\
-   \includegraphics[width=10cm]{bp5.eps} & \includegraphics[width=5.5cm]{lp5.eps} \\
-  \end{tabular}
-  \caption{Results}
-  \label{fig:bplp45}
-\end{figure}
-Figure \ref{fig:bplp13} and Figure \ref{fig:bplp45} plot the results. 
+  \label{fig:lp}
+\end{figure*}
+%
+%\begin{figure}[t]
+%  \begin{tabular}{cc}
+%   \includegraphics[width=10cm]{bp1.eps} & \includegraphics[width=5.5cm]{lp1.eps} \\
+%   \includegraphics[width=10cm]{bp2.eps} & \includegraphics[width=5.5cm]{lp2.eps} \\
+%   \includegraphics[width=10cm]{bp3.eps} & \includegraphics[width=5.5cm]{lp3.eps} \\
+%  \end{tabular}
+%  \caption{Results}
+%  \label{fig:bplp13}
+%\end{figure}
+%\begin{figure}[t]
+%  \begin{tabular}{cc}
+%   \includegraphics[width=10cm]{bp4.eps} & \includegraphics[width=5.5cm]{lp4.eps} \\
+%   \includegraphics[width=10cm]{bp5.eps} & \includegraphics[width=5.5cm]{lp5.eps} \\
+%  \end{tabular}
+%  \caption{Results}
+%  \label{fig:bplp45}
+%\end{figure}
+Figure \ref{fig:lp} plots the results. 
+%Figure \ref{fig:bplp13} and Figure \ref{fig:bplp45} plot the results. 
 
 We first consider E1, E2, and E3. 
 For four of the six datasets (apart from SAL and KAZ), there is a clear improvement when out-of-bag estimation is applied (MLE or MEAN), compared to single runs of discriminative subgraph mining (BBRC).
@@ -561,7 +612,7 @@ Comparing the sampling methods, for the four ``well-behaved'' datasets, there is
 However, for E5, the error on significance estimation, MLE performs significantly better than MEAN in all four cases. Interestingly, for E5, MLE and MEAN are both significantly better than BBRC. This means that, despite getting closer to the test values of support and $p$, it still judges a lot of subgraphs as significant at the 0.05 significance level, that are actually insignificant, or vice versa.
 E4, the estimation of class bias, is the easiest exercise. However, MLE and MEAN perform significantly better than BBRC for all datasets except KAZ. The effect is most drastic for the multi-class dataset MUL, but also remarkable for MOU and RAT.
 
-Table \ref{t:anal} also gives the mean number of subgraphs generated in the last column. There is a general trend for the smaller numbers of subgraphs generated with the sampling methods with shrinking dataset sizes. This reflects the higher uncertainty due to the lack of data. However, as the line plots in Figures \ref{fig:bplp13} and \ref{fig:bplp45} show, there is a trend towards a higher gap in errors between the sampling methods on the one hand, and BBRC on the other hand with shrinking dataset sizes. It becomes also clear from these plots, that SAL behaves different than the other datasets (as discussed before).
+Table \ref{t:anal} also gives the mean number of subgraphs generated in the last column. There is a general trend for the smaller numbers of subgraphs generated with the sampling methods with shrinking dataset sizes. This reflects the higher uncertainty due to the lack of data. However, as the line plots in Figure \ref{fig:lp} show, there is a trend towards a higher gap in errors between the sampling methods on the one hand, and BBRC on the other hand with shrinking dataset sizes. It becomes also clear from these plots, that SAL behaves different than the other datasets (as discussed before).
 
 
 \section{Conclusion}
@@ -572,7 +623,8 @@ quantities, compared to ordinary discriminative graph mining. For larger
 datasets, this advantage shrinks, which we attribute to increasing accuracy of
 ordinary discriminative graph mining in the presence of more data.
 
+
 \bibliography{bbrc-sample}
 \bibliographystyle{plain}
 
-\end{document} 
+\end{document}
