@@ -135,34 +135,38 @@ also small, compared to ordinary graph mining, and may thus be beneficial
 for statistical models, as well as for inspection by toxicological experts.
 
 \section{Introduction}
-Discriminative graph mining is a supervised learning task with the goal to
-extract graph fragments (subgraphs) from a class-labeled graph database, which
-have strong associations to the classes. For example, the subgraphs may be molecular fragments that
-induce toxicity. Accordingly, finding such associations is a major goal in the
-research of chemical reactivity of compounds \cite{kazius05derivation}. However, discriminative graph
-mining is an unstable process, i.e. slight changes in the sample may lead to very
-different subgraph sets. 
+Given a class-labeled graph database, discriminative graph mining is a
+supervised learning task with the goal to extract graph fragments (subgraphs)
+with strong associations to the classes, according to statistical constraints
+set by the user. For example, the subgraphs may be molecular fragments that
+induce toxicity. Finding such associations is indeed a major goal in toxicology
+\cite{kazius05derivation}. However, discriminative graph mining yields large
+result sets, even for very tight constraints on subgraph significance ($p$-values). Moreover, it is an unstable
+process, i.e. slight changes in the sample may lead to substantially different subgraph
+sets. 
 
-When building a bagged predictor, supervised learning is performed on bootstrap
-samples of the training data individually, and estimates are obtained from the
-out-of-bag instances, which saves computational effort compared to
-crossvalidation on the bootstrap samples. Estimates of generalization error obtained by bagging were
-shown to drastically improve on estimates obtained from the training data as a
-whole, especially in the context of unstable learning tasks \cite{breiman96oob}. 
+A bagged predictor consists of several aggregate predictors, each trained on a
+dedicated bootstrap sample of the training data. Bagged predictors have the
+potential for considerably higher predictive accuracy, compared to single
+predictors, especially in the context of unstable prediction methods
+\cite{breiman96oob}. Bagged predictor estimates may be obtained from the out-of-bag
+instances, which saves computational effort compared to crossvalidation on the
+bootstrap samples. For example, out-of-bag estimation of node errors in
+decision trees could improve on estimates obtained from the training data as a
+whole \cite{breiman96oob}.
 
-This work employs out-of-bag instances with the aim to more precisely
-estimating the frequencies (support values) of the subgraphs on the target
-classes that govern the training data, compared to ordinary discriminative
-graph mining.  Infrequently occurring subgraphs are filtered out after the
-bootstrapping, which removes the instability to a large extent.  For each
-remaining subgraph, a significance test is run using the estimated support
-values to filter out insignificant subgraphs.  This results in a statistically
-validated, highly significant, discriminative subgraph set, which may serve for
-diagnostic or predictive reasoning. 
+This work extends discriminative subgraph mining by out-of-bag estimation for
+subgraph frequencies (support values) on the target classes that govern the
+training data, and by aggregating subgraphs in the output that pass the
+statistical constraints.  Infrequently occurring subgraphs are filtered out
+during the bootstrapping, which removes the instability to a large extent. The
+result is a small set of statistically validated, highly significant,
+discriminative subgraphs, which may be useful for diagnostic or predictive
+modelling, or for expert inspection. 
 
 The remainder of this work is structured as follows: We present related work
 with a focus on discriminative graph mining (section \ref{s:relatedWork}),
-our proposed methods for estimating support values and $p$-values (section
+our proposed methods for out-of-bag estimation of support values and $p$-values (section
 \ref{s:Methods}), as well as algorithmic implementation
 (section \ref{s:Algorithm}). Experiments include validation of support
 values and $p$-values on publicly available databases of
@@ -173,9 +177,8 @@ The contributions of this work are summarized as follows:
   \item Repeated discriminative graph mining on bootstrap samples of a
     class-labeled graph database is proposed as a means to stabilize estimates
     for subgraph properties, such as support values per class, compared to
-    single runs of discriminative graph mining. An important area of
-    application is the identification of chemical fragments related to chemical
-    reactivity from toxicology.
+    single runs of discriminative graph mining. The estimation is performed
+    using the out-of-bag instances of the individual bootstrap samples.
   \item Two methods for the estimation of support values are described, where both
     handle multiple classes. Significance tests are applied to these
     estimated values and insignificant subgraphs are removed from the results.  
