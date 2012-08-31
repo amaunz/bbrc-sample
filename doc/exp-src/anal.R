@@ -77,7 +77,7 @@ anal <- function (assays=c(), outputFile="anal.tex", dir) {
           xtable(
                  res,
                  label="t:anal",
-                 caption="Bias and Accuracy",
+                 caption="Bias and accuracy",
                  ), 
           file=outputFile,
           table.placement="t"
@@ -215,15 +215,13 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
       file <- paste(dir,"/",assays[i],"/",assays[i],"_",error,".csv",sep="")
       data <- na.omit( read.csv( file ) )
       meanData <- data.frame(apply(data,2,function(x) mean(x)))
-      sdData <- data.frame(apply(data,2,function(x) sd(x)))
-      myData <- cbind(meanData,sdData)
-      #file <- paste(dir,"/",assays[i],"/",assays[i],"_E2.csv",sep="")
-      #data <- na.omit( read.csv( file ) )
-      #meanData <- data.frame(apply(data,2,function(x) mean(x)))
       #sdData <- data.frame(apply(data,2,function(x) sd(x)))
-      #myData <- cbind(myData,meanData,sdData)
-      names(myData) <- c(paste("Mean ",error,sep=""), 
-                         paste("SD ",error,sep=""))
+      #myData <- cbind(meanData,sdData)
+
+      myData <- meanData
+      #names(myData) <- c(paste("Mean ",error,sep=""), 
+      #                   paste("SD ",error,sep=""))
+      names(myData) <- paste("Mean ",error,sep="")
       myData$Assay = rep(assays[i],dim(myData)[1])
       myData$AssaySize = rep(assaySizes()[[assays[i]]], dim(myData)[1])
       myData$Method = row.names(myData)
@@ -232,21 +230,22 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
 
     row.names(results)=NULL
 
-    max_y=max(
-              c(results[[paste("Mean ",error,sep="")]], 
-                results[[paste("SD ",error,sep="")]]
-               ))
+    #max_y=max(
+    #          c(results[[paste("Mean ",error,sep="")]], 
+    #            results[[paste("SD ",error,sep="")]]
+    #           ))
+    max_y=max(results[[paste("Mean ",error,sep="")]])
 
-    min_y=min(
-              c(results[[paste("Mean ",error,sep="")]], 
-                results[[paste("SD ",error,sep="")]]
-               ))
-
+    #min_y=min(
+    #          c(results[[paste("Mean ",error,sep="")]], 
+    #            results[[paste("SD ",error,sep="")]]
+    #           ))
+    min_y=min(results[[paste("Mean ",error,sep="")]])
 
 
     resultsMLE <- results[results$Method=="MLE",]
     resultsMLE <- resultsMLE[with(resultsMLE, order(AssaySize)), ]
-    resultsMLE$AssaySize <- log10(resultsMLE$AssaySize)
+    resultsMLE$AssaySize <- log(resultsMLE$AssaySize)
 
     resultsMEAN <- results[results$Method=="MEAN",]
     resultsMEAN <- resultsMEAN[with(resultsMEAN, order(AssaySize)), ]
@@ -255,31 +254,40 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
     resultsBBRC <- resultsBBRC[with(resultsBBRC, order(AssaySize)), ]
 
     max_x=max(resultsMLE$AssaySize)
-    plot_colors=c('darkseagreen4','darkseagreen1','maroon1','maroon4','lightgoldenrod4','lightgoldenrod3')
+    plot_colors=c('blue','red','forestgreen')
+    plot_points=c(1,0,2)
     par(mar=c(4.2, 3.8, 0.2, 0.2))
 
-    plot(resultsMLE$AssaySize,resultsMLE[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[1],axes=F,ann=F,ylim=c(min_y,max_y))
+    plot(resultsMLE$AssaySize,resultsMLE[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[1],axes=F,ann=F,ylim=c(min_y,max_y),lty=2,pch=plot_points[1])
     axis(2, las=1, cex.axis=1.0)
     axis(1, lab=F, at=resultsMLE$AssaySize)
-    text(x=resultsMLE$AssaySize, y=min_y-yOffset, srt=45, adj=1, labels=paste(resultsMLE$Assay, sep=""),xpd=T, cex=1.0)
+    text(x=resultsMLE$AssaySize, y=min_y-yOffset, srt=90, adj=1, labels=paste(resultsMLE$Assay, sep=""),xpd=T, cex=1.0)
     box()
-    lines(resultsMLE$AssaySize,resultsMLE[[paste("SD ",error,sep="")]],type='o',col=plot_colors[2],pch=22,lty=2)
+    #lines(resultsMLE$AssaySize,resultsMLE[[paste("SD ",error,sep="")]],type='o',col=plot_colors[2],pch=22,lty=2)
 
-    lines(resultsMLE$AssaySize,resultsMEAN[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[3],pch=21,lty=1)
-    lines(resultsMLE$AssaySize,resultsMEAN[[paste("SD ",error,sep="")]],type='o',col=plot_colors[4],pch=22,lty=2)
+    lines(resultsMLE$AssaySize,resultsMEAN[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[2],lty=2,pch=plot_points[2])
+    #lines(resultsMLE$AssaySize,resultsMEAN[[paste("SD ",error,sep="")]],type='o',col=plot_colors[4],pch=22,lty=2)
 
-    lines(resultsMLE$AssaySize,resultsBBRC[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[5],pch=21,lty=1)
-    lines(resultsMLE$AssaySize,resultsBBRC[[paste("SD ",error,sep="")]],type='o',col=plot_colors[6],pch=22,lty=2)
+    lines(resultsMLE$AssaySize,resultsBBRC[[paste("Mean ",error,sep="")]],type='o',col=plot_colors[3],lty=2,pch=plot_points[3])
+    #lines(resultsMLE$AssaySize,resultsBBRC[[paste("SD ",error,sep="")]],type='o',col=plot_colors[6],pch=22,lty=2)
 
-    title(xlab= "Log of Dataset Size",ylab="Error")
-    legend(max_x+log10(0.5), max_y, c(
-                                      paste("Mean MLE",sep=""),
-                                      paste("SD MLE",sep=""),
-                                      paste("Mean MEAN",sep=""),
-                                      paste("SD MEAN",sep=""),
-                                      paste("Mean BBRC",sep=""),
-                                      paste("SD BBRC",sep="")
-                                    ), cex=1.0, col=plot_colors, pch=21:22, lty=1:2, bty="n")
+    title(xlab=error,ylab="Error")
+    #legend(max_x+log(0.5), max_y, c(
+    #                                  paste("Mean MLE",sep=""),
+    #                                  paste("SD MLE",sep=""),
+    #                                  paste("Mean MEAN",sep=""),
+    #                                  paste("SD MEAN",sep=""),
+    #                                  paste("Mean BBRC",sep=""),
+    #                                  paste("SD BBRC",sep="")
+    #                                ), cex=1.0, col=plot_colors, pch=21:22, lty=1:2, bty="n")
+
+    legend(max_x+log(0.5), max_y, c(
+                                      paste("MLE",sep=""),
+                                      paste("MEAN",sep=""),
+                                      paste("BBRC",sep="")
+                                    ), cex=1.0, col=plot_colors, pch=plot_points, lty=2, bty="n")
+
+
 
   }
 
@@ -291,7 +299,7 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
 
 dir="exp11"
 assays=c("INT", "MCC", "RAT", "MUL", "KAZ", "MOU")
-alpha=0.025
+alpha=0.01
 
 # statistical tests and comparison table
 tests (assays=assays, errors=c("E1","E2","E3","E4","E5"), dir=dir, alpha=alpha)
@@ -322,9 +330,11 @@ dev.off()
 
 # lineplots, ordered by dataset size (for-loop works)
 for (e in seq(1,5)) {
-  yOffset=0.12
-  if (e==1) yOffset = 0.016
-  if (e==2 || e==3) yOffset = 0.014
+  yOffset=0.012
+  if (e==4) yOffset = 0.056
+  if (e==5) yOffset = 0.07
+  #if (e==1) yOffset = 0.016
+  #if (e==2 || e==3) yOffset = 0.014
   postscript(file=paste("lp",e,".eps",sep=""),horizontal=F,paper="special",width=4, height=3)
   lineplots (assays=assays, error=paste("E",e,sep=""), dir=dir, yOffset=yOffset)
   dev.off()

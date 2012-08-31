@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16.450cm"
+   height="8.090cm"
+   viewBox="15.375 0.975 31.825 9.065"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="classes.svg">
+  <metadata
+     id="metadata160">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs158" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1600"
+     inkscape:window-height="876"
+     id="namedview156"
+     showgrid="true"
+     inkscape:zoom="3.1444544"
+     inkscape:cx="144.39372"
+     inkscape:cy="168.68006"
+     inkscape:window-x="0"
+     inkscape:window-y="1304"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid3374" />
+  </sodipodi:namedview>
+  <rect
+     x="-6.6439285"
+     y="29.657475"
+     width="3"
+     height="4"
+     id="rect4"
+     style="fill:none;stroke:#000000;stroke-width:0.05;stroke-linejoin:round"
+     transform="matrix(0,-1,1,0,0,0)" />
+  <path
+     style="stroke:#000000;stroke-width:0.04459402;stroke-linejoin:round"
+     d="M 21.884001,3.5388071 18.378007,5.1431406 21.884001,3.5388071 z"
+     id="line6"
+     inkscape:connector-curvature="0" />
+  <polygon
+     points="21.839,3.047 21.95,3.046 21.885,3.136 21.884,3.08 "
+     id="polygon8"
+     transform="matrix(0.64753564,0,0,0.97167247,7.6845008,0.55781461)"
+     style="fill:#000000;stroke:none" />
+  <polygon
+     points="21.95,3.046 21.885,3.136 21.884,3.08 21.839,3.047 "
+     id="polygon10"
+     transform="matrix(0.65529893,0,0,0.97801466,7.5432045,0.5261039)"
+     style="fill:none;stroke:#000000;stroke-width:0.05" />
+  <line
+     x1="25.996996"
+     y1="3.4568009"
+     x2="29.571035"
+     y2="5.1431408"
+     id="line12"
+     style="stroke:#000000;stroke-width:0.04556457" />
+  <polygon
+     points="28.75,4.975 28.638,4.974 28.683,4.941 28.684,4.885 "
+     id="polygon16"
+     style="fill:none;stroke:#000000;stroke-width:0.05"
+     transform="matrix(0.71652331,0,0,0.86257776,9.0032093,0.8361283)" />
+  <path
+     d="m 18.378007,5.1431406 a 149.00099,129.27297 0 0 0 3.570604,1.6481489"
+     id="path18"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.04513894" />
+  <polygon
+     points="21.95,6.994 21.838,6.993 21.884,6.96 21.884,6.904 "
+     id="polygon20"
+     transform="matrix(0.67280159,0,0,0.7016066,7.2250212,1.908108)"
+     style="fill:#000000;stroke:none" />
+  <polygon
+     points="21.95,6.994 21.838,6.993 21.884,6.96 21.884,6.904 "
+     id="polygon22"
+     transform="matrix(0.67280159,0,0,0.7016066,7.2250212,1.908108)"
+     style="fill:none;stroke:#000000;stroke-width:0.05" />
+  <path
+     d="m 26.022026,6.7811446 a 150.00571,133.65826 0 0 0 3.549009,-1.638004"
+     id="path24"
+     inkscape:connector-curvature="0"
+     style="fill:none;stroke:#000000;stroke-width:0.04431281" />
+  <polygon
+     points="28.686,5.118 28.685,5.062 28.639,5.03 28.751,5.026 "
+     id="polygon28"
+     transform="matrix(0.70983015,0,0,0.82146818,9.1949277,1.0346618)"
+     style="fill:none;stroke:#000000;stroke-width:0.05" />
+  <line
+     x1="30.058718"
+     y1="6.1295414"
+     x2="30.483374"
+     y2="5.6464763"
+     id="line90"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="32.914455"
+     y1="4.5884132"
+     x2="33.284523"
+     y2="4.1261334"
+     id="line100"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="33.167244"
+     y="5.035378"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <line
+     x1="30.644627"
+     y1="5.4919381"
+     x2="31.148493"
+     y2="5.4911575"
+     id="line106"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="30.642605"
+     y1="5.5456123"
+     x2="31.146471"
+     y2="5.5448327"
+     id="line108"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="32.145264"
+     y1="4.7327504"
+     x2="32.649128"
+     y2="4.7319717"
+     id="line112"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="32.143917"
+     y1="4.7891707"
+     x2="32.647785"
+     y2="4.7883911"
+     id="line114"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="31.764587"
+     y1="6.1273041"
+     x2="31.438911"
+     y2="5.6527958"
+     id="line118"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="29.721909"
+     y="5.1023521"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text120"
+     transform="matrix(0.99999044,-0.00437243,0.00437243,0.99999044,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">O</text>
+  <line
+     x1="29.992577"
+     y1="4.9780555"
+     x2="30.355909"
+     y2="5.3528547"
+     id="line122"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="32.538906"
+     y="5.7815781"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-1"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <text
+     x="31.034248"
+     y="6.4714451"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-23.851515"
+     inkscape:transform-center-y="-10.176646">C</text>
+  <text
+     x="31.532906"
+     y="7.323369"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-1.3022949"
+     inkscape:transform-center-y="-0.55564655">C</text>
+  <text
+     x="29.602728"
+     y="7.2724781"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2-4"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071104478"
+     inkscape:transform-center-y="-0.030338692">C</text>
+  <text
+     x="31.659035"
+     y="5.7456408"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-1.3022949"
+     inkscape:transform-center-y="-0.55564655">C</text>
+  <text
+     x="30.197977"
+     y="6.4497843"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-6"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071104478"
+     inkscape:transform-center-y="-0.030338692">C</text>
+  <line
+     x1="31.449574"
+     y1="5.3465276"
+     x2="31.819641"
+     y2="4.8842478"
+     id="line100-1"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <rect
+     x="-5.0290728"
+     y="21.978413"
+     width="3"
+     height="4"
+     id="rect4-0"
+     style="fill:none;stroke:#000000;stroke-width:0.05;stroke-linejoin:round"
+     transform="matrix(0,-1,1,0,0,0)" />
+  <line
+     x1="22.379656"
+     y1="4.5146856"
+     x2="22.804312"
+     y2="4.03162"
+     id="line90-5"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="25.235394"
+     y1="2.9735594"
+     x2="25.605461"
+     y2="2.511281"
+     id="line100-9"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="25.533442"
+     y="3.2186885"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-7"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <line
+     x1="22.965565"
+     y1="3.8770823"
+     x2="23.469433"
+     y2="3.8763018"
+     id="line106-2"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="22.963543"
+     y1="3.9307563"
+     x2="23.467411"
+     y2="3.9299767"
+     id="line108-7"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="24.466202"
+     y1="3.1178963"
+     x2="24.970066"
+     y2="3.1171176"
+     id="line112-8"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="24.464855"
+     y1="3.1743164"
+     x2="24.968723"
+     y2="3.1735368"
+     id="line114-3"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="22.049868"
+     y="3.4539618"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text120-7"
+     transform="matrix(0.99999044,-0.00437243,0.00437243,0.99999044,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">O</text>
+  <line
+     x1="22.313515"
+     y1="3.3632007"
+     x2="22.676847"
+     y2="3.7379992"
+     id="line122-0"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="24.905088"
+     y="3.9648886"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-1-7"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <text
+     x="23.400412"
+     y="4.6547556"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-52"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-1.3023051"
+     inkscape:transform-center-y="-0.55564659">C</text>
+  <text
+     x="21.968893"
+     y="5.4557886"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2-4-7"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.0038908245"
+     inkscape:transform-center-y="-0.001656389">C</text>
+  <text
+     x="24.025202"
+     y="3.9289513"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-3"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071115557"
+     inkscape:transform-center-y="-0.03033915">C</text>
+  <text
+     x="22.564142"
+     y="4.6330948"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-6-1"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.00389137"
+     inkscape:transform-center-y="-0.0016568276">C</text>
+  <line
+     x1="23.770512"
+     y1="3.731672"
+     x2="24.140579"
+     y2="3.2693932"
+     id="line100-1-3"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <rect
+     x="-8.2449989"
+     y="21.989389"
+     width="3"
+     height="4"
+     id="rect4-4"
+     style="fill:none;stroke:#000000;stroke-width:0.05;stroke-linejoin:round"
+     transform="matrix(0,-1,1,0,0,0)" />
+  <line
+     x1="22.390633"
+     y1="7.7306118"
+     x2="22.815289"
+     y2="7.2475467"
+     id="line90-1"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="25.24637"
+     y1="6.1894836"
+     x2="25.616438"
+     y2="5.7272038"
+     id="line100-4"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="25.459652"
+     y="6.4337807"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-2"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <line
+     x1="22.976542"
+     y1="7.0930085"
+     x2="23.480406"
+     y2="7.0922279"
+     id="line106-9"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="22.97452"
+     y1="7.1466827"
+     x2="23.478384"
+     y2="7.1459031"
+     id="line108-2"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="24.477175"
+     y1="6.3338208"
+     x2="24.981043"
+     y2="6.3330421"
+     id="line112-5"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="24.475832"
+     y1="6.3902411"
+     x2="24.9797"
+     y2="6.3894615"
+     id="line114-5"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="24.096498"
+     y1="7.7283745"
+     x2="23.770826"
+     y2="7.2538662"
+     id="line118-6"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="24.831299"
+     y="7.1799808"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-1-6"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <text
+     x="23.326626"
+     y="7.8698478"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-7"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-1.3023051"
+     inkscape:transform-center-y="-0.55564659">C</text>
+  <text
+     x="23.825283"
+     y="8.7217722"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2-5"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071113948"
+     inkscape:transform-center-y="-0.030337531">C</text>
+  <text
+     x="21.895103"
+     y="8.6708813"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2-4-5"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.0038908245"
+     inkscape:transform-center-y="-0.001656389">C</text>
+  <text
+     x="23.951412"
+     y="7.1440434"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-1"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071115557"
+     inkscape:transform-center-y="-0.03033915">C</text>
+  <text
+     x="22.490353"
+     y="7.848187"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-6-2"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.00389137"
+     inkscape:transform-center-y="-0.0016568276">C</text>
+  <line
+     x1="23.781488"
+     y1="6.947598"
+     x2="24.151556"
+     y2="6.4853182"
+     id="line100-1-4"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <rect
+     x="-6.6637964"
+     y="14.337319"
+     width="3"
+     height="4"
+     id="rect4-5"
+     style="fill:none;stroke:#000000;stroke-width:0.05;stroke-linejoin:round"
+     transform="matrix(0,-1,1,0,0,0)" />
+  <line
+     x1="14.738567"
+     y1="6.1494093"
+     x2="15.163229"
+     y2="5.6663437"
+     id="line90-3"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="17.594315"
+     y1="4.6082807"
+     x2="17.964382"
+     y2="4.1460013"
+     id="line100-2"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="17.85195"
+     y="4.6514444"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-8"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <line
+     x1="15.324478"
+     y1="5.5118055"
+     x2="15.828352"
+     y2="5.511025"
+     id="line106-5"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="15.322457"
+     y1="5.5654798"
+     x2="15.82633"
+     y2="5.5647001"
+     id="line108-4"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="16.825123"
+     y1="4.7526178"
+     x2="17.328987"
+     y2="4.7518392"
+     id="line112-7"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <line
+     x1="16.823776"
+     y1="4.8090382"
+     x2="17.327644"
+     y2="4.8082585"
+     id="line114-1"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     x="17.223597"
+     y="5.397644"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-1-1"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans">C</text>
+  <text
+     x="15.718917"
+     y="6.0875111"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-6"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-1.3023051"
+     inkscape:transform-center-y="-0.55564659">C</text>
+  <text
+     x="14.28738"
+     y="6.888545"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-2-4-1"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.0038908245"
+     inkscape:transform-center-y="-0.001656389">C</text>
+  <text
+     x="16.34371"
+     y="5.3617067"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-0"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.071115557"
+     inkscape:transform-center-y="-0.03033915">C</text>
+  <text
+     x="14.882638"
+     y="6.0658503"
+     font-size="0.40"
+     font-style="normal"
+     font-weight="400"
+     id="text102-5-5-6-10"
+     transform="matrix(0.99965263,-0.02635574,0.02635574,0.99965263,0,0)"
+     style="font-size:0.40000001px;font-style:normal;font-weight:400;text-anchor:start;fill:#000000;font-family:sans"
+     inkscape:transform-center-x="-0.00389137"
+     inkscape:transform-center-y="-0.0016568276">C</text>
+  <line
+     x1="16.129433"
+     y1="5.366395"
+     x2="16.4995"
+     y2="4.9041152"
+     id="line100-1-42"
+     style="stroke:#000000;stroke-width:0.04;stroke-linejoin:round" />
+  <text
+     xml:space="preserve"
+     style="font-size:0.65520161px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif Italic"
+     x="14.555998"
+     y="4.3241386"
+     id="text3056"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3058"
+       x="14.555998"
+       y="4.3241386">a</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:0.65520161px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif Italic"
+     x="22.254578"
+     y="2.6861346"
+     id="text3056-9"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3058-6"
+       x="22.254578"
+       y="2.6861346" /></text>
+  <text
+     xml:space="preserve"
+     style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
+     x="155.8299"
+     y="108.2442"
+     id="text3081"
+     sodipodi:linespacing="125%"
+     transform="matrix(0.05460013,0,0,0.05460013,15.375,-2.3181607)"><tspan
+       sodipodi:role="line"
+       id="tspan3083"></tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:0.65520161px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif Italic"
+     x="22.199991"
+     y="2.6861343"
+     id="text3056-1"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3058-3"
+       x="22.199991"
+       y="2.6861343">b</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:0.65520161px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif Italic"
+     x="22.199991"
+     y="5.9075456"
+     id="text3056-1-5"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3058-3-4"
+       x="22.199991"
+       y="5.9075456">c</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:0.65520161px;font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif Italic"
+     x="29.843966"
+     y="4.2695365"
+     id="text3056-1-5-7"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3058-3-4-0"
+       x="29.843966"
+       y="4.2695365">d</tspan></text>
+</svg>
