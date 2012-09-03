@@ -151,9 +151,9 @@ Christoph Helma\\
 \maketitle
 \begin{abstract}
   In class-labeled graph databases, each graph is associated with one from a
-finite set of target classes.  This induces associations between subgraphs
-occurring in these graphs, and the target classes. The subgraphs with strong
-target class associations are called discriminative subgraphs.  In this work,
+finite set of classes.  This induces associations between subgraphs
+occurring in these graphs, and the classes. The subgraphs with strong
+class associations are called discriminative subgraphs.  In this work,
 discriminative subgraphs are repeatedly mined on bootstrap samples of a graph
 database in order to estimate the subgraph associations precisely.  This is
 done by recording the subgraph frequencies (support values) per class over the
@@ -186,7 +186,7 @@ with strong associations to the classes, according to statistical constraints
 set by the user. For example, the subgraphs may be molecular fragments that
 induce toxicity. Indeed, finding such subgraphs is a major goal in toxicology
 \cite{kazius05derivation}. However, discriminative graph mining yields large
-result sets, even for very tight constraints on subgraph significance values ($p$-values) \cite{Jun04Spin}. Moreover, it is an unstable
+result sets, even for very tight constraints on subgraph significance ($p$-values) \cite{Jun04Spin}. Moreover, it is an unstable
 process, i.e. slight changes in the sample may lead to substantially different subgraph
 sets. 
 
@@ -201,7 +201,7 @@ decision trees could improve on estimates obtained from the training data as a
 whole \cite{breiman96oob}.
 
 This work extends discriminative subgraph mining by out-of-bag estimation for
-subgraph frequencies (support values) on the target classes that govern the
+subgraph frequencies (support values) on the classes that govern the
 training data, and by aggregating subgraphs in the output that pass the
 statistical constraints.  Infrequently occurring subgraphs are filtered out, 
 which removes the instability to a large extent. The
@@ -215,7 +215,7 @@ proposed methods for out-of-bag estimation of support values and $p$-values, as
 well as algorithmic implementation (section \ref{s:Methods}).
 Experiments include validation of support
 values and $p$-values on publicly available databases of
-various sizes and numbers of target classes (section \ref{s:Experiments}).
+various sizes and numbers of classes (section \ref{s:Experiments}).
 We draw conclusions in section \ref{s:Conclusion}.
 The contributions of this work are summarized as follows:
 \begin{itemize*}
@@ -227,12 +227,12 @@ The contributions of this work are summarized as follows:
   \item Two methods for the estimation of support values are described, where both
     handle multiple classes. Significance tests are applied to these
     estimated values and insignificant subgraphs are removed from the results.  
-  \item The estimated support values, predicted $p$-values, and predicted class
+  \item The estimated support values, $p$-values, and class
     associations are empirically validated on molecular databases of various
     sizes.  The results indicate significant improvements over 
     ordinary discriminative graph mining, where the effect is generally larger the
-    smaller the datasets are.  We conclude that out-of-bag estimation has the
-    potential to generate concise, highly discriminative subgraph sets for
+    smaller the datasets are.  We conclude that out-of-bag estimation has 
+    potential to generate concise, discriminative subgraph sets for
     use in statistical models and/or expert inspection.
 \end{itemize*}
 
@@ -246,33 +246,32 @@ generalization error and accuracy of bagged predictors. In the work by Bylander
 \cite{bylander02estimating}, generalization error was well modeled by
 out-of-bag estimation, and its already small bias could be further reduced by a
 correction method, where, in order to correct the prediction of a given
-instance, similar out-of-bag instances with the same target class were
+instance, similar out-of-bag instances with the same class were
 employed. However, the method of out-of-bag estimation is not confined to these
-examples, and may be used to also estimate other statistical properties in
+examples, and may be used to estimate other statistical properties in
 supervised learning.
 
-Discriminative subgraph mining is often employed as a preprocessing step to
-statistical learning, because such subgraphs may be useful as descriptors
+Discriminative graph mining is often employed as a preprocessing step to
+statistical learning, because discriminative subgraphs may be useful as descriptors
 \cite{bringmann10lego}. Nowadays, there is a variety of well-known statistical
 learning algorithms available ``off the shelf'', which makes a workflow
 attractive where subgraphs are extracted from the data, represented in a
 unified format, and fed into a machine learning algorithm \cite{hkr03molfea}.
-Usually, discriminative subgraphs are mined using a user-defined significance
-threshold. A subgraph is in the result, if it passes a statistical test with
-regard to its association to the target classes.  However, graph mining often
-produces huge descriptor sets even with very tight bounds on discriminative
-power, which would prevent machine learning methods from obtaining models in
-acceptable time.  Thus, post-processing would be
-required to lower redundancy and eliminate the vast majority of subgraphs
-\cite{Hasan_origami:mining,Jun04Spin}. 
+Usually, discriminative subgraphs are mined from a graph database using a
+predefined threshold with regard to its association to the classes. A subgraph
+qualifies for the result set if it passes the corresponding significance test.
+However, such approaches tend to produce huge sets of very similar subgraphs,
+even with very tight bounds on discriminative power, which would prevent
+machine learning methods from building models in acceptable time.  Thus,
+post-processing would be required to lower redundancy and eliminate the vast
+majority of subgraphs \cite{Hasan_origami:mining,Jun04Spin}.  Moreover, the
+result is not stable with regards to perturbations of the database.
 
-Subgraph boosting \cite{saigo09gboost} is an integrated method that employs
-subsampling internally, alternating between graph mining and model building.
-The method presented here is clearly different from boosting, because it
-calculates descriptors that can be used in wide variety of models afterwards.
-It is similar in that it calculates a small collection of discriminative
-subgraphs. However, it is also stable against perturbations of the
-dataset, which is not the case in boosting.
+Subgraph boosting \cite{saigo09gboost} is an integrated approach to build models on
+small sets of subgraphs, alternating between graph mining and model building. The method presented here is clearly
+different from boosting, because it calculates subgraphs independently from a specific model.  It is similar in that it calculates a small
+collection of discriminative subgraphs, but it is also stable against
+perturbations of the database, which is generally not the case for boosting.
 
 
 \section{Methods}
@@ -299,7 +298,7 @@ A graph $g'=(V',E',\Sigma',\lambda')$ subgraph-isomorphic to $g$ if $V'
 $\lambda'(e_1)=\lambda(e_2)$ whenever $e_1=e_2$, for all nodes and edges in
 $g'$. Then, graph $g'$ is also referred to as a subgraph of $g$ -- we also say
 that $g'$ covers $g$.  The subset of the database instances $G$ that $g'$
-covers is referred to as the occurrences of $g'$, and its size as support of
+covers is referred to as the occurrences of $g'$, and its size as (total) support of
 $g'$.  As a special case, the size of the subset of occurrences with $a(g)=i$,
 for any $g$ in the occurrences, is referred to as the support of $g'$ for class
 $i$. Thus, any subgraph has associated support values per class, ranging each
@@ -356,18 +355,18 @@ Additionally, the bias of $g$ is determined as $\arg\max_i (\frac{k_i}{k}/\frac{
 \subsection{Out-Of-Bag Discriminative Graph Mining}
 \label{ss:oob-dgm}
 We refer to the subset that contains all the graphs $g \in G$
-with $a(g)=i$ as $G^i$.  The procedure first splits the graph database randomly
-into equal-sized training and test databases $G_{Train}$ and $G_{Test}$.
-Subsequently, stratified bootstrapping is performed on the training data, such
+with $a(g)=i$ as $G^i$.  The procedure first splits the graph database 
+into stratified, equal-sized training and test databases $G_{Train}$ and $G_{Test}$.
+Subsequently, stratified bootstrapping is performed on $G_{Train}$, such
 that each sample comprises $\vert G_{Train}^i\vert$ graphs associated with
 class $i$, drawn with replacement and uniform probability inside each
 class $i$.  On average, about 37\% (1/$e$) of training instances 
 will not be drawn in any bootstrap sample (out-of-bag instances). 
-Next, discriminative graph mining mines subgraphs on the drawn instances,
-according to minimum support and significance thresholds. To test each subgraph against the thresholds, it
-calculates support and $p$-values from the bootstrap sample.
-Then, it re-assesses the support values by performing isomorphism
-tests with the subgraphs on the out-of-bag instances (``matching''), and stores this information.
+Next, discriminative subgraphs are mined from the drawn instances,
+according to minimum total support and significance thresholds. 
+This results in a set of subgraphs, where each subgraph has associated support values, $p$-value, and bias.
+Finally, the method re-assesses the support values of the subgraphs in the result set by performing isomorphism
+tests with the subgraphs on the out-of-bag instances (``matching''), and stores these values.
 
 After the inital split, bootstrapping and graph mining is repeated $N$ times on $G_{Train}$, where in each
 iteration, pairs of subgraphs and out-of-bag support values per class
@@ -378,7 +377,7 @@ support values is a tuple $(\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$,
 where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)$, containing all the
 support values.  
 The total support is determined from the class specific support values by
-summing up vectors $\mathbf{k_i}$ across target classes:
+summing up vectors $\mathbf{k_i}$ across classes:
 $\mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}$. The vectors $\mathbf{k_i}$
 are generally sparse (contain missing values), due to the instability of discriminative graph mining,
 i.e. perturbations to the dataset (such as bootstrap sampling) yield almost
@@ -441,13 +440,13 @@ Again, we set the value of $k_i$ in Table \ref{t-ContingencyTableIndTest} to $\o
 
 \subsection{Algorithm}
 \label{s:Algorithm}
-\begin{figure*}[t]
-  \begin{center}
-    \includegraphics[width=9cm]{classes.eps}
-  \end{center}
-  \caption{Two non-disjoint partitions $(a,b,d)$ and $(a,c,d)$. The members are ordered by subgraph relationship.}
-  \label{fig:bbrc}
-\end{figure*}
+%\begin{figure*}[t]
+%  \begin{center}
+%    \includegraphics[width=9cm]{classes.eps}
+%  \end{center}
+%  \caption{Two non-disjoint partitions $(a,b,d)$ and $(a,c,d)$. The members are ordered by subgraph relationship.}
+%  \label{fig:bbrc}
+%\end{figure*}
 %According to section \ref{ss:oob-dgm}, graph mining proceeds in two steps:
 %mining the given bootstrap sample and -- for each subgraph found -- looking up
 %support values per class by matching on the out-of-bag instances.  
@@ -456,9 +455,10 @@ implemented using a discriminative graph mining algorithm of choice. Here, we
 employ backbone refinement class mining (BBRC) \cite{maunz11efficient}. It
 achieves high compression by partitioning the subgraph search space into non-disjoint sets (classes) with the same
 longest paths (backbones) and selecting only one representative from each
-class. Inside each partition, the patterns are ordered by the subgraph relationship (see figure \ref{fig:bbrc}). 
+class. 
+%Inside each partition, the patterns are ordered by the subgraph relationship (see figure \ref{fig:bbrc}). 
 The representative is chosen to minimize the $p$-value (section \ref{ss:significance-test}), unless no member passes the user-defined significance constraint, in which case no representative is chosen.
-The search is also bounded by minimum subgraph support, as described in section \ref{ss:oob-dgm}.
+The search is also bounded by minimum total support, as described in section \ref{ss:oob-dgm}.
 In the BBRC output, two isomorphic subgraphs are always represented by the same string identifier.
 We employ SMARTS strings as identifiers, a kind of regular expression to encode
 molecular fragments as strings\footnote{see \url{http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html}}.  This approach allows to store out-of-bag support values $\mathbf{k_i}$ in a
@@ -466,23 +466,23 @@ hash structure, using SMARTS as keys. The algorithm using $numBoots=N$ bootstrap
 \ref{alg:bbrc-sample}.
 
 \begin{algorithm2e*}[t]
-  \KwData{$dataBase, numBoots, minSamplingSupport, method, minFrequencyPerSample, alpha$}
+  \KwData{$dataBase, numBoots, minHashLength, method, minSupport, alpha$}
   \KwResult{$[subgraphs, values]$}
   \If{$numBoots=1$}{
-     $[subgraphs, values] \leftarrow BBRC(dataBase, minFrequencyPerSample, alpha)$\;
+     $[subgraphs, values] \leftarrow BBRC(dataBase, minSupport, alpha)$\;
   }
   \Else{
-    $hash \leftarrow \{\}$\;
+    $hashTable \leftarrow \{\}$\;
     \For{$i:=1 \to numBoots$ (Parallel Processing)} { 
       $sample,OOB \leftarrow drawBsSample(dataBase)$\;
-      $[subgraphs, values] \leftarrow BBRC(sample, minFrequencyPerSample, alpha)$\;
-      $insert(hash,match(subgraphs,OOB))$\;
+      $[subgraphs, values] \leftarrow BBRC(sample, minSupport, alpha)$\;
+      $insert(hashTable,match(subgraphs,OOB))$\;
     }
     $[subgraphs, values] \leftarrow []$\;
-    \For{$subgraph \in keys(hash)$}{
-      \If{$length(hash[subgraph]) \geq minSamplingSupport$}{
-         $[candidateSupportValues, candidateBias] \leftarrow method(hash[subgraph])$\;
-        \If{$candidatePValue \leftarrow SignificanceTest(candidateSupportVals) < alpha$}{
+    \For{$subgraph \in keys(hashTable)$}{
+      \If{$length(hashTable[subgraph]) \geq minHashLength$}{
+         $[candidateSupportValues, candidatePValue, candidateBias] \leftarrow method(hashTable[subgraph])$\;
+        \If{$candidatePValue < alpha$}{
           $subgraphs \leftarrow subgraphs \cup subgraph$\;
           $values \leftarrow values \cup [candidateSupportValues, candidatePValue, candidateBias]$\;
         }
@@ -497,13 +497,12 @@ line 7. The resulting subgraphs are matched on the out-of-bag instances in line
 8, and the results are stored in the hash. On termination of the loop, each hash
 entry $\mathbf{k_i}$ has at most $N$ support values. Post-processing the results is
 very fast and incurs negligible overhead compared to the graph mining step. It
-consists of removing subgraphs that (line 11) were not generated often enough
-by the sampling process (have not enough entries in the hash table, as
-determined by $minSamplingSupport$), or which (line 13) do not significantly
-deviate from the overall distribution of classes, as assessed by the $\chi^2$
+consists of removing subgraphs that (line 11) do not have enough entries in the hash table, as
+determined by $minHashLength$, or which (line 13) do not significantly
+deviate from the overall distribution of classes, as assessed by the significance
 test (section \ref{ss:significance-test}), with contingency table calculated
 according to mean (section \ref{ss:simple-mean}) or maximum likelihood
-estimation (section \ref{ss:MLE}) method. 
+estimation (section \ref{ss:MLE}) method (line 12). 
 
 If $numBoots=1$, the data (support value, $p$-value, and bias) is obtained from a single BBRC run on the full training data, without bootstrapping and out-of-bag estimation.
 %If $numBoots=1$, support values per
@@ -531,7 +530,7 @@ The methods compared are
   \item BBRC: The BBRC algorithm, with $numBoots=1$.
 \end{enumerate*}
 
-The process was repeated 100 times for methods 1, 2, and 3. Five different
+The process was repeated 100 times for methods 1, 2, and 3, with minimum hash entry length of 30 for each subgraph, to ensure a statistically reliable number of support values. Five different
 error measures were assessed to compare the methods:
 \begin{enumerate*}
   \item $E_1$, the mean of     $ p^B_i -p^T_i \,$                                                                                    over subgraphs, i.e. the bias of $p$-value errors.
@@ -545,13 +544,13 @@ error measures were assessed to compare the methods:
   \begin{minipage}[h]{.66\textwidth}
     \begin{algorithm2e}[H]
       \SetAlgoInsideSkip{medskip}
-      \KwData{$graphDatabase, method$ (method is MLE, MEAN, or BBRC)} 
+      \KwData{$graphDatabase, method, s$ (method is MLE, MEAN, or BBRC)} 
       \KwResult{$\mathbf{E_1},\mathbf{E_2},\mathbf{E_3},\mathbf{E_4},\mathbf{E_5}$}
       $\mathbf{E_1}=\mathbf{E_2}=\mathbf{E_3}=\mathbf{E_4}=\mathbf{E_5}=\left[ \right]$\;
       \For{$i:=1 \to 100$}{
         $[trainSet, testSet] \leftarrow splitStratified(graphDatabase,0.5)$ \;
         $numBoots \leftarrow 100;\;\textbf{if}\; method=BBRC\; numBoots \leftarrow 1$\;
-        $\left[ subgraphs, values^B \right] \leftarrow Algorithm\,\ref{alg:bbrc-sample}(trainSet,numBoots,alpha=0.05)$\;
+        $\left[ subgraphs, values^B \right] \leftarrow Algorithm\,\ref{alg:bbrc-sample}(trainSet,100,30,method,s,0.05)$\;
         $\left[ subgraphs, values^T \right] \leftarrow match(subgraphs, testSet)$ \;
         \For{$j:=1 \to 5$}{
           $\mathbf{E_j} \leftarrow \left[ \mathbf{E_j}, errorJ(values^T, values^B) \right]$\;
@@ -567,7 +566,7 @@ error measures were assessed to compare the methods:
 
 The whole procedure is described in Algorithm \ref{alg:pValEstimate}.
 Line 1 initializes empty vectors that capture the residuals in estimation.
-Inside the main loop, stratified splitting (such that proportions of target classes
+Inside the main loop, stratified splitting (such that proportions of classes
 inside each split equal overall proportions) generates a training and a test
 set of equal size. The training set is treated by the selected method, which
 returns a vector of subgraphs and a vector $\mathbf{values^B}$ of values,
@@ -588,18 +587,11 @@ and mutagenicity labels from the CPDB, for all chemicals with both values for
 both labels present.
 A rather small dataset, describing human intestinal absorption (INT, 3 classes, 458 compounds) \cite{Suenderhauf10Combinatorial}, as well as
 the rather large Kazius/Bursi mutagenicity dataset (KAZ, 2 classes, 4069 compounds), \cite{kazius05derivation} were also used.
+An appropriate value for minimum support (parameter $s$ in Algorithm \ref{alg:pValEstimate}) was determined a priori for each dataset.
 
 \subsection{Results}
-\label{ss:Results}
-
-Table \ref{t:anal} details the results (mean values across bootstraps)
 \input{anal}
-%Table \ref{t:sign} details the results ($n$=100). 
-%\input{sign}
-Table \ref{t:winloss} shows the win/loss statistics for MLE and MEAN.
-
-%    \includegraphics[width=5.5cm]{lp1.eps}  &
-%    \includegraphics[width=5.5cm]{lp2.eps}  &
+\label{ss:Results}
 \begin{figure*}[t]
   \begin{minipage}[h]{5.5cm}
     \includegraphics[width=5.5cm]{lp3.eps}
@@ -613,44 +605,80 @@ Table \ref{t:winloss} shows the win/loss statistics for MLE and MEAN.
   \caption{Error measures along increasing logarithmic dataset size}
   \label{fig:lp}
 \end{figure*}
-%
-%\begin{figure}[t]
-%  \begin{tabular}{cc}
-%   \includegraphics[width=10cm]{bp1.eps} & \includegraphics[width=5.5cm]{lp1.eps} \\
-%   \includegraphics[width=10cm]{bp2.eps} & \includegraphics[width=5.5cm]{lp2.eps} \\
-%   \includegraphics[width=10cm]{bp3.eps} & \includegraphics[width=5.5cm]{lp3.eps} \\
-%  \end{tabular}
-%  \caption{Results}
-%  \label{fig:bplp13}
-%\end{figure}
-%\begin{figure}[t]
-%  \begin{tabular}{cc}
-%   \includegraphics[width=10cm]{bp4.eps} & \includegraphics[width=5.5cm]{lp4.eps} \\
-%   \includegraphics[width=10cm]{bp5.eps} & \includegraphics[width=5.5cm]{lp5.eps} \\
-%  \end{tabular}
-%  \caption{Results}
-%  \label{fig:bplp45}
-%\end{figure}
-Figure \ref{fig:lp} plots the results. 
-%Figure \ref{fig:bplp13} and Figure \ref{fig:bplp45} plot the results. 
+Table \ref{t:anal} details the results in the form of mean values and standard
+deviations across the 100 bootstraps for all error measures.  For meaures E3,
+E4, and E5, Figure \ref{fig:lp} plots the mean values along increasing dataset
+size, and Figure \ref{t:winloss} shows the win/loss statistics for MLE and
+MEAN, as obtained by Wilcoxon signed rank tests ($p=0.001$). Numbers in brackets indicate the total amount of wins, bold numbers the
+amount of significant wins among all.
 
-We first consider E1, E2, and E3. 
-For four of the six datasets (apart from SAL and KAZ), there is a clear improvement when out-of-bag estimation is applied (MLE or MEAN), compared to single runs of discriminative subgraph mining (BBRC).
-In all these cases, the differences are statistically significant at the $\alpha=0.025$ level. 
-This means that here, the proposed out-of-bag estimation of support values improves significantly on mining subgraphs directly (BBRC), regardless of the specific method (MEAN or MLE). 
-However, E3 is not significantly different for SAL and KAZ between BBRC and MEAN or MLE. Instead, since SAL's E1 and E2 are significantly lower for BBRC, compared to MLE and MEAN, BBRC works better for this dataset.
-For KAZ, E1 and E2 are practically zero, and E3 is practically the same for all three methods.
+E1 and E2 measure the numerical bias and error on the $p$-value threshold that determines whether
+a subgraph is included in the result set.  E3, E4, and E5 describe errors on
+relative support values, class bias, and significance (as a binary attribute),
+respectively.  The latter measures are readily interpretable, thus we discuss
+them separately from E1 and E2.
 
-Comparing the sampling methods, for the four ``well-behaved'' datasets, there is a draw concerning $p$-value bias (E1), which is, however, low (in absolute values $<0.02$). Concerning absolute $p$-value error (E2), MOU has a quite high value between 0.035 - 0.04 for both MLE and MEAN, which is only 3 - 4 times lower than that of BBRC. The others remain low, with no clear winner. 
+We first consider E1 and E2 in Table \ref{t:anal}. For four of the six datasets
+(apart from INT and KAZ), there is a clear improvement when out-of-bag
+estimation is applied (MLE or MEAN), compared to single runs of discriminative
+subgraph mining (BBRC).  The differences for E1 and E2, between MLE or MEAN on
+the one hand, and BBRC on the other hand, is lowest for datasets MOU and INT.
+For the other datasets, they are much larger.  For INT, the $p$-value bias (E1)
+is much smaller, but not $p$-value error (E2). In the significance
+tests, a difference to BBRC could not be found. All other pairs of MLE or MEAN
+against BBRC were significantly different (detailed results not shown).  For KAZ, E1 and
+E2 are so low, that they do not show in the table, due to rounding. However,
+the differences are statistically significant, also for KAZ.
 
-However, for E5, the error on significance estimation, MLE performs significantly better than MEAN in all four cases. Interestingly, for E5, MLE and MEAN are both significantly better than BBRC. This means that, despite getting closer to the test values of support and $p$, it still judges a lot of subgraphs as significant at the 0.05 significance level, that are actually insignificant, or vice versa.
-E4, the estimation of class bias, is the easiest exercise. However, MLE and MEAN perform significantly better than BBRC for all datasets except KAZ. The effect is most drastic for the multi-class dataset MUL, but also remarkable for MOU and RAT.
+Comparing out-of-bag estimation methods among each other, both methods have
+similar values, according to Table \ref{t:anal}. They seem to be relatively
+unbiased (E1). However, Figure \ref{t:winloss} shows that MEAN seems to have
+advantages over MLE here. For absolute error (E2),  the situation is less clear. 
 
-Table \ref{t:anal} also gives the mean number of subgraphs generated in the last column. There is a general trend for the smaller numbers of subgraphs generated with the sampling methods with shrinking dataset sizes. This reflects the higher uncertainty due to the lack of data. However, as the line plots in Figure \ref{fig:lp} show, there is a trend towards a higher gap in errors between the sampling methods on the one hand, and BBRC on the other hand with shrinking dataset sizes. It becomes also clear from these plots, that SAL behaves different than the other datasets (as discussed before).
+We now consider E3, E4, and E5.  For E3, the relative support value error, MLE
+does always better than MEAN and BBRC, as Table \ref{t:anal} shows, most of the time significantly better,
+compared to MEAN, except for KAZ.  Significant
+differences between MLE or MEAN on the one hand, and BBRC on the other hand,
+could not be found for INT and KAZ, but for all of the other datasets (test
+results not shown). Figure \ref{t:winloss} shows that MLE does always
+better than MEAN, most of the time significantly better.
+
+For E4, the class bias error, both MLE and MEAN drastically improve on BBRC, as
+Table \ref{t:anal} shows. In analogous test settings as for E3, the differences
+are statistically significant for all datasets, except KAZ (test results not
+shown). According to Figure \ref{t:winloss}, there are practically no
+differences between MLE and MEAN.
+
+For E5, the error on binary significance estimation, according to Table
+\ref{t:anal}, the errors of ordinary discriminative graph mining are very large. MLE and MEAN are both significantly
+better than BBRC for all datasets, except KAZ (test results not shown). Also, MLE performs better than MEAN in
+all cases except KAZ (three times with significant difference) according to Figure
+\ref{t:winloss}. 
+
+Table \ref{t:anal} also gives the mean number of subgraphs generated in the
+last column. Much less subgraphs are generated by the out-of-bag estimation methods. 
+There is a general trend for lower fractions of subgraphs
+for shrinking dataset sizes, compared to BBRC. 
+%This reflects the higher uncertainty due to the lack of data. 
+%However, as the line plots in
+%Figure \ref{fig:lp} show, there is a trend towards a higher gap in errors
+%between the sampling methods on the one hand, and BBRC on the other hand with
+%shrinking dataset sizes. It becomes also clear from these plots, that SAL
+%behaves different than the other datasets (as discussed before).
 
 
-\section{Conclusion}
+\section{Discussion and Conclusions}
 \label{s:Conclusion}
+This means that, despite getting closer to the test values
+of support and $p$, it still judges a lot of subgraphs as significant at the
+0.05 significance level, that are actually insignificant, or vice versa.  E4,
+the estimation of class bias, is the easiest exercise. However, MLE and MEAN
+perform significantly better than BBRC for all datasets except KAZ. The effect
+is most drastic for the multi-class dataset MUL, but also remarkable for MOU
+and RAT.
+
+
+
 Especially for small graph databases, which are typical in toxicology, the
 proposed methods can significantly improve on the estimation of statistical
 quantities, compared to ordinary discriminative graph mining. For larger
