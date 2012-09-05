@@ -1,13 +1,12 @@
-\vspace{.22\textwidth}
+\vspace{.16\textwidth}
 \begin{center}
-\begin{tabular}{lcc}
+\begin{tabular}{lccccc}
 \hline
-Error Measure  & MLE   & MEAN  \\\hline
-E1 & \textbf{1} (2) & \textbf{3} (4) \\
-E2 & \textbf{0} (2) & \textbf{2} (4) \\
-E3 & \textbf{4} (6) & \textbf{0} (0) \\
-E4 & \textbf{0} (4) & \textbf{0} (2) \\
-E5 & \textbf{3} (5) & \textbf{0} (1) \\\hline
+Method & E1    & E2    & E3    & E4    & E5    \\\hline
+OOB    & 6 (6) & 6 (5) & 5 (4) & 6 (5) & 6 (5) \\
+ODGM   & 0 (0) & 0 (0) & 1 (0) & 0 (0) & 0 (0) \\\hline
+MLE    & 2 (1) & 2 (0) & 6 (4) & 5 (3) & 4 (0) \\
+MEAN   & 4 (3) & 4 (2) & 0 (0) & 1 (0) & 2 (0) \\\hline
 \end{tabular}
-\caption{Win-Loss ($p$=0.001) \label{t:winloss}}
+\caption{Wins and losses\label{t:winloss}}
 \end{center}
