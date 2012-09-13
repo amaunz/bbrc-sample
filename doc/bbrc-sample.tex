@@ -367,22 +367,22 @@ Additionally, the bias of $g$ is determined as $\arg\max_i (\frac{k_i}{k}/\frac{
 
 \subsection{Out-Of-Bag Discriminative Graph Mining}
 \label{ss:oob-dgm}
-In ordinary discriminative graph mining (ODGM) the task is to find subgraphs
+In ordinary discriminative graph mining, the task is to find all subgraphs
 $g$ with $support(g)>minsup$ and $p(g)<\alpha$, where $minsup$ and $\alpha$ are
 set by the user.
 %Our proposed method splits $G$
 %into stratified, equal-sized training and test databases $G_{Train}$ and $G_{Test}$.
-In out-of-bag discriminative graph mining, bootstrapping is repeatedly performed on $G$.
-For each sample $G'$, it is ensured that $\vert G^i\vert$ graphs are associated with
+Out-of-bag discriminative graph mining is different, in that bootstrapping is repeatedly performed on $G$.
+In each bootstrap sample $G'$, it is ensured that $\vert G^i\vert$ graphs are associated with
 class $i$, by drawing with replacement and uniform probability inside 
 class $i$, for all $i$ in $I$ (stratification).  
 %On average, about 37\% (1/$e$) of training instances 
 %will not be drawn in any bootstrap sample (out-of-bag instances). 
-ODGM is applied to the database induced by $G'$, with $minsup$ and $alpha$ thresholds. 
+Ordinary discriminative graph mining is applied to the database induced by $G'$, with $minsup$ and $alpha$ thresholds. 
 %Each subgraph in the result set has associated support values, $p$-value, 
 %and bias, as calculated on the bootstrap sample.
-Finally, the method re-assesses the subgraph support values by performing isomorphism
-tests on the out-of-bag instances (``matching''), and records these values.
+Finally, subgraph support values are assessed by performing isomorphism
+tests on the out-of-bag instances (``matching'').
 
 More specifically, bootstrapping and graph mining is repeated $N$ times, where in each
 iteration, pairs of subgraphs and out-of-bag support values per class
@@ -689,18 +689,7 @@ with shrinking dataset sizes, compared to ODGM.
 %shrinking dataset sizes. It becomes also clear from these plots, that SAL
 %behaves different than the other datasets (as discussed before).
 
-
-\section{Discussion and Conclusions}
-\label{s:Conclusion}
-Especially for rather small databases, which are typical in the field of
-toxicology, the proposed methods can significantly improve on the estimation of
-statistical quantities, compared to ordinary discriminative graph mining. 
-Thus, for such settings, we conclude that it does not to suffice treat database graphs in a single pass, as is
-done by ordinary discriminative graph mining, in order to obtain significantly class-associated
-subgraphs. Instead, resampling methods
-should be used that repeatedly assess subgraph significance on data sets that obtained by perturbations to the training data. To validate the
-data, out-of-bag estimation is a feasible approach. The procedure may also be
-embedded in a workflow to to learn a bagged predictor.
+\subsection{Discussion}
 
 We investigate the interpretable error measures E3, E4, and E5 again in
 the charts in Figure \ref{fig:lp}, where their values are plotted along
@@ -730,6 +719,29 @@ circa 50 \% of subgraphs wrongly determined by ODGM in E4 even for the second
 largest dataset (RAT) indicates that mining significant subgraphs from training
 data directly is not reliable. Only for the KAZ dataset, E4 drops to levels
 similar to OOB methods.
+
+\section{Conclusions}
+\label{s:Conclusion}
+The proposed out-of-bag methods are able to significantly improve on the estimation of
+statistical quantities, especially on binary class significance (E4), compared to ordinary
+discriminative graph mining.  The effect is particularly pronounced for small
+databases, which are typical in the field of toxicology, but less pronounced or not present at all for larger ones. The
+procedure may be embedded in a workflow to learn a bagged predictor.
+
+We suggest that, for typical toxicological
+databases, it does not suffice to process them in a single pass, when the goal
+is to obtain reliable estimates of support values and class significance.  In
+ordinary discriminative graph mining, even the assessment of class bias (E5) is
+not reliable, let alone relative support values (E3), or binary class significance.
+Resampling methods may be an alternative. To validate
+the data, out-of-bag estimation is a feasible approach.
+
+Using information from related subgraphs is beneficial, as the maximum
+likelihood method significantly outperforms mean estimation in most cases
+for relative support values and binary class significance, which may be the
+most important measures for experts analyzing the subgraphs, e.g. for toxicologists 
+in the area of chemical risk assessment.
+
 
 \bibliography{bbrc-sample}
 \bibliographystyle{plain}
