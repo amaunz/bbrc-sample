@@ -153,23 +153,23 @@ Christoph Helma\\
   In class-labeled graph databases, each graph is associated with one from a
 finite set of classes, which induces associations between the classes and subgraphs
 occurring in the database graphs. The subgraphs with strong
-class associations are called discriminative subgraphs.  In this work,
+class associations are called discriminative subgraphs. In this work,
 discriminative subgraphs are repeatedly mined on bootstrap samples of a graph
-database in order to obtain estimations of subgraph associations more precise than those 
-obtained without sampling. The subgraph occurrence frequencies (support values) per class 
-are recorded over the out-of-bag instances of the bootstrap process.  We investigate two different
+database in order to estimate subgraph associations more precisely than 
+without sampling. The number of times a subgraph occurs in a graph associated with each class
+(support values)
+are recorded over the out-of-bag instances of the bootstrap process. We investigate two different
 methods for the approximation of the true underlying support values from these
-empirical values, involving sample mean and maximum likelihood estimation.  We
-show that both methods significantly improve the process, compared to single
-runs of discriminative graph mining, by applying the different methods to
-publicly available toxicological datasets.  An area of application are computational models of toxicology,
-where subgraphs (fragments of chemical structure) are routinely used to describe
-molecules. Apart from the subgraph associations being
-statistically validated, the subgraph set sizes created by the proposed methods are
-much reduced, compared to ordinary discriminative graph mining, and may thus be beneficial
-for statistical models, as well as for inspection by toxicological experts.
-
-
+empirical values, involving sample mean and maximum likelihood estimation. We
+show that both significantly improve on the process, compared to single
+runs of discriminative graph mining, by applying the methods to
+publicly available toxicological datasets, and validating support values, class bias, and 
+class significance. In toxicology,
+the detection of subgraphs (fragments of chemical structure) that induce toxicity is a major goal.
+Apart from the subgraph associations being
+statistically validated, the number of subgraphs created by the proposed methods are
+much lower than for ordinary discriminative graph mining, which is often a bottleneck in the
+application of computation models to such datasets, and hinders interpretation of the results.
 \end{abstract}
 
 
@@ -184,7 +184,7 @@ Given a class-labeled graph database, discriminative graph mining is a
 supervised learning task with the goal to extract graph fragments (subgraphs)
 with strong associations to the classes, according to statistical constraints
 set by the user. For example, the subgraphs may be molecular fragments that
-induce toxicity. Indeed, finding such subgraphs is a major goal in toxicology
+induce toxicity. Indeed, finding such fragments is a major goal in toxicology
 \cite{kazius05derivation}. However, discriminative graph mining yields large
 result sets, even for very high thresholds on subgraph class associations \cite{Jun04Spin}. 
 Moreover, it is an unstable
@@ -204,19 +204,21 @@ sets.
 In statistical learning, a bagged predictor consists of several aggregate
 predictors, each trained on a dedicated bootstrap sample of the training
 instances. As bootstrapping draws instances with replacement, $1/e$ (roughly 37
-\%) of instances are not drawn in each sample, on average.  These instances
+\%) of instances are not drawn in each sample, on average. These instances
 (referred to as out-of-bag instances) may be used to obtain estimates of the
-bagged predictor, by letting each single predictor vote on his corresponding out-of-bag instances, 
-which are unknown test examples for the predictor.
+bagged predictor, by letting each predictor in the bag vote on ``his'' corresponding 
+out-of-bag instances, 
+which are test examples unknown to the predictor.
 For example, out-of-bag estimation of node errors in
 decision trees could improve on estimates obtained from the training data as a
 whole \cite{breiman96oob}.
 
-This work extends discriminative subgraph mining by out-of-bag estimation for
-subgraph frequencies on the classes that govern the
-training data (support values), and by aggregating subgraphs in the output that pass the
-statistical constraints.  Infrequently occurring subgraphs are filtered out, 
-which removes the instability to a large extent. This yields statistically validated, highly significant,
+This work extends discriminative subgraph mining by out-of-bag estimation of 
+subgraph occurrence frequencies in the graphs associated with each class (support values), 
+and by aggregating subgraphs in the output that pass the
+statistical constraints. Infrequently occurring subgraphs are filtered out, 
+which removes the instability to a large extent. 
+This yields statistically validated, highly significant,
 discriminative subgraphs, which may be useful for diagnostic or predictive
 modelling, or for expert inspection. 
 
@@ -228,7 +230,7 @@ Experiments include validation of subgraph support
 values, $p$-values, and class bias on publicly available databases of
 various sizes and numbers of classes (section \ref{s:Experiments}).
 We draw conclusions in section \ref{s:Conclusion}.
-The contributions of this work are summarized as follows:
+The contributions are summarized as follows:
 \begin{itemize}
   \item Repeated discriminative graph mining on bootstrap samples of a
     class-labeled graph database is proposed as a means to stabilize estimates
@@ -237,12 +239,12 @@ The contributions of this work are summarized as follows:
     using the out-of-bag instances of the individual bootstrap samples.
   \item Two methods for the estimation of support values are described, where both
     handle multiple class values. Significance tests are applied to these
-    estimated values and insignificant subgraphs are removed from the results.  
-  \item The estimated support values, $p$-values, and class
-    associations are empirically validated on molecular databases of various
-    sizes.  The results indicate significant improvements over 
+    estimated values and insignificant subgraphs are removed from the results. 
+  \item The estimated support values, class significance values, and class
+    biases are empirically validated on molecular databases of various
+    sizes. The results indicate significant improvements over 
     ordinary discriminative graph mining, where the effect is generally larger the
-    smaller the datasets are.  We conclude that out-of-bag estimation has 
+    smaller the datasets are. We conclude that out-of-bag estimation has 
     potential to generate concise, discriminative subgraph sets for
     use in statistical models and/or expert inspection.
 \end{itemize}
@@ -272,15 +274,15 @@ Usually, discriminative subgraphs are mined from a graph database using a
 predefined threshold with regard to target class associations. A subgraph
 qualifies for the result set if it passes a corresponding significance test.
 However, such approaches tend to produce huge sets of very similar subgraphs,
-even with very high thresholds on discriminative power, which would prevent
+even with very high thresholds on discriminative potential, which would prevent
 machine learning methods from building models in acceptable time, and post-processing 
 would be required to lower redundancy and eliminate the vast
-majority of subgraphs \cite{Hasan_origami:mining,Jun04Spin}.  Moreover, the
+majority of subgraphs \cite{Hasan_origami:mining,Jun04Spin}. Moreover, the
 result is not stable with regards to perturbations of the database.
 
 Subgraph boosting \cite{saigo09gboost} is an integrated approach to build models on
 small sets of subgraphs, alternating between graph mining and model building. The method presented here is clearly
-different from boosting, because it calculates subgraphs independently from a specific model.  It is similar in that it calculates a small
+different from boosting, because it calculates subgraphs independently from a specific model. It is similar in that it calculates a small
 collection of discriminative subgraphs, but it is also stable against
 perturbations of the database, which is generally not the case for boosting.
 
@@ -293,15 +295,15 @@ perturbations of the database, which is generally not the case for boosting.
 A graph database is a tuple $(G, \Sigma, a)$, where $G$ is a set of graphs,
 $\Sigma \ne \emptyset$  is a totally ordered set of labels and $a: G
 \rightarrow I$, $I \subset \mathbb{N}$, is a surjective function that assigns one from a
-finite set of class values to every graph in the database.  The set 
+finite set of class values to every graph in the database. The set 
 $I$ consists of at least two values, and for all $i \in I$, the set that contains all $g \in G$
 with $a(g)=i$ is called $G^i$. We consider labeled, undirected
 graphs, i.e. tuples $g=(V,E,\Sigma,\lambda)$, where $V\ne \emptyset$ is a
 finite set of nodes and $E \subseteq V = \{\{v_1, v_2\} \in \{V \times V\}, v_1
 \ne v_2\}$ is a set of edges and $\lambda: V\cup E \rightarrow \Sigma$ is a
-label function.  
+label function. 
 An ordered set of nodes $\{ v_1, \ldots, v_m\}$ is a \emph{path} between $v_1$ and $v_m$, if $\{v_i, v_{i+1}\} \in E, i \in \{1,\ldots,m-1\}$ and $v_i \neq v_j$ for all $i,j\in \{1,\ldots,m\}$.
-We only consider connected graphs here, i.e.  there is a path
+We only consider connected graphs here, i.e. there is a path
 between each two nodes in the graph.
 
 A graph $g'=(V',E',\Sigma',\lambda')$ subgraph-isomorphic to $g$ if $V'
@@ -309,9 +311,9 @@ A graph $g'=(V',E',\Sigma',\lambda')$ subgraph-isomorphic to $g$ if $V'
 \emptyset$, $\lambda'(v_1)=\lambda(v_2)$ whenever $v_1=v_2$, and
 $\lambda'(e_1)=\lambda(e_2)$ whenever $e_1=e_2$, for all nodes and edges in
 $g'$. In this case, graph $g'$ is also referred to as a subgraph of $g$ -- we also say
-that $g'$ covers $g$.  The subset of the database instances $G$ that $g'$
+that $g'$ covers $g$. The subset of the database instances $G$ that $g'$
 covers is referred to as the occurrences of $g'$, and its size as (total) support of
-$g'$, denoted $support(g')$.  As a special case, the size of the subset of occurrences with $a(g)=i$,
+$g'$, denoted $support(g')$. As a special case, the size of the subset of occurrences with $a(g)=i$,
 for any $g$ in the occurrences, is referred to as the support of $g'$ for class
 $i$. Thus, any subgraph has associated support values per class, ranging each
 between 0 and the support of $g'$, and summing up to the support of $g'$.
@@ -343,7 +345,7 @@ classes in the second column, as in Table \ref{t-ContingencyTableIndTest}.
   \label{t-ContingencyTableIndTest}
 \end{table}
 This data serves to check whether $g$'s support values differ
-significantly from the overall class distribution.  The $\chi^2_d$ function for
+significantly from the overall class distribution. The $\chi^2_d$ function for
 distribution testing, defined as
 \begin{equation}
   %\chi^2_d(x,y) = \frac{(y-\frac{xm}{n})^2}{\frac{xm}{n}} + \frac{(x-y-\frac{x(n-m)}{n})^2}{\frac{x(n-m)}{n}},
@@ -354,16 +356,16 @@ where $E(k_i)=\frac{|G^{i}| k}{|G|}$ is the expected value of $k_i$, calculates
 the sum of squares of deviations from the expected support for all target
 classes. The function value is then compared against the $\chi^2$
 distribution function and conduct a significance test with
-$|I|-1$ degrees of freedom to obtain a $p$-value $p(g)$.  
+$|I|-1$ degrees of freedom to obtain a $p$-value $p(g)$. 
 %The $|G^{i}|$ entries are constants and take the values of
-%the overall $|G^{i}|$.  
+%the overall $|G^{i}|$. 
 %This is possible due to the stratified bootstrapping approach,
 %which maintains the overall class proportions in each sample (see section
 %\ref{ss:oob-dgm}). 
 Additionally, the bias of $g$ is determined as $\arg\max_i (\frac{k_i}{k}/\frac{G^i}{G})$, to designate the dominant class for $g$.
 %The next sections discuss methods to obtain the
 %$k_i$ entries in the table from the support values obtained during bootstrapping (section
-%\ref{ss:oob-dgm}).  
+%\ref{ss:oob-dgm}). 
 
 \subsection{Out-Of-Bag Discriminative Graph Mining}
 \label{ss:oob-dgm}
@@ -375,10 +377,10 @@ set by the user.
 Out-of-bag discriminative graph mining is different, in that bootstrapping is repeatedly performed on $G$.
 In each bootstrap sample $G'$, it is ensured that $\vert G^i\vert$ graphs are associated with
 class $i$, by drawing with replacement and uniform probability inside 
-class $i$, for all $i$ in $I$ (stratification).  
+class $i$, for all $i$ in $I$ (stratification). 
 %On average, about 37\% (1/$e$) of training instances 
 %will not be drawn in any bootstrap sample (out-of-bag instances). 
-Ordinary discriminative graph mining is applied to the database induced by $G'$, with $minsup$ and $alpha$ thresholds. 
+Ordinary discriminative graph mining is applied to the database induced by $G'$, with $minsup$ and $\alpha$ thresholds. 
 %Each subgraph in the result set has associated support values, $p$-value, 
 %and bias, as calculated on the bootstrap sample.
 Finally, subgraph support values are assessed by performing isomorphism
@@ -391,24 +393,26 @@ occurs in $k_i$ out-of-bag graphs associated with class $i$. The results are
 recorded over the $N$ bootstrap samples, such that for each $g$, the list of
 support values is a tuple $(\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$,
 where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)$, containing all the
-support values.  
+support values. 
 The vectors $\mathbf{k_i}$
 are generally sparse (contain missing values), due to the instability of discriminative graph mining,
 i.e. perturbations to the dataset (such as bootstrap sampling) yield almost
-always a different (but partially overlapping) selection of subgraphs. To cope with the
+always a different (but partially overlapping) selection of subgraphs. 
+The missing values occupy the same indices in the $\mathbf{k_i}$.
+To cope with the
 variety of rare subgraphs, a fixed threshold removes all subgraphs with less
 than $\lfloor0.3*N\rfloor$ entries in the list of support values, after the end
 of bootstrapping.
-The total support is determined from the class specific support values by
-summing up vectors $\mathbf{k_i}$ across classes:
+For the remaining ones, the total support is determined from the class specific support values by
+summing up vectors $\mathbf{k_i}$ across classes (ignoring indices with missing entries):
 $\mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}$. 
 
-From the recorded results, support values, $p$-value, 
-and bias are estimated. Two methods are described in the next sections, based either
+From the recorded results, support values are estimated. Two methods are described in the next sections, based either
 on the sample mean support per class, and using data of the current subgraph
 only, or on a maximum likelihood estimate, involving some of the other
-subgraphs. Then, the significance test from section \ref{ss:significance-test}
-is run on the estimated support values. 
+subgraphs. Then the significance test from section \ref{ss:significance-test}
+is run on the estimated support values, yielding estimated class significance values ($p$-values), 
+and biases.
 
 \subsubsection{Sample Mean Method}
 \label{ss:simple-mean}
@@ -421,7 +425,7 @@ and $k$ is the sum of the $k_i$.
 \label{ss:MLE}
 Here, we employ some of the other subgraphs to form estimates for the $k_i$.
 The first step in this process is to extract the subgraphs with the same class
-bias as $g$ (see section \ref{ss:significance-test}).  Local ties are broken in
+bias as $g$ (see section \ref{ss:significance-test}). Local ties are broken in
 favor of the dominant global class. In case of a further tie on the global
 level, one of the globally dominant classes is chosen with uniform probability.
 In a second step, the subgraphs with the same class bias as $g$ are used to correct
@@ -429,10 +433,10 @@ $g$'s local frequencies by weighting. This approach has some similarity to the
 work by Bylander \cite{bylander02estimating}, however, his aim is to correct
 instance predictions, and his correction employs similar out-of-bag instances,
 whereas our correction happens across bootstraps, and on the subgraphs (not
-instances) obtained collectively from all the bootstrap samples.  For each
+instances) obtained collectively from all the bootstrap samples. For each
 class, we model the event that each $k_i^j \in \mathbf{k_i}$ would occur for
 each of the subgraphs with the same class bias as $g$ as a multinomial
-selection process.  More specifically, we determine the class probabilities for
+selection process. More specifically, we determine the class probabilities for
 each subgraph $g'$ with the same class bias as $g$ with a maximum likelihood
 estimator. It is the smoothed vector of relative class specific support values,
 defined as:
@@ -466,8 +470,8 @@ Again, we set the value of $k_i$ in Table \ref{t-ContingencyTableIndTest} to $\o
 %\end{figure*}
 %According to section \ref{ss:oob-dgm}, graph mining proceeds in two steps:
 %mining the given bootstrap sample and -- for each subgraph found -- looking up
-%support values per class by matching on the out-of-bag instances.  
-The mining step from section \ref{ss:oob-dgm} may be 
+%support values per class by matching on the out-of-bag instances. 
+Ordinary discriminative graph mining may be 
 implemented using a discriminative graph mining algorithm of choice as ``mother algorithm''. Here, we
 employ backbone refinement class mining (BBRC) \cite{maunz11efficient}. It
 achieves a certain degree of compression by partitioning the subgraph search space into non-disjoint sets (classes) with the same
@@ -475,17 +479,18 @@ longest paths (backbones) and selecting only one representative from each
 class. 
 %Inside each partition, the patterns are ordered by the subgraph relationship (see figure \ref{fig:bbrc}). 
 The representative is chosen to minimize the $p$-value (section \ref{ss:significance-test}), unless no member passes the user-defined significance constraint, in which case no representative is chosen.
-The search is also bounded by minimum total support, as described in section \ref{ss:oob-dgm}.
+In any case, the search is bounded by minimum total support and significance threshold $\alpha$.
+%The search is also bounded by minimum total support, as described in section \ref{ss:oob-dgm}.
 In the BBRC output, two isomorphic subgraphs are always represented by the same string identifier.
-We employ SMARTS strings as identifiers, a kind of regular expression to encode
-molecular fragments as strings\footnote{see \url{http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html}}.  This approach allows to store out-of-bag support values $\mathbf{k_i}$ in a
+The strings are SMARTS, a kind of regular expression to encode
+molecular fragments as strings\footnote{see \url{http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html}}. This approach allows to store out-of-bag support values $\mathbf{k_i}$ in a
 hash structure, using SMARTS as keys. 
 
 \begin{algorithm2e*}[t]
   \fontsize{8}{10}
   \selectfont
   \KwData{$dataBase, numBoots, minHashLength, method, minSup$}
-  \KwResult{$[subgraphs, values]$ \text{; $values$ include support, $p$-values, and bias}}
+  \KwResult{$[subgraphs, values]$ \text{; $values$ include support, $p$-value, and bias}}
   \If{$method=$\text{ODGM}}{
      $[subgraphs, values] \leftarrow BBRC(dataBase, minSup, 0.05)$\;
   }
@@ -511,7 +516,7 @@ hash structure, using SMARTS as keys.
 \end{algorithm2e*}
 Algorithm \ref{alg:bbrc-sample} switches between out-of-bag estimation and ordinary discriminative graph mining (ODGM), where 
 the significance parameter $\alpha$ was kept fixed at 0.05 at all times.
-We out-of-bag estimation first.  Line 4
+We describe out-of-bag estimation first. Line 4
 creates a hash table to gather results from mining bootstrap samples 
 (line 7). The resulting subgraphs are matched on the out-of-bag instances (line
 8), and the results are stored in the hash. On termination of the loop, each hash
@@ -547,7 +552,7 @@ The methods are provided by Algorithm \ref{alg:bbrc-sample}:
   \item ODGM: Ordinary discriminative graph mining.
 \end{enumerate}
 
-The process was repeated 100 times for the three methods, with minimum hash entry length 
+The process was repeated 100 times for the three methods, which means a minimum hash entry length 
 of 30 for each subgraph, to ensure a statistically reliable number of support values. 
 
 \begin{figure*}[t]
@@ -581,8 +586,8 @@ Inside the main loop, stratified splitting (such that proportions of classes
 inside each split equal overall proportions) generates a training and a test
 set of equal size. The training set is treated by the selected method, which
 returns a vector of subgraphs and a vector $values^B$ of values,
-including support values, $p$-values, and bias (line 5). The subgraphs are matched on
-the test set, yielding analogous values $values^T$ (line 6). Finally, 
+including support values, $p$-values, and bias (line 4). The subgraphs are matched on
+the test set, yielding analogous values $values^T$ (line 5). Finally, 
 residual vectors $E_1-E_5$ capture the differences between $values^B$ and
 $values^T$.
 
@@ -596,7 +601,7 @@ error measures were assessed to compare the methods:
   \item $E_5$, One minus the mean of $ \delta(bias^B, bias^T)$                                                                        over subgraphs, i.e. the fraction with wrongly recognized class bias.
 
 \end{enumerate}
-In the above, $\delta(\cdot,\cdot)$ is the Kronecker function, which returns 1, if the arguments are equal, and 0 else.
+In the above, $\delta(\cdot,\cdot)$ is the Kronecker function, which returns 1, if the arguments are equal, and 0 otherwise.
 
 Six molecular, class labeled datasets were used in the experiments. 
 Four were drawn from the carcinogenic potency database
@@ -611,7 +616,7 @@ both labels present.
 A rather small dataset, describing human intestinal absorption (INT, 3 classes,
 458 compounds) \cite{Suenderhauf10Combinatorial}, as well as the rather large
 Kazius/Bursi mutagenicity dataset (KAZ, 2 classes, 4069 compounds),
-\cite{kazius05derivation} were also used.  An appropriate value for minimum
+\cite{kazius05derivation} were also used. An appropriate value for minimum global
 support (parameter $s$ in Algorithm \ref{alg:pValEstimate}) was determined a
 priori for each $G_{Train}$ and kept constant.
 
@@ -632,19 +637,17 @@ priori for each $G_{Train}$ and kept constant.
   \label{fig:lp}
 \end{figure*}
 Table \ref{t:anal} details the results in the form of mean values and standard
-deviations across $N=100$ bootstraps for all error measures.  
+deviations across $N=100$ bootstraps for all error measures. 
 Figure
 \ref{t:winloss} shows win/loss statistics. It compares out-of-bag methods MLE
 and MEAN with ODGM, by pooling the former (OOB). This is possible, since they
 showed uniform win/loss behaviour against ODGM.
-It also compares MLE against MEAN.
 Numbers indicate the total amount of wins, numbers in brackets the
 subset of significant wins, as obtained by Wilcoxon signed rank tests ($p=0.001$).
 
-E1 and E2 measure the numerical bias and error on the $p$-value threshold that determines whether
-a subgraph is included in the result set.  E3, E5, and E4 describe errors on
+E1 and E2 measure the numerical bias and error on the $p$-values. E3, E5, and E4 describe errors on
 relative support values, class bias, and significance (as a binary attribute),
-respectively.  The latter measures are readily interpretable, thus we discuss
+respectively. The latter measures are readily interpretable, thus we discuss
 them separately from E1 and E2.
 
 We first consider E1 and E2. Judging from Table \ref{t:anal}, for four datasets
@@ -655,7 +658,7 @@ For INT, $p$-value bias (E1)
 is much smaller, but not $p$-value error (E2). In the significance
 tests, a difference to ODGM could not be found here. All other pairs of OOB 
 methods against ODGM were significantly different. For KAZ, E1 and
-E2 are so low, that they do not show in Table \ref{t:anal}, due to rounding. However,
+E2 are so low, that they are not apparent from Table \ref{t:anal}, due to rounding. However,
 the differences are statistically significant, also for KAZ.
 
 Comparing OOB methods among each other, both show
@@ -679,7 +682,7 @@ Table \ref{t:anal} shows. The differences
 are statistically significant for all datasets, except KAZ. Between MLE and MEAN, practically no significant differences could be found.
 
 Table \ref{t:anal} also gives the mean number of subgraphs generated in the
-last column. Much less subgraphs are generated by OOB methods. 
+last column. Much less subgraphs are generated by OOB methods, apart from KAZ. 
 There is a general trend for lower fractions of subgraphs
 with shrinking dataset sizes, compared to ODGM. 
 %This reflects the higher uncertainty due to the lack of data. 
@@ -696,17 +699,17 @@ the charts in Figure \ref{fig:lp}, where their values are plotted along
 increasing dataset size. The latter was logarithmically transformed, to
 visually better separate similarly sized datasets MOU, MCC, and RAT. 
 
-Along the three smallest datasets, error measures vary.  However, the difference
+Along the three smallest datasets, error measures vary. However, the difference
 to ODGM is always pronounced (apart from KAZ), and for all methods, the variations per method
 are similar along the datasets. For the KAZ dataset, there is no advantage for OOB methods.
 %The two multi-class datasets are the smallest datasets. We were not able to obtain larger multi-class datasets.
 
 The estimation of the prominent class for each subgraph, captured by E5, is
 obviously the easiest task. Apart from MUL, OOB methods have E5 values close to
-zero. The corresponding values for ODGM are disturbingly high.
+zero. The corresponding values for ODGM are unquietingly high.
 
 E3 and E4 are related: $p$-values, analyzed in E4, are based on the support
-values, which are the subject of E3.  The improvements provided by OOB methods
+values, which are the subject of E3. The improvements provided by OOB methods
 in the estimation of support values seems to help the estimation of
 significance a lot, as the slopes of the lines are similar, but the difference
 to ODGM is much larger for the latter.
@@ -716,7 +719,7 @@ methods, as indicated by dashed lines.
 We attribute this to the increasing precision of ODGM (which is wrapped by the
 OOB methods) in the presence of more learning data. However, the fraction of
 circa 50 \% of subgraphs wrongly determined by ODGM in E4 even for the second
-largest dataset (RAT) indicates that mining significant subgraphs from training
+largest dataset (RAT) shows clearly that mining significant subgraphs from training
 data directly is not reliable. Only for the KAZ dataset, E4 drops to levels
 similar to OOB methods.
 
@@ -724,16 +727,15 @@ similar to OOB methods.
 \label{s:Conclusion}
 The proposed out-of-bag methods are able to significantly improve on the estimation of
 statistical quantities, especially on binary class significance (E4), compared to ordinary
-discriminative graph mining.  The effect is particularly pronounced for small
-databases, which are typical in the field of toxicology, but less pronounced or not present at all for larger ones. The
-procedure may be embedded in a workflow to learn a bagged predictor.
+discriminative graph mining. The effect is particularly pronounced for small
+databases, which are typical in the field of toxicology, but less pronounced or not present at all for larger ones. 
 
 We suggest that, for typical toxicological
 databases, it does not suffice to process them in a single pass, when the goal
-is to obtain reliable estimates of support values and class significance.  In
+is to obtain reliable estimates of support values and class significance. In
 ordinary discriminative graph mining, even the assessment of class bias (E5) is
-not reliable, let alone relative support values (E3), or binary class significance.
-Resampling methods may be an alternative. To validate
+not reliable, let alone relative support values (E3), or binary class significance (E4).
+Resampling methods may be necessary here. To validate
 the data, out-of-bag estimation is a feasible approach.
 
 Using information from related subgraphs is beneficial, as the maximum
