@@ -173,13 +173,13 @@ finite set of classes, which induces associations between the classes and subgra
 occurring in the database graphs. The subgraphs with strong
 class associations are called discriminative subgraphs. In this work,
 discriminative subgraphs are repeatedly mined on bootstrap samples of a graph
-database in order to estimate subgraph associations more precisely than 
-without sampling. The numbers of times a subgraph occurs in a graph associated with each class
+database in order to improve on estimation of subgraph associations. 
+The number of times a subgraph occurs in a graph associated with each class
 (support values)
-are recorded over the out-of-bag instances of the bootstrap process. We investigate two different
-methods for the approximation of the true underlying support values from these
-empirical values, involving sample mean and maximum likelihood estimation. We
-show that both significantly improve on the process, compared to single
+is recorded over the out-of-bag instances of the bootstrap process. We investigate
+sample mean and maximum likelihood estimation for the approximation of the true 
+underlying support values from these empirical values.
+It is shown that both significantly improve on the process, compared to single
 runs of discriminative graph mining, by applying the methods to
 publicly available toxicological databases, and validating support values, class bias, and 
 class significance. In toxicology,
@@ -263,8 +263,8 @@ The contributions are summarized as follows:
     sizes. The results indicate significant improvements over 
     ordinary discriminative graph mining, where the effect is generally larger the
     smaller the databases are. We conclude that out-of-bag estimation has 
-    potential to generate compact, discriminative subgraph sets for
-    use in statistical models and/or expert inspection.
+    potential to generate subgraph sets with accurate statistical properties,
+    which may be useful for statistical models, or expert inspection.
 \end{itemize}
 
 
@@ -328,13 +328,13 @@ A graph $g'=(V',E',\Sigma',\lambda')$ subgraph-isomorphic to $g$ if $V'
 \subseteq V$ and $E' \subseteq E$ with $V' \ne \emptyset$ and $E' \ne
 \emptyset$, $\lambda'(v_1)=\lambda(v_2)$ whenever $v_1=v_2$, and
 $\lambda'(e_1)=\lambda(e_2)$ whenever $e_1=e_2$, for all nodes and edges in
-$g'$. In this case, graph $g'$ is also referred to as a subgraph of $g$ -- we also say
-that $g'$ covers $g$. The subset of the database instances $G$ that $g'$
-covers is referred to as the occurrences of $g'$, and its size as (total) support of
+$g'$. In this case, graph $g'$ is also referred to as a subgraph of $g$. The subset of 
+the database instances $G$ that $g'$ is a subgraph of is referred to as the occurrences of $g'$, 
+and its size as (total) support of
 $g'$, denoted by $support(g')$. As a special case, the size of the subset of occurrences with $a(g)=i$,
 for any $g$ in the occurrences, is referred to as the support of $g'$ for class
 $i$. Thus, any subgraph has associated support values per class, ranging each
-between 0 and the support of $g'$, and summing up to the support of $g'$.
+between 0 and the $support(g')$, and summing up to $support(g')$.
 
 Here, the subgraphs mined from the graph databases are free subtrees. We define a tree
 as a graph with exactly $n-1$ edges that connect its $n$ nodes (thus it cannot contain cycles). A free tree is
@@ -407,20 +407,21 @@ tests on the out-of-bag instances (``matching'').
 More specifically, bootstrapping and graph mining is repeated $N$ times, where in each
 iteration, pairs of subgraphs and out-of-bag support values per class
 $(g,k_1,\ldots,k_{\vert I\vert})$ are produced, meaning that subgraph $g$
-occurs in $k_i$ out-of-bag graphs associated with class $i$. The results are
+occurs in $k_i$ out-of-bag graphs associated with class $i$. 
+Due to the instability of discriminative graph mining, perturbations to the database yield almost
+always a different, but overlapping, selection of subgraphs. 
+Therefore, if a subgraph is not produced in a specific bootstrap sample, the corresponding
+$(k_1,\ldots,k_{\vert I\vert})$ are encoded as missing values, using a special symbol.
+The results are
 recorded over the $N$ bootstrap samples, such that for each $g$, the list of
 support values is a tuple $(\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$,
-where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)$, containing all the
+where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)^T$, containing all the
 support values. 
-The vectors $\mathbf{k_i}$
-are generally sparse (contain missing values), due to the instability of discriminative graph mining,
-i.e. perturbations to the database (such as bootstrap sampling) yield almost
-always a different, but overlapping, selection of subgraphs. 
-The missing values occupy the same indices in the $\mathbf{k_i}$.
+
 To cope with the
 variety of rare subgraphs, a fixed threshold removes all subgraphs with less
-than $\lfloor0.3*N\rfloor$ entries in the list of support values, after the end
-of bootstrapping.
+than $\lfloor0.3*N\rfloor$ entries in the $\mathbf{k_i}$, after the end
+of bootstrapping (the missing values occupy the same indices in the $\mathbf{k_i}$).
 For the remaining ones, the total support is determined from the class specific support values by
 summing up vectors $\mathbf{k_i}$ across classes (ignoring indices with missing entries):
 $\mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}$. 
@@ -492,16 +493,15 @@ Again, we set the value of $k_i$ in Table \ref{t-ContingencyTableIndTest} to $\o
 Ordinary discriminative graph mining (ODGM) may be 
 implemented using a discriminative graph mining algorithm of choice as ``mother algorithm'', bounded 
 by minimum total support and significance threshold $\alpha$. Here, we employ backbone refinement 
-class mining (BBRC) \cite{maunz11efficient}. It is special in that it cuts down on the number of subgraphs 
-by partitioning the subgraph search space into non-disjoint sets with the same 
-longest paths (backbones), and selecting only one representative from each partition.
-%It achieves a certain degree of compression by partitioning the subgraph search space 
-%into non-disjoint sets (classes) with the same longest paths (backbones) and selecting 
-%only one representative from each class. 
-%Inside each partition, the patterns are ordered by the subgraph relationship (see figure \ref{fig:bbrc}). 
-The representative is chosen to minimize the $p$-value (section \ref{ss:significance-test}), 
-unless no member passes the user-defined significance constraint, in which case no representative is chosen.
-Apart from this selection scheme, there is no difference to the definition of ODGM.
+class mining (BBRC) \cite{maunz11efficient}. 
+To prevent exhausting the memory, due to excessive amounts of different subgraphs produced
+across the sampling process, it cuts down on the number of subgraphs by filtering structurally 
+most similar ones. 
+To this end, it partitions the subgraph search space into non-disjoint sets with the same 
+longest paths (backbones), and selects one representative from each partition, chosen to 
+minimize the $p$-value (section \ref{ss:significance-test}). 
+%unless no member passes the user-defined significance constraint, in which case no representative is chosen.
+Apart from this, there is no difference to the common notion of ODGM.
 %The search is also bounded by minimum total support, as described in section \ref{ss:oob-dgm}.
 In the BBRC output, two isomorphic subgraphs are always represented by the same string identifier.
 The strings are SMARTS, a kind of regular expression to encode molecular fragments as strings\footnote{see \url{http://www.daylight.com/dayhtml/doc/theory/theory.smarts.html}}. 
@@ -536,16 +536,17 @@ hash structure, using SMARTS as keys.
   }
   \caption{Calculation of subgraph significance on out-of-bag instances\label{alg:bbrc-sample}}
 \end{algorithm2e*}
-Algorithm \ref{alg:bbrc-sample} switches between out-of-bag estimation and ordinary discriminative graph mining (ODGM), where 
+Algorithm \ref{alg:bbrc-sample} switches between out-of-bag estimation and ODGM, where 
 the significance parameter $\alpha$ was kept fixed at 0.05 at all times.
 We describe out-of-bag estimation first. Line 4
 creates a hash table to gather results from mining bootstrap samples 
 (line 7). The resulting subgraphs are matched on the out-of-bag instances (line
 8), and the results are stored in the hash. On termination of the loop, each hash
-entry $\mathbf{k_i}$ has at most $N$ support values. Post-processing the results
+entry $\mathbf{k_i}$ has at most $N$ non-missing support values. Post-processing the results
 incurs negligible overhead. It
-consists of removing subgraphs that (line 11) do not have enough entries in the hash table, as
-determined by $minHashLength$, or which (line 13) do not significantly
+consists of removing subgraphs that (line 11) do not have enough non-missing entries in the 
+$\mathbf{k_i}$,
+specified by $minHashLength$, or which (line 13) do not significantly
 deviate from the overall distribution of classes, as assessed by the significance
 test (section \ref{ss:significance-test}), with contingency table calculated
 according to mean (section \ref{ss:simple-mean}) or maximum likelihood
@@ -573,9 +574,9 @@ The methods are provided by Algorithm \ref{alg:bbrc-sample}:
     to section \ref{ss:simple-mean}, with $numBoots=100$.
   \item ODGM: Ordinary discriminative graph mining.
 \end{enumerate}
-
-The process was repeated 100 times for the three methods, which means a minimum hash entry length 
-of 30 for each subgraph, to ensure a statistically reliable number of support values. 
+Setting $numBoots=100$ means a minimum hash entry length 
+of 30 for each subgraph, which ensures a statistically reliable number of support values. 
+Finally, the whole process was repeated 100 times for the three methods.
 
 \begin{figure*}[t]
   \begin{minipage}[h]{.59\textwidth}
@@ -637,8 +638,8 @@ and mutagenicity labels from the CPDB, for all chemicals with both values for
 both labels present.
 A rather small database, describing human intestinal absorption (INT, 3 classes,
 458 compounds) \cite{Suenderhauf10Combinatorial}, as well as the rather large
-Kazius/Bursi mutagenicity database (KAZ, 2 classes, 4069 compounds),
-\cite{kazius05derivation} were also used. An appropriate value for minimum global
+Kazius/Bursi mutagenicity database (KAZ, 2 classes, 4069 compounds)
+\cite{kazius05derivation}, were also used. An appropriate value for minimum global
 support (parameter $minSup$ in Algorithm \ref{alg:pValEstimate}) was determined a
 priori for each database.
 
@@ -659,7 +660,7 @@ priori for each database.
   \label{fig:lp}
 \end{figure*}
 Table \ref{t:anal} details the results in the form of mean values and standard
-deviations across $N=100$ bootstraps for all error measures. 
+deviations for all error measures. 
 Figure
 \ref{t:winloss} shows win/loss statistics. It compares out-of-bag methods MLE
 and MEAN with ODGM, by pooling the former (OOB). This is possible, since they
@@ -683,28 +684,31 @@ methods against ODGM were significantly different. For KAZ, E1 and
 E2 are so low, that they are not apparent from Table \ref{t:anal}, due to rounding. However,
 the differences are statistically significant, also for KAZ.
 
+ODGM always overestimates (E1) $p$-values, except for KAZ. 
 Comparing OOB methods among each other, both show
-similar values, according to Table \ref{t:anal}. Both seem to be relatively
-unbiased (E1), however, Figure \ref{t:winloss} shows that MEAN seems to have
+similar behaviour: they seem to be relatively
+unbiased, however, Figure \ref{t:winloss} shows that MEAN has
 advantages over MLE. For absolute error (E2), the situation is less clear. 
 
 We now consider E3, E4, and E5. 
 For E3, the relative support value error,
-OOB methods estimate the support values always better than ODGM, as Table \ref{t:anal} shows. However, the difference was not significant for INT and KAZ.
-MLE does always better than MEAN, and most of the time significantly better.
+OOB methods estimated the support values always better than ODGM, as Table \ref{t:anal} shows. 
+However, the difference is not significant for INT and KAZ.
+MLE did always better than MEAN, and most of the time significantly better.
 
-For E4, the error on binary significance estimation, ODGM errors are very large:
+For E4, the error on binary significance estimation, ODGM errors were extreme: 
 Most of the time, the majority of subgraphs were falsely estimated as significant. 
-MLE and MEAN do both much better for all databases, also significantly better, except for KAZ. 
-Also, MLE performs better than MEAN in
-all cases except KAZ (three times with significant difference). 
+MLE and MEAN did both much better for all databases, also significantly better, except for KAZ. 
+Moreover, MLE performed better than MEAN in
+all cases except for KAZ (three times with significant differences). 
 
-For E5, the class bias error, both MLE and MEAN drastically improve on ODGM, as
+For E5, the class bias error, both MLE and MEAN drastically improved on ODGM, as
 Table \ref{t:anal} shows. The differences
-are statistically significant for all databases, except KAZ. Between MLE and MEAN, practically no significant differences could be found.
+are statistically significant for all databases, except KAZ. Between MLE and MEAN,
+there are practically no significant differences.
 
 Table \ref{t:anal} gives the mean number of subgraphs generated in the
-last column. Much less subgraphs are generated by OOB methods, apart from KAZ.
+last column. Much less subgraphs were generated by OOB methods, except for KAZ.
 There is a general trend for lower fractions of subgraphs
 with shrinking database sizes, compared to ODGM. 
 %This reflects the higher uncertainty due to the lack of data. 
@@ -715,11 +719,11 @@ with shrinking database sizes, compared to ODGM.
 %behaves different than the other databases (as discussed before).
 
 \subsection{Discussion}
-
+\hyphenation{da-ta-base}
 We investigate the interpretable error measures E3, E4, and E5 again in
 the charts in Figure \ref{fig:lp}, where their values are plotted along
 increasing database size. The latter was logarithmically transformed, to
-visually better separate similarly sized databases MOU, MCC, and RAT. 
+visually better separate similarly-sized databases MOU, MCC, and RAT. 
 
 Along the three smallest databases, error measures vary. However, the difference
 to ODGM is always pronounced (apart from KAZ), and for all methods, the variations per method
@@ -730,17 +734,19 @@ The estimation of the prominent class for each subgraph, captured by E5, is
 the easiest task. Apart from MUL, OOB methods have E5 values close to
 zero. The corresponding values for ODGM are unquietingly high.
 
-E3 and E4 are related: the support values are analyzed in E3, and $p$-values, analyzed in E4, are based on them. 
-The improvements by OOB methods in estimating the former seems to help estimating the latter a lot, as the slopes of the lines are similar, but the difference
-to ODGM is much larger for the latter. Comparing OOB methods, MLE is significantly 
+E3 and E4 are related, since the support values (analyzed in E3) provide the input
+for calculating $p$-values (analyzed in E4). 
+In fact, the improvements made by OOB methods in estimating the former helped estimating 
+the latter a lot, as the slopes of the lines are similar, but the difference
+to ODGM is much larger for E4 than for E3. Comparing OOB methods, MLE is significantly 
 better than MEAN most of the time for these measures.
 
 For larger databases, there is a trend towards increasing performance for all
 methods, as indicated by dashed lines.  We attribute this to the increasing
 precision of ODGM (which is wrapped by the OOB methods) in the presence of more
 learning data. This is also supported by the fact that the number of subgraphs 
-generated for KAZ by ODGM is close to that of the other methods. 
-For the smaller databases, a lot of subgraphs are erroneously found significant, 
+generated for KAZ by ODGM is close to that of the other methods,
+In other words, a lot of confounding subgraphs have been removed for the smaller databases,
 but for a database this large, ODGM is nearly as precise as the other methods.
 However, the fraction of
 circa 50 \% of subgraphs wrongly determined by ODGM in E4 even for the second
@@ -753,22 +759,20 @@ similar to OOB methods.
 The proposed out-of-bag methods are able to significantly improve on the estimation of
 statistical quantities, especially on binary class significance (E4), compared to ordinary
 discriminative graph mining. The effect is particularly pronounced for small
-databases, which are typical in the field of toxicology, but less pronounced or not present at all for large ones. 
-However, given the diversity of chemical structure graphs and toxicological databases, it may not be possible to say what is ``large enough'' a priori.
+databases, which are typical in the field of toxicology, but less pronounced for larger ones. 
+However, given the discussed results, it may not be possible to tell beforehand if a database is ``large enough''.
 
-We suggest that, for typical toxicological
-databases, it does not suffice to process them in a single pass, when the goal
-is to obtain reliable estimates of support values and class significance. In
+We suggest that, to reliably estimate the described properties,
+it is not sufficient to process databases in a single pass, as in
 ordinary discriminative graph mining, even the assessment of class bias (E5) is
-not reliable, let alone relative support values (E3), or binary class significance (E4).
-Resampling methods may be necessary here. To validate
-the data, out-of-bag estimation is a feasible approach.
-
-Using information from related subgraphs is beneficial, as the maximum
-likelihood method significantly outperforms mean estimation in most cases
-for relative support values and binary class significance, which may be the
-most important measures for experts analyzing the subgraphs, e.g. for toxicologists 
-in the area of chemical risk assessment.
+not reliable. 
+The same holds for the more sophisticated relative support values and binary class significance.
+Instead, sampling methods may be necessary, which can be conveniently combined with out-of-bag estimation.
+Support values (class-specific occurrences) and binary class significance are probably the
+most important measures for experts analyzing the subgraphs, or building computational models on subgraph descriptors, 
+such as toxicologists working in chemical risk assessment. 
+In this context, the experiments have shown that, given a subgraph, using information from related subgraphs is beneficial, as the maximum
+likelihood method significantly outperforms mean estimation in most cases.
 
 
 \bibliography{bbrc-sample}
