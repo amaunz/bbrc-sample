@@ -284,7 +284,7 @@ lineplots <- function(assays, error="E1", dir, yOffset) {
     legend(max_x+log(0.5), max_y, c(
                                       paste("MLE",sep=""),
                                       paste("MEAN",sep=""),
-                                      paste("BBRC",sep="")
+                                      paste("ODGM",sep="")
                                     ), cex=1.0, col=plot_colors, pch=plot_points, lty=2, bty="n")
 
 
