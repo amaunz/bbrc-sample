@@ -406,7 +406,7 @@ Finally, subgraph support values are assessed by performing isomorphism
 tests on the out-of-bag instances (``matching'').
 
 More specifically, bootstrapping and graph mining are repeated $N$ times, where in each
-iteration, tuples of subgraphs and out-of-bag support values per class
+iteration tuples of subgraphs and out-of-bag support values per class
 $(g,k_1,\ldots,k_{\vert I\vert})$ are produced, meaning that subgraph $g$
 occurs in $k_i$ out-of-bag graphs associated with class $i$. 
 Due to the instability of discriminative graph mining, perturbations to the database yield almost
@@ -419,10 +419,8 @@ support values is a tuple $(\mathbf{k_1}\ldots\mathbf{k_{\vert I\vert}})$,
 where $\mathbf{k_i}$ is a vector $(k_i^1\ldots k_i^N)^T$, containing all the
 support values. 
 
-To cope with the
-variety of rare subgraphs, a fixed threshold removes all subgraphs with less
-than $\lfloor0.3*N\rfloor$ entries in the $\mathbf{k_i}$, after the end
-of bootstrapping.
+To cope with the variety of rare subgraphs, after the end of bootstrapping a fixed threshold removes all subgraphs with less
+than $\lfloor0.3*N\rfloor$ entries in the $\mathbf{k_i}$.
 For the remaining ones, the total support is determined from the class specific support values by
 summing up vectors $\mathbf{k_i}$ across classes:
 $\mathbf{k}=\sum_{i=1}^{\vert I\vert} \mathbf{k_i}$. Here, for indices with missing values, the result of the addition is also encoded as missing value. 
@@ -667,7 +665,7 @@ Figure
 and MEAN with ODGM by pooling the former (OOB). This is possible, since they
 showed uniform win/loss behaviour against ODGM.
 Numbers indicate the total amount of wins, numbers in brackets the
-subset of significant wins, as obtained by Wilcoxon signed rank tests ($p=0.001$).
+subset of significant wins, as obtained by Wilcoxon signed rank tests ($n=100$, $p=0.001$).
 
 E1 and E2 measure the numerical bias and absolute error on the $p$-values. E3, E4, and E5 describe errors on
 relative support values, significance (as a binary attribute), and class bias,
