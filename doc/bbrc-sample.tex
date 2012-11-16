@@ -193,9 +193,9 @@ Christoph Helma\\
 
 
 % A category with the (minimum) three required fields
-\category{H.2.8}{Database Applications}{Data Mining, Statistical Databases}
+%\category{H.2.8}{Database Applications}{Data Mining, Statistical Databases}
 %\category{G.2.2}{Graph Theory}{Graph Algorithms, Trees}
-\keywords{Bootstrap Sampling, Graph Mining, Out-of-bag Estimation}
+\keywords{Ensemble Methods, Graph Mining, Out-of-bag Estimation}
 
 \section{Introduction}
 \label{s:Introduction}
@@ -292,12 +292,13 @@ unified format, and fed into a machine learning algorithm \cite{KRH01}.
 Usually, discriminative subgraphs are mined from a graph database using a
 predefined threshold with regard to target class associations. A subgraph
 qualifies for the result set if it passes a corresponding significance test.
-However, such approaches tend to produce huge sets of very similar subgraphs,
+However, such approaches traditionally tend to produce huge sets of very similar subgraphs,
 even with very high thresholds on discriminative potential, which would prevent
 machine learning methods from building models in acceptable time, and post-processing 
 would be required to lower redundancy and eliminate the vast
-majority of subgraphs \cite{Jun04Spin}. Moreover, the
-result is not stable with regard to perturbations of the database.
+majority of subgraphs \cite{Jun04Spin}. 
+Although a lot of techniqes to produce more compact subgraph sets have been proposed in recent years, the
+results are in most cases not stable with regard to perturbations of the database.
 
 Subgraph boosting \cite{saigo09gboost} is an integrated approach to build models on
 small sets of subgraphs, alternating between graph mining and model building. The method presented here is clearly
@@ -342,6 +343,8 @@ as a graph with exactly $n-1$ edges that connect its $n$ nodes (thus it cannot c
 a tree without a designated root node. For an introduction to tree mining and
 the terminology used there, see the overview by Chi \emph{et al.}
 \cite{CMNK01Frequent}.
+Without cyclic subgraphs, computational effort is usually limited in practical applications, and expensive frameworks such as ensemble learning may be applied to graph mining. 
+%Moreover, in our experience, predictive models based on non-cyclic subgraphs do not perform worse than those based on cyclic subgraphs.
 
 \subsection{Significance Test}
 \label{ss:significance-test}
